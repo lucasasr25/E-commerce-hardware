@@ -1,5 +1,5 @@
 # E-commerce-hardware Project Overview
-This project, E-commerce-hardware, is being developed by FATEC MG Les.
+This project, E-commerce-hardware, is being developed in FATEC MG Les.
 
 ## Current Technologies Utilized:
 - Node.js
