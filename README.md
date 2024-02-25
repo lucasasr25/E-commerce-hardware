@@ -1,2 +1,10 @@
-# E-commerce-hardware
-E-commerce-hardware FATEC MG Les
+# E-commerce-hardware Project Overview
+This project, E-commerce-hardware, is being developed by FATEC MG Les.
+
+## Current Technologies Utilized:
+- Node.js
+- React Native
+- PostgreSQL
+
+## AI Integration:
+One of the key features of the project is AI integration. Specifically, there's a chatbot designed to assist individuals who are unfamiliar with hardware-related concepts and products.
