@@ -4,7 +4,6 @@ This project, E-commerce-hardware, is being developed at FATEC MG LES.
 
 ## Current Technologies Utilized:
 - Node.js
-- React Native
 - PostgreSQL
 - Current platforms for development: Vercel and GitHub
 
