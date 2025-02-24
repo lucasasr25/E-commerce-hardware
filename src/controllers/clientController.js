@@ -119,4 +119,4 @@ const searchClients = async (req, res) => {
 
 
 
-module.exports = { registerClient, validatePassword };
+module.exports = { registerClient, validatePassword, updateClient, searchClients };
