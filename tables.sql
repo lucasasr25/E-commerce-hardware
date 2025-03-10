@@ -1,24 +1,46 @@
 -- users
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    cpf VARCHAR(14) UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    document VARCHAR(14) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Ranking numérico do cliente, com base no perfil de compra
+CREATE TABLE customer_ranking (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    ranking DECIMAL(5, 2),  
+    total_spent DECIMAL(10, 2) NOT NULL, 
+    purchase_frequency DECIMAL(10, 2) NOT NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 -- products
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name TEXT NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- carts
-CREATE TABLE carts (
+-- product_details
+CREATE TABLE product_details (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    manufacturer TEXT,  
+    warranty_period INTEGER,   
+    weight DECIMAL(10, 2),      
+    dimensions TEXT, 
+    color TEXT,          
+    material TEXT
+);
+
+-- customer_carts
+CREATE TABLE customer_carts (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -28,21 +50,22 @@ CREATE TABLE carts (
 CREATE TABLE addresses (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    street VARCHAR(255) NOT NULL,
-    number VARCHAR(10),
-    complement VARCHAR(255),
-    neighborhood VARCHAR(255),
-    city VARCHAR(255) NOT NULL,
+    street TEXT NOT NULL,
+    number TEXT,
+    complement TEXT,
+    neighborhood TEXT,
+    city TEXT NOT NULL,
     state VARCHAR(2) NOT NULL,
+    country VARCHAR(2) NOT NULL,
     zipcode VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- phones
-CREATE TABLE phones (
+CREATE TABLE contact_numbers (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    phone_number VARCHAR(20) NOT NULL
+    phone_number TEXT NOT NULL
 );
 
 -- stock
@@ -53,11 +76,37 @@ CREATE TABLE stock (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- pricing_groups
-CREATE TABLE pricing_groups (
+-- price_book
+CREATE TABLE price_book (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
     discount_percentage DECIMAL(5, 2) DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- order_status
+CREATE TABLE order_status (
+    id SERIAL PRIMARY KEY,
+    status_name TEXT UNIQUE NOT NULL
+);
+
+
+-- trade_coupons
+CREATE TABLE trade_coupons (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    value DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- promotional_coupons
+CREATE TABLE promotional_coupons (
+    id SERIAL PRIMARY KEY,
+    code TEXT UNIQUE NOT NULL,
+    discount_percentage DECIMAL(5,2) NOT NULL,
+    expiration_date TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -65,8 +114,11 @@ CREATE TABLE pricing_groups (
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    trade_coupon_id INTEGER REFERENCES trade_coupons(id) ON DELETE SET NULL,
+    promotional_coupon_id INTEGER REFERENCES promotional_coupons(id) ON DELETE SET NULL, 
     address_id INTEGER REFERENCES addresses(id),
-    status VARCHAR(50) DEFAULT 'pending',
+    status_id INTEGER REFERENCES order_status(id) ON DELETE SET NULL,
+    sub_total DECIMAL(10, 2),
     total_price DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -84,7 +136,7 @@ CREATE TABLE order_items (
 -- cart_items
 CREATE TABLE cart_items (
     id SERIAL PRIMARY KEY,
-    cart_id INTEGER REFERENCES carts(id) ON DELETE CASCADE,
+    cart_id INTEGER REFERENCES customer_carts(id) ON DELETE CASCADE,
     product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -94,42 +146,36 @@ CREATE TABLE cart_items (
 CREATE TABLE credit_cards (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    card_number VARCHAR(20) NOT NULL,
-    holder_name VARCHAR(255) NOT NULL,
-    expiration_date VARCHAR(7) NOT NULL,
+    card_number TEXT NOT NULL,
+    holder_name TEXT NOT NULL,
+    expiration_date TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- payment_status
+CREATE TABLE payment_status (
+    id SERIAL PRIMARY KEY,
+    status_name TEXT UNIQUE NOT NULL
 );
 
 -- order_payments
-CREATE TABLE order_payments (
+CREATE TABLE payments (
     id SERIAL PRIMARY KEY,
     order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
-    payment_type VARCHAR(50) NOT NULL,
-    status VARCHAR(50) DEFAULT 'pending',
+    payment_type TEXT NOT NULL,
+    status_id INTEGER REFERENCES payment_status(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- exchange_coupons
-CREATE TABLE exchange_coupons (
+
+-- transaction_logs
+CREATE TABLE transaction_logs (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    code VARCHAR(50) UNIQUE NOT NULL,
-    value DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, 
+    operation_type TEXT NOT NULL, 
+    table_name TEXT NOT NULL,
+    register_id VARCHAR NULL, 
+    old_data JSONB, 
+    new_data JSONB, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
-
-
-
--- Trigger para updated_at automático
--- CREATE FUNCTION update_timestamp()
--- RETURNS TRIGGER AS $$
--- BEGIN
---     NEW.updated_at = NOW();
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
-
--- CREATE TRIGGER trigger_update_timestamp
--- BEFORE UPDATE ON users
--- FOR EACH ROW
--- EXECUTE FUNCTION update_timestamp();
