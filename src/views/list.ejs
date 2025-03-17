@@ -1,0 +1,18 @@
+<!-- views/list.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client List</title>
+</head>
+<body>
+    <h1>Client List</h1>
+    <ul>
+        <!-- Usando EJS para iterar sobre os clientes e exibi-los -->
+        <% clients.forEach(client => { %>
+            <li><%= client.name %> - <%= client.email %></li>
+        <% }); %>
+    </ul>
+</body>
+</html>

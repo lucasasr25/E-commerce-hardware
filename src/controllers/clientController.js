@@ -1,7 +1,6 @@
-const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
-const { v4: uuidv4 } = require("uuid");
 const { body, validationResult } = require("express-validator");
+const clientRepository = require("../repositories/clientRepository");
 
 // Password validation
 const validatePassword = [
@@ -28,40 +27,9 @@ const registerClient = async (req, res) => {
     
     try {
         const passwordHash = await bcrypt.hash(password, 10);
-        
-        // Start transaction
-        const client = await pool.connect();
-        try {
-            await client.query("BEGIN");
+        const client = await clientRepository.registerClient(name, email, passwordHash, addresses);
 
-            const clientResult = await client.query(
-                `INSERT INTO clients (client_code, name, email, password_hash) 
-                 VALUES ($1, $2, $3, $4) RETURNING id, client_code`,
-                [uuidv4(), name, email, passwordHash]
-            );
-
-            const clientId = clientResult.rows[0].id;
-
-            // Register addresses if provided
-            if (addresses && addresses.length > 0) {
-                const addressPromises = addresses.map((address) => {
-                    return client.query(
-                        `INSERT INTO addresses (client_id, type, street, number, complement, neighborhood, city, state, zip_code)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-                        [clientId, address.type, address.street, address.number, address.complement, address.neighborhood, address.city, address.state, address.zip_code]
-                    );
-                });
-                await Promise.all(addressPromises);
-            }
-
-            await client.query("COMMIT");
-            res.status(201).json({ message: "Client successfully registered!", client: clientResult.rows[0] });
-        } catch (error) {
-            await client.query("ROLLBACK");
-            throw error;
-        } finally {
-            client.release();
-        }
+        res.status(201).json({ message: "Client successfully registered!", client });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -72,51 +40,36 @@ const updateClient = async (req, res) => {
     const { name, email, active } = req.body;
 
     try {
-        const result = await pool.query(
-            `UPDATE clients 
-             SET name = COALESCE($1, name), email = COALESCE($2, email), active = COALESCE($3, active)
-             WHERE id = $4 RETURNING *`,
-            [name, email, active, id]
-        );
+        const client = await clientRepository.updateClient(id, name, email, active);
 
-        if (result.rowCount === 0) {
+        if (!client) {
             return res.status(404).json({ message: "Client not found" });
         }
 
-        res.json({ message: "Client successfully updated", client: result.rows[0] });
+        res.json({ message: "Client successfully updated", client });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
 const searchClients = async (req, res) => {
-    const { name, email, client_code } = req.query;
-
-    let query = `SELECT * FROM clients WHERE 1=1`;
-    let values = [];
-    let count = 1;
-
-    if (name) {
-        query += ` AND name ILIKE $${count++}`;
-        values.push(`%${name}%`);
-    }
-    if (email) {
-        query += ` AND email = $${count++}`;
-        values.push(email);
-    }
-    if (client_code) {
-        query += ` AND client_code = $${count++}`;
-        values.push(client_code);
-    }
-
     try {
-        const result = await pool.query(query, values);
-        res.json(result.rows);
+        const clients = await clientRepository.searchClients(req.query);
+        res.json(clients);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
 
+// Nova função para renderizar a view de clientes
+const renderClientsView = async (req, res) => {
+    try {
+      const clients = await clientRepository.searchClients(req.query);
+      res.render("list", { clients }); // Renderizar a view e passar os dados dos clientes
+    } catch (error) {
+      res.status(500).send("Erro ao buscar clientes.");
+    }
+  };
 
-module.exports = { registerClient, validatePassword, updateClient, searchClients };
+module.exports = { registerClient, validatePassword, updateClient, searchClients, renderClientsView};
