@@ -1,15 +1,15 @@
 const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
-const registerClient = async (name, email, passwordHash, addresses) => {
+const registerClient = async (name, email, passwordHash, document, addresses) => {
     const client = await pool.connect();
     try {
         await client.query("BEGIN");
 
         const clientResult = await client.query(
-            `INSERT INTO clients (client_code, name, email, password_hash) 
-             VALUES ($1, $2, $3, $4) RETURNING id, client_code`,
-            [uuidv4(), name, email, passwordHash]
+            `INSERT INTO users (name, email, password, document) 
+             VALUES ($1, $2, $3, $4) RETURNING id, document`,
+            [name, email, passwordHash, document]  // Gerando o documento (UUID)
         );
 
         const clientId = clientResult.rows[0].id;
@@ -17,9 +17,9 @@ const registerClient = async (name, email, passwordHash, addresses) => {
         if (addresses && addresses.length > 0) {
             const addressPromises = addresses.map((address) => {
                 return client.query(
-                    `INSERT INTO addresses (client_id, type, street, number, complement, neighborhood, city, state, zip_code)
+                    `INSERT INTO addresses (user_id, street, number, complement, neighborhood, city, state, country, zipcode)
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-                    [clientId, address.type, address.street, address.number, address.complement, address.neighborhood, address.city, address.state, address.zip_code]
+                    [clientId, address.street, address.number, address.complement, address.neighborhood, address.city, address.state, address.country, address.zipcode]
                 );
             });
             await Promise.all(addressPromises);
@@ -35,18 +35,18 @@ const registerClient = async (name, email, passwordHash, addresses) => {
     }
 };
 
-const updateClient = async (id, name, email, active) => {
+const updateClient = async (id, name, email, password, active) => {
     const result = await pool.query(
-        `UPDATE clients 
-         SET name = COALESCE($1, name), email = COALESCE($2, email), active = COALESCE($3, active)
+        `UPDATE users 
+         SET name = COALESCE($1, name), email = COALESCE($2, email), password = COALESCE($3, password)
          WHERE id = $4 RETURNING *`,
-        [name, email, active, id]
+        [name, email, password, id]
     );
 
     return result.rowCount ? result.rows[0] : null;
 };
 
-const searchClients = async ({ name, email, client_code }) => {
+const searchClients = async ({ name, email, document }) => {
     let query = `SELECT * FROM users WHERE 1=1`;
     let values = [];
     let count = 1;
@@ -59,9 +59,9 @@ const searchClients = async ({ name, email, client_code }) => {
         query += ` AND email = $${count++}`;
         values.push(email);
     }
-    if (client_code) {
-        query += ` AND id = $${count++}`;
-        values.push(client_code);
+    if (document) {
+        query += ` AND document = $${count++}`;
+        values.push(document);
     }
 
     const result = await pool.query(query, values);

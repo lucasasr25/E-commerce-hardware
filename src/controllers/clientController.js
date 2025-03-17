@@ -23,11 +23,11 @@ const registerClient = async (req, res) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, addresses } = req.body;
+    const { name, email, password, document, addresses} = req.body;
     
     try {
         const passwordHash = await bcrypt.hash(password, 10);
-        const client = await clientRepository.registerClient(name, email, passwordHash, addresses);
+        const client = await clientRepository.registerClient(name, email, passwordHash, document, addresses);
 
         res.status(201).json({ message: "Client successfully registered!", client });
     } catch (error) {

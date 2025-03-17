@@ -39,3 +39,18 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U test_user; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+
+      - name: Create tables in PostgreSQL
+        run: |
+          export PGPASSWORD=test_password
+          psql -h localhost -U test_user -d test_db -a -f ./schema.sql
+
+      - name: Run Tests
+        run: npm test

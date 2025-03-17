@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { registerClient, validatePassword, updateClient, searchClients, renderClientsView } = require("../controllers/clientController");
 
-router.post("/clients", validatePassword, registerClient);
+router.post("/clients", registerClient);
 router.put("/clients/:id", updateClient);
 router.get("/clients", searchClients);
 
