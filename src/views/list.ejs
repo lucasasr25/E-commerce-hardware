@@ -1,18 +1,24 @@
-<!-- views/list.ejs -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client List</title>
+    <link rel="stylesheet" href="/css/crud.css">
+    <title>Lista de Clientes</title>
 </head>
 <body>
-    <h1>Client List</h1>
+    <h2>Lista de Clientes</h2>
+    <button class="create-client-btn" onclick="window.location.href='/create'">Criar Cliente</button>
     <ul>
-        <!-- Usando EJS para iterar sobre os clientes e exibi-los -->
-        <% clients.forEach(client => { %>
-            <li><%= client.name %> - <%= client.email %></li>
-        <% }); %>
+        <% if (clients.length === 0) { %>
+            <li>Nenhum cliente encontrado</li>
+        <% } else { %>
+            <% clients.forEach(client => { %>
+                <li onclick="window.location.href='/clientDetail?id=<%= client.id %>'">
+                    <strong><%= client.name %></strong> - <%= client.email %>
+                </li>
+            <% }) %>
+        <% } %>
     </ul>
 </body>
 </html>

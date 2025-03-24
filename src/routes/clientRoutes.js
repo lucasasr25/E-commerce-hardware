@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { registerClient, validatePassword, updateClient, searchClients, renderClientsView } = require("../controllers/clientController");
-
-router.post("/clients", registerClient);
-router.put("/clients/:id", updateClient);
-router.get("/clients", searchClients);
+const { validatePassword, updateClient, searchClients, renderClientsView, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient} = require("../controllers/clientController");
 
 
-router.get("/clients/view", renderClientsView);
+router.get("/clients", renderClientsView);
+router.get("/clientDetail", renderDetailView);
+router.get("/clientEditView", renderEditView);
+router.post("/createClient", createClient);
+router.get("/create", renderCreateview);
+router.post("/clientEdit", updateClient);
+router.get('/delete/:id', deleteClient);
 
 
 module.exports = router;

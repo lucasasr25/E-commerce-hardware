@@ -1,26 +1,182 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/crud.css">
     <title>Editar Cliente</title>
+    <script>
+        // Função para adicionar novos campos de telefone
+        function addPhoneNumber() {
+            const phoneSection = document.getElementById('phoneSection');
+            const newPhoneInput = document.createElement('input');
+            newPhoneInput.type = 'text';
+            newPhoneInput.name = 'phoneNumbers[]'; // Usando '[]' para enviar múltiplos valores
+            newPhoneInput.placeholder = 'Telefone';
+            phoneSection.appendChild(newPhoneInput);
+        }
+    
+        // Função para adicionar novos endereços
+        function addAddress() {
+            const addressSection = document.getElementById('addressSection');
+            const newAddressDiv = document.createElement('div');
+    
+            newAddressDiv.innerHTML = `
+                <label for="adr_type">Tipo de Endereço:</label>
+                <input type="text" name="adr_type[]" required><br>
+    
+                <label for="street">Rua:</label>
+                <input type="text" name="street[]" required><br>
+    
+                <label for="number">Número:</label>
+                <input type="text" name="number[]"><br>
+    
+                <label for="complement">Complemento:</label>
+                <input type="text" name="complement[]"><br>
+    
+                <label for="neighborhood">Bairro:</label>
+                <input type="text" name="neighborhood[]" required><br>
+    
+                <label for="city">Cidade:</label>
+                <input type="text" name="city[]" required><br>
+    
+                <label for="state">Estado:</label>
+                <input type="text" name="state[]" required><br>
+    
+                <label for="country">País:</label>
+                <input type="text" name="country[]" required><br>
+    
+                <label for="zipcode">CEP:</label>
+                <input type="text" name="zipcode[]" required><br>
+                <hr>
+            `;
+            addressSection.appendChild(newAddressDiv);
+        }
+    
+        // Função para evitar duplicações antes de enviar o formulário
+        function preventDuplicates(event) {
+            const phoneNumbers = document.querySelectorAll('input[name="phoneNumbers[]"]');
+            const addresses = document.querySelectorAll('input[name="adr_type[]"], input[name="street[]"], input[name="zipcode[]"]');
+    
+            let phoneNumbersArray = [];
+            let addressArray = [];
+    
+            // Verificando duplicações de telefones
+            phoneNumbers.forEach(phoneInput => {
+                if (phoneNumbersArray.includes(phoneInput.value) && phoneInput.value !== "") {
+                    alert('Telefone duplicado encontrado.');
+                    phoneInput.focus();
+                    event.preventDefault();
+                    return;
+                } else {
+                    phoneNumbersArray.push(phoneInput.value);
+                }
+            });
+    
+            // Verificando duplicações de endereços
+            for (let i = 0; i < addresses.length; i += 3) {
+                const adrType = addresses[i].value;
+                const street = addresses[i + 1].value;
+                const zipcode = addresses[i + 2].value;
+                
+                const addressKey = `${adrType}-${street}-${zipcode}`;
+                if (addressArray.includes(addressKey) && adrType !== "" && street !== "" && zipcode !== "") {
+                    alert('Endereço duplicado encontrado.');
+                    addresses[i].focus();
+                    event.preventDefault();
+                    return;
+                } else {
+                    addressArray.push(addressKey);
+                }
+            }
+        }
+    
+        // Vincula a função ao evento de submit do formulário
+        document.querySelector('form').addEventListener('submit', preventDuplicates);
+    </script>
+    
 </head>
 <body>
     <h1>Editar Cliente</h1>
-    <form action="/clients/update/<%= client.id %>" method="POST">
-        <label>Nome:</label>
-        <input type="text" name="name" value="<%= client.name %>" required><br>
+    <form action="/clientEdit" method="POST">
+        <fieldset>
+            <legend>Informações do Cliente</legend>
+            <input type="hidden" name="id" value="<%= client.id %>">
+            
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" value="<%= client.name %>" required><br>
+    
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<%= client.email %>" required><br>
+    
+            <label for="password">Senha:</label>
+            <input type="password" id="password" name="password" value="<%= client.password %>" required><br>
+    
+            <label for="document">Documento:</label>
+            <input type="text" id="document" name="document" value="<%= client.document %>" required><br>
+    
+            <label for="active">Ativo:</label>
+            <input type="checkbox" id="active" name="active" <%= client.active ? 'checked' : '' %>><br>
+        </fieldset>
 
-        <label>Email:</label>
-        <input type="email" name="email" value="<%= client.email %>" required><br>
+        <fieldset>
+            <legend>Endereço do Cliente</legend>
+            <div id="addressSection">
+                <% addresses.forEach(function(address, index) { %>
+                    <div>
+                        <label for="adr_type_<%= index %>">Tipo de Endereço:</label>
+                        <input type="text" name="adr_type[]" value="<%= address.adr_type %>" required><br>
 
-        <label>Ativo:</label>
-        <select name="active">
-            <option value="true" <%= client.active ? 'selected' : '' %>>Sim</option>
-            <option value="false" <%= !client.active ? 'selected' : '' %>>Não</option>
-        </select><br>
+                        <label for="adr_type_<%= index %>">Apelido:</label>
+                        <input type="text" name="nick[]" value="<%= address.nick %>" required><br>
 
-        <button type="submit">Atualizar</button>
+                        <label for="street_<%= index %>">Rua:</label>
+                        <input type="text" name="street[]" value="<%= address.street %>" required><br>
+
+                        <label for="number_<%= index %>">Número:</label>
+                        <input type="text" name="number[]" value="<%= address.number %>"><br>
+
+                        <label for="complement_<%= index %>">Complemento:</label>
+                        <input type="text" name="complement[]" value="<%= address.complement %>"><br>
+
+                        <label for="neighborhood_<%= index %>">Bairro:</label>
+                        <input type="text" name="neighborhood[]" value="<%= address.neighborhood %>" required><br>
+
+                        <label for="city_<%= index %>">Cidade:</label>
+                        <input type="text" name="city[]" value="<%= address.city %>" required><br>
+
+                        <label for="state_<%= index %>">Estado:</label>
+                        <input type="text" name="state[]" value="<%= address.state %>" required><br>
+
+                        <label for="country_<%= index %>">País:</label>
+                        <input type="text" name="country[]" value="<%= address.country %>" required><br>
+
+                        <label for="zipcode_<%= index %>">CEP:</label>
+                        <input type="text" name="zipcode[]" value="<%= address.zipcode %>" required><br>
+                    </div>
+                <% }) %>
+            </div>
+            <button type="button" onclick="addAddress()">Adicionar Novo Endereço</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Telefones do Cliente</legend>
+            <div id="phoneSection">
+                <% if (phoneNumbers && phoneNumbers.length > 0) { %> <!-- Alterando para 'phoneNumbers' -->
+                    <% phoneNumbers.forEach(function(phoneNumber, index) { %> <!-- Alterando para 'phoneNumbers' -->
+                        <input type="text" name="phoneNumbers[]" value="<%= phoneNumber %>" placeholder="Telefone"><br>
+                    <% }) %>
+                <% } else { %>
+                    <input type="text" name="phoneNumbers[]" placeholder="Telefone"><br>
+                <% } %>
+            </div>
+            <button type="button" onclick="addPhoneNumber()">Adicionar Novo Telefone</button>
+        </fieldset>
+        
+        
+
+        <button type="submit" style="margin: 20px;">Salvar Alterações</button>
     </form>
 </body>
 </html>

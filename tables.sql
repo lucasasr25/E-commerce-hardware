@@ -4,6 +4,7 @@ CREATE TABLE users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    active TEXT NOT NULL,
     document VARCHAR(14) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -49,15 +50,17 @@ CREATE TABLE customer_carts (
 -- addresses
 CREATE TABLE addresses (
     id SERIAL PRIMARY KEY,
+    adr_type TEXT,
+    nick TEXT,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     street TEXT NOT NULL,
     number TEXT,
     complement TEXT,
     neighborhood TEXT,
     city TEXT NOT NULL,
-    state VARCHAR(2) NOT NULL,
-    country VARCHAR(2) NOT NULL,
-    zipcode VARCHAR(10) NOT NULL,
+    state TEXT NOT NULL,
+    country TEXT NOT NULL,
+    zipcode VARCHAR(15) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

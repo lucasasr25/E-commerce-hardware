@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        fieldset {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        legend {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"], input[type="checkbox"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #addressSection, #phoneSection {
+            margin-bottom: 20px;
+        }
+
+        #addressSection div, #phoneSection div {
+            margin-bottom: 10px;
+        }
+
+        /* Estilo para alinhar o botão "Criar Cliente" */
+        .submit-btn-container {
+            text-align: center;
+        }
+    </style>
+    <title>Criar Cliente</title>
+    <script>
+        // Função para adicionar novos campos de telefone
+        function addPhoneNumber() {
+            const phoneSection = document.getElementById('phoneSection');
+            const newPhoneInput = document.createElement('input');
+            newPhoneInput.type = 'text';
+            newPhoneInput.name = 'phoneNumbers[]'; // Usando '[]' para enviar múltiplos valores
+            newPhoneInput.placeholder = 'Telefone';
+            phoneSection.appendChild(newPhoneInput);
+        }
+
+        // Função para adicionar novos endereços
+        function addAddress() {
+            const addressSection = document.getElementById('addressSection');
+            const newAddressDiv = document.createElement('div');
+
+            newAddressDiv.innerHTML = `
+                <label for="adr_type">Tipo de Endereço:</label>
+                <input type="text" name="adr_type[]" required><br>
+
+                <label for="street">Rua:</label>
+                <input type="text" name="street[]" required><br>
+
+                <label for="number">Número:</label>
+                <input type="text" name="number[]"><br>
+
+                <label for="complement">Complemento:</label>
+                <input type="text" name="complement[]"><br>
+
+                <label for="neighborhood">Bairro:</label>
+                <input type="text" name="neighborhood[]" required><br>
+
+                <label for="city">Cidade:</label>
+                <input type="text" name="city[]" required><br>
+
+                <label for="state">Estado:</label>
+                <input type="text" name="state[]" required><br>
+
+                <label for="country">País:</label>
+                <input type="text" name="country[]" required><br>
+
+                <label for="zipcode">CEP:</label>
+                <input type="text" name="zipcode[]" required><br>
+                <hr>
+            `;
+            addressSection.appendChild(newAddressDiv);
+        }
+    </script>
+</head>
+<body>
+    <h1>Criar Cliente</h1>
+    <form action="/createClient" method="POST">
+        <fieldset>
+            <legend>Informações do Cliente</legend>
+            
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name" required><br>
+    
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br>
+    
+            <label for="password">Senha:</label>
+            <input type="password" id="password" name="password" required><br>
+    
+            <label for="document">Documento:</label>
+            <input type="text" id="document" name="document" required><br>
+    
+            <label for="active">Ativo:</label>
+            <input type="checkbox" id="active" name="active" checked><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Endereço do Cliente</legend>
+            <div id="addressSection">
+                <div>
+                    <label for="adr_type">Tipo de Endereço:</label>
+                    <input type="text" name="adr_type[]" required><br>
+
+                    <label for="nick">Apelido:</label>
+                    <input type="text" name="nick[]" required><br>
+
+                    <label for="street">Rua:</label>
+                    <input type="text" name="street[]" required><br>
+
+                    <label for="number">Número:</label>
+                    <input type="text" name="number[]"><br>
+
+                    <label for="complement">Complemento:</label>
+                    <input type="text" name="complement[]"><br>
+
+                    <label for="neighborhood">Bairro:</label>
+                    <input type="text" name="neighborhood[]" required><br>
+
+                    <label for="city">Cidade:</label>
+                    <input type="text" name="city[]" required><br>
+
+                    <label for="state">Estado:</label>
+                    <input type="text" name="state[]" required><br>
+
+                    <label for="country">País:</label>
+                    <input type="text" name="country[]" required><br>
+
+                    <label for="zipcode">CEP:</label>
+                    <input type="text" name="zipcode[]" required><br>
+                </div>
+            </div>
+            <button type="button" onclick="addAddress()">Adicionar Novo Endereço</button>
+        </fieldset>
+
+        <fieldset>
+            <legend>Telefones do Cliente</legend>
+            <div id="phoneSection">
+                <label for="phoneNumber">Telefone:</label>
+                <input type="text" name="phoneNumbers[]" placeholder="Telefone" required><br>
+            </div>
+            <button type="button" onclick="addPhoneNumber()">Adicionar Novo Telefone</button>
+        </fieldset>
+
+        <div class="submit-btn-container">
+            <button type="submit">Criar Cliente</button>
+        </div>
+    </form>
+</body>
+
+</html>
