@@ -10,6 +10,7 @@ describe('Client API', () => {
             document: "51591253851",
             addresses: [{
                 street: "Rua A",
+                adr_type: "billing",
                 number: "123",
                 complement: "Apto 45",
                 neighborhood: "Centro",
