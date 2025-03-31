@@ -201,6 +201,7 @@ const createClient = async (req, res) => {
             });
             await Promise.all(phonePromises);
         }
+        res.status(201).send({ message: "Client successfully registered!", client: newClient });
 
         // Redireciona para a página de detalhes do cliente
         res.redirect(`/clientDetail?id=${newClient.id}`);
