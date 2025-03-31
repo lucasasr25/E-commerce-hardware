@@ -10,6 +10,7 @@ describe('Client API', () => {
             document: '51591253851',
             active: 'on', // 'on' pode ser interpretado como um valor verdadeiro para booleano
             adr_type: ['billing'],  // Envia como array
+            nick: [ 'casa' ],
             street: ['Rua A'],  // Envia como array
             number: ['123'],  // Envia como array
             complement: ['Apto 45'],  // Envia como array
