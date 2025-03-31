@@ -4,7 +4,7 @@ const path = require("path");
 const app = express();
 const port = 3000;
 
-const clientRoutes = require("./src/routes/clientRoutes");
+const clientRoutes = require("./src/routes/clientRoutes.js");
 const apiRoutes = require("./src/routes/apiClientRoutes.js");
 const cartRoutes = require("./src/routes/cartRoutes.js");
 const productRoutes = require("./src/routes/productRoutes.js");
