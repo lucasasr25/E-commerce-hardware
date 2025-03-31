@@ -8,13 +8,13 @@
 </head>
 <body>
     <h2>Lista de Clientes</h2>
-    <button class="create-client-btn" onclick="window.location.href='/create'">Criar Cliente</button>
+    <button class="create-client-btn" onclick="window.location.href='/client/create'">Criar Cliente</button>
     <ul>
         <% if (clients.length === 0) { %>
             <li>Nenhum cliente encontrado</li>
         <% } else { %>
             <% clients.forEach(client => { %>
-                <li onclick="window.location.href='/clientDetail?id=<%= client.id %>'">
+                <li onclick="window.location.href='/client/clientDetail?id=<%= client.id %>'">
                     <strong><%= client.name %></strong> - <%= client.email %>
                 </li>
             <% }) %>

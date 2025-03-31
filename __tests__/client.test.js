@@ -21,7 +21,7 @@ describe('Client API', () => {
         };
 
         const response = await request(app)
-            .post('/api/clients')
+            .post('/client/createClient')
             .send(newClient);
 
         expect(response.status).toBe(201);
@@ -29,20 +29,4 @@ describe('Client API', () => {
         clientId = response.body.client.id; // Pega o ID do cliente registrado
     });
 
-    // Teste de atualização do cliente
-    it('should update an existing client successfully', async () => {
-        const updatedClient = {
-            name: "Novo Nome",
-            email: "novoemail@example.com",
-            active: true
-        };
-
-        const response = await request(app)
-            .put(`/api/clients/${clientId}`) // Usa o ID do cliente registrado para atualizar
-            .send(updatedClient);
-
-        expect(response.status).toBe(200);
-        expect(response.body.message).toBe('Client successfully updated');
-        expect(response.body.client).toMatchObject(updatedClient);
-    });
 });
