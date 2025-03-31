@@ -8,9 +8,10 @@ describe('Client API', () => {
             email: "joao.silva@example.com",
             password: "SenhaForte123!",
             document: "51591253851",
+            active: true,
             addresses: [{
-                street: "Rua A",
                 adr_type: "billing",
+                street: "Rua A",
                 number: "123",
                 complement: "Apto 45",
                 neighborhood: "Centro",

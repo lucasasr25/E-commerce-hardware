@@ -169,7 +169,7 @@ const createClient = async (req, res) => {
 
         // Tratar os valores dos arrays (pegando o primeiro valor para cada campo, pois você enviará múltiplos valores)
         const addresses = adr_type.map((type, i) => ({
-            adr_type: type,
+            adr_type: type || '',
             nick: nick[i] || '',
             street: street[i] || '',
             number: number[i] || '',
