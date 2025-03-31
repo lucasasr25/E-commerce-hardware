@@ -56,5 +56,10 @@ jobs:
           export PGPASSWORD=test_password
           psql -h localhost -U test_user -d test_db -a -f ./schema.sql
 
+      - name: Verify tables in PostgreSQL
+        run: |
+          export PGPASSWORD=test_password
+          psql -h localhost -U test_user -d test_db -c "\dt"  # List the tables to check if `users` exists
+
       - name: Run Tests
         run: npm test
