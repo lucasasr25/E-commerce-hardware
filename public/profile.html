@@ -149,7 +149,6 @@
     <div class="navbar">
         <a href="#trocas"><i class="material-icons">swap_horiz</i>Trocas</a>
         <a href="pedidos.html"><i class="material-icons">swap_vert</i>Pedidos</a>
-
         <a href="#configuracoes"><i class="material-icons">settings</i>Configurações</a>
     </div>
 
@@ -157,73 +156,68 @@
     <div class="container">
         <h1>Perfil do Cliente</h1>
 
+        <!-- Exibição das informações do cliente -->
+        <div class="section">
+            <div class="section-header">
+                <i class="material-icons icon">account_circle</i>
+                <h2>Informações do Cliente</h2>
+            </div>
+            <div class="form-group">
+                <label for="client-name">Nome</label>
+                <input type="text" id="client-name" value="Carlos Silva" disabled>
+            </div>
+            <div class="form-group">
+                <label for="client-email">Email</label>
+                <input type="email" id="client-email" value="carlos.silva@email.com" disabled>
+            </div>
+            <div class="form-group">
+                <label for="client-phone">Telefone</label>
+                <input type="text" id="client-phone" value="(11) 91234-5678" disabled>
+            </div>
+        </div>
+
         <!-- Seção de Endereço de Entrega -->
         <div class="section">
             <div class="section-header">
                 <i class="material-icons icon">location_on</i>
-                <h2>Selecionar Endereço de Entrega</h2>
+                <h2>Endereços de Entrega</h2>
             </div>
             <div class="form-group">
-                <label for="address-select">Escolher endereço de entrega</label>
+
+                <label for="address-select">Escolha o Tipo de endereço:</label>
                 <select id="address-select">
                     <option value="">Selecione um endereço</option>
-                    <option value="endereco1">Rua Exemplo 123</option>
+                    <option selected value="endereco1">(Padrão) Rua Exemplo 123</option>
+                    <option value="endereco2">Avenida Teste 456</option>
+                </select>
+                <br>
+                <br>
+                <label for="address-select">Escolha um endereço de entrega:</label>
+                <select id="address-select">
+                    <option value="">Selecione um endereço</option>
+                    <option selected value="endereco1">(Padrão) Rua Exemplo 123</option>
                     <option value="endereco2">Avenida Teste 456</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="new-address">Ou cadastre um novo endereço</label>
-                <input type="text" id="new-address" placeholder="Digite o novo endereço">
-                <label class="checkbox-label" for="save-new-address">
-                    <input type="checkbox" id="save-new-address"> Salvar este endereço para futuras compras
-                </label>
-            </div>
+            <button class="button" onclick="window.location.href='adicionar_endereco.html'">Adicionar Novo Endereço</button>
         </div>
 
-        <!-- Seção de Forma de Pagamento -->
+        <!-- Seção de Cartão de Crédito -->
         <div class="section">
             <div class="section-header">
                 <i class="material-icons icon">credit_card</i>
-                <h2>Selecionar Forma de Pagamento</h2>
+                <h2>Formas de Pagamento</h2>
             </div>
             <div class="form-group">
-                <label for="card-select">Escolher cartão de crédito</label>
+                <label for="card-select">Escolha um cartão de crédito:</label>
                 <select id="card-select">
                     <option value="">Selecione um cartão</option>
-                    <option value="cartao1">**** **** **** 1234</option>
+                    <option selected value="cartao1">(Padrão) **** **** **** 1234</option>
                     <option value="cartao2">**** **** **** 5678</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="new-card">Ou cadastre um novo cartão de crédito</label>
-                <input type="text" id="new-card" placeholder="Digite os dados do novo cartão">
-                <label class="checkbox-label" for="save-new-card">
-                    <input type="checkbox" id="save-new-card"> Salvar este cartão para futuras compras
-                </label>
-            </div>
+            <button class="button" onclick="window.location.href='adicionar_cartao.html'">Adicionar Novo Cartão</button>
         </div>
-
-        <!-- Seção de Cupons -->
-        <div class="section">
-            <div class="section-header">
-                <i class="material-icons icon">redeem</i>
-                <h2>Meus Cupons</h2>
-            </div>
-            <div class="form-group">
-                <label for="coupon">Digite o código do cupom</label>
-                <input type="text" id="coupon" placeholder="Exemplo: PROMO10">
-            </div>
-            <div class="select-container">
-                <div class="form-group" style="width: 48%;">
-                    <label for="coupon-type">Tipo de cupom</label>
-                    <select id="coupon-type">
-                        <option value="troca">Cupom de Troca</option>
-                        <option value="promocional">Cupom Promocional</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
     </div>
 
 </body>

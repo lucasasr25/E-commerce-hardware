@@ -84,7 +84,7 @@ const searchClients = async (req, res) => {
 const renderClientsView = async (req, res) => {
     try {
       const clients = await clientRepository.searchClients(req.query);
-      res.render("list", { clients }); // Renderizar a view e passar os dados dos clientes
+      res.render("client/list", { clients }); // Renderizar a view e passar os dados dos clientes
     } catch (error) {
       res.status(500).send("Erro ao buscar clientes.");
     }
@@ -102,7 +102,7 @@ const renderClientsView = async (req, res) => {
         }
 
         // Passar o cliente encontrado para a view com o nome 'client'
-        res.render("detail", { client: clients[0] });  // Alterado 'clients' para 'client'
+        res.render("client/detail", { client: clients[0] });  // Alterado 'clients' para 'client'
     } catch (error) {
         res.status(500).send("Erro ao buscar detalhes do cliente.");
     }
@@ -138,7 +138,7 @@ const renderEditView = async (req, res) => {
         }
         console.log(clients);
         // Passar o cliente, endereços e números de telefone para a view
-        res.render("edit", { 
+        res.render("client/edit", { 
             client: clients[0], 
             addresses: clients[0].addresses || [],  // Garantir que addresses seja um array
             phoneNumbers: clients[0].phone_numbers || [] // Aqui está o campo correto
@@ -153,7 +153,7 @@ const renderEditView = async (req, res) => {
 
 const renderCreateview = async (req, res) => {
     try {
-        res.render("create", {});
+        res.render("client/create", {});
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao carregar a página de edição");
