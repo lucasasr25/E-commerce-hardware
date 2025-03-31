@@ -4,22 +4,21 @@ describe('Client API', () => {
     let clientId;
     it('should register a new client successfully', async () => {
         const newClient = {
-            name: "João Silva",
-            email: "joao.silva@example.com",
-            password: "SenhaForte123!",
-            document: "51591253851",
-            active: true,
-            addresses: [{
-                adr_type: "billing",
-                street: "Rua A",
-                number: "123",
-                complement: "Apto 45",
-                neighborhood: "Centro",
-                city: "São Paulo",
-                state: "SP",
-                country: "BR",
-                zipcode: "12345-678"
-            }]
+            name: 'João Silva',
+            email: 'joao.silva@example.com',
+            password: 'SenhaForte123!',
+            document: '51591253851',
+            active: 'on', // 'on' pode ser interpretado como um valor verdadeiro para booleano
+            adr_type: ['billing'],  // Envia como array
+            street: ['Rua A'],  // Envia como array
+            number: ['123'],  // Envia como array
+            complement: ['Apto 45'],  // Envia como array
+            neighborhood: ['Centro'],  // Envia como array
+            city: ['São Paulo'],  // Envia como array
+            state: ['SP'],  // Envia como array
+            country: ['BR'],  // Envia como array
+            zipcode: ['12345-678'],  // Envia como array
+            phoneNumbers: ['11912085492']  // Envia como array
         };
 
         const response = await request(app)
