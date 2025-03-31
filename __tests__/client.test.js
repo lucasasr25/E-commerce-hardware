@@ -23,7 +23,7 @@ describe('Client API', () => {
         };
 
         const response = await request(app)
-            .post('/client/createClient')
+            .post('/api/client')
             .send(newClient);
 
         expect(response.status).toBe(201);

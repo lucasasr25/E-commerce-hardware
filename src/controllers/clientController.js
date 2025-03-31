@@ -201,10 +201,57 @@ const createClient = async (req, res) => {
             });
             await Promise.all(phonePromises);
         }
-        res.status(201).send({ message: "Client successfully registered!", client: newClient });
-
         // Redireciona para a página de detalhes do cliente
         res.redirect(`/clientDetail?id=${newClient.id}`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Erro ao criar cliente e endereço");
+    }
+};
+
+
+const createClientAPI = async (req, res) => {
+    try {
+        // Verificando o conteúdo de req.body
+        console.log(req.body); // Verifique os dados recebidos
+
+        const { name, email, password, document, active, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, phoneNumbers } = req.body;
+
+        // Tratar os valores dos arrays (pegando o primeiro valor para cada campo, pois você enviará múltiplos valores)
+        const addresses = adr_type.map((type, i) => ({
+            adr_type: type || '',
+            nick: nick[i] || '',
+            street: street[i] || '',
+            number: number[i] || '',
+            complement: complement[i] || '',
+            neighborhood: neighborhood[i] || '',
+            city: city[i] || '',
+            state: state[i] || '',
+            country: country[i] || '',
+            zipcode: zipcode[i] || ''
+        }));
+
+        // Criação do cliente
+        const newClient = await clientRepository.createClient(name, email, password, document, active);
+
+        if (!newClient) {
+            return res.status(400).send("Erro ao criar cliente");
+        }
+
+        // Criação dos endereços para o cliente
+        const addressPromises = addresses.map((address) => {
+            return addressRepository.createAddress(newClient.id, address.adr_type, address.nick, address.street, address.number, address.complement, address.neighborhood, address.city, address.state, address.country, address.zipcode);
+        });
+        await Promise.all(addressPromises);
+
+        // Criação dos números de telefone para o cliente
+        if (phoneNumbers && phoneNumbers.length > 0) {
+            const phonePromises = phoneNumbers.map((phoneNumber) => {
+                return clientRepository.createPhone(newClient.id, phoneNumber);
+            });
+            await Promise.all(phonePromises);
+        }
+        res.status(201).send({ message: "Client successfully registered!", client: newClient });
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao criar cliente e endereço");
@@ -218,4 +265,7 @@ const createClient = async (req, res) => {
 
 
 
-module.exports = { registerClient, validatePassword, updateClient, searchClients, renderClientsView, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+
+
+
+module.exports = { registerClient, createClientAPI, validatePassword, updateClient, searchClients, renderClientsView, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
