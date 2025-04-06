@@ -4,10 +4,10 @@ const path = require("path");
 const app = express();
 
 // Your routes
-const clientRoutes = require("../src/routes/clientRoutes.js");
-const apiRoutes = require("../src/routes/apiClientRoutes.js");
-const cartRoutes = require("../src/routes/cartRoutes.js");
-const productRoutes = require("../src/routes/productRoutes.js");
+const clientRoutes = require("./src/routes/clientRoutes.js");
+const apiRoutes = require("./src/routes/apiClientRoutes.js");
+const cartRoutes = require("./src/routes/cartRoutes.js");
+const productRoutes = require("./src/routes/productRoutes.js");
 
 app.set("views", path.join(__dirname, "src/views"));
 // Defina o mecanismo de view como EJS
