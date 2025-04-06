@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pedidos - E-commerce de Hardware</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f4f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .order-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .order-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-item h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .order-item .order-details {
+            margin: 10px 0;
+        }
+
+        .order-item .order-details span {
+            font-weight: bold;
+        }
+
+        .order-item .order-actions {
+            margin-top: 15px;
+        }
+
+        .button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button-danger {
+            background-color: #f44336;
+        }
+
+        .button-danger:hover {
+            background-color: #e53935;
+        }
+
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Meus Pedidos</h1>
+
+        <div class="order-list">
+            <!-- Pedido 1 -->
+            <div class="order-item">
+                <h2>Pedido #12345</h2>
+                <div class="order-details">
+                    <span>Data:</span> 12/03/2025<br>
+                    <span>Status:</span> Enviado<br>
+                    <span>Valor Total:</span> R$ 1.250,00
+                </div>
+                <div class="order-details">
+                    <span>Itens:</span><br>
+                    <ul>
+                        <li>Placa de Vídeo GTX 1660 Ti - R$ 1.100,00</li>
+                        <li>Fonte Corsair 650W - R$ 150,00</li>
+                    </ul>
+                </div>
+                <div class="order-actions">
+                    <button class="button">Ver Detalhes</button>
+                    <button class="button button-danger">Solicitar Troca</button>
+                </div>
+            </div>
+
+            <!-- Pedido 2 -->
+            <div class="order-item">
+                <h2>Pedido #12346</h2>
+                <div class="order-details">
+                    <span>Data:</span> 14/03/2025<br>
+                    <span>Status:</span> Em Preparação<br>
+                    <span>Valor Total:</span> R$ 599,00
+                </div>
+                <div class="order-details">
+                    <span>Itens:</span><br>
+                    <ul>
+                        <li>Memória RAM 8GB Corsair - R$ 300,00</li>
+                        <li>Teclado Mecânico RGB - R$ 299,00</li>
+                    </ul>
+                </div>
+                <div class="order-actions">
+                    <button class="button">Ver Detalhes</button>
+                    <button class="button button-danger">Solicitar Troca</button>
+                </div>
+            </div>
+
+            <!-- Pedido 3 -->
+            <div class="order-item">
+                <h2>Pedido #12347</h2>
+                <div class="order-details">
+                    <span>Data:</span> 15/03/2025<br>
+                    <span>Status:</span> Entregue<br>
+                    <span>Valor Total:</span> R$ 900,00
+                </div>
+                <div class="order-details">
+                    <span>Itens:</span><br>
+                    <ul>
+                        <li>Monitor Samsung 24" - R$ 600,00</li>
+                        <li>Mouse Logitech G502 - R$ 150,00</li>
+                    </ul>
+                </div>
+                <div class="order-actions">
+                    <button class="button">Ver Detalhes</button>
+                    <button class="button button-danger">Solicitar Troca</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

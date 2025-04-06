@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Cliente - E-commerce</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: #f4f7fa;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #4CAF50;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #45a049;
+            border-radius: 4px;
+        }
+
+        .navbar i {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .button {
+            padding: 14px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #444;
+            margin-right: 10px;
+        }
+
+        .section-header i {
+            color: #4CAF50;
+        }
+
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .checkbox-label input {
+            margin-right: 8px;
+        }
+
+        .select-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .select-container select {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="#trocas"><i class="material-icons">swap_horiz</i>Trocas</a>
+        <a href="pedidos.html"><i class="material-icons">swap_vert</i>Pedidos</a>
+        <a href="#configuracoes"><i class="material-icons">settings</i>Configurações</a>
+    </div>
+
+    <!-- Conteúdo do Perfil -->
+    <div class="container">
+        <h1>Perfil do Cliente</h1>
+
+        <!-- Exibição das informações do cliente -->
+        <div class="section">
+            <div class="section-header">
+                <i class="material-icons icon">account_circle</i>
+                <h2>Informações do Cliente</h2>
+            </div>
+            <div class="form-group">
+                <label for="client-name">Nome</label>
+                <input type="text" id="client-name" value="Carlos Silva" disabled>
+            </div>
+            <div class="form-group">
+                <label for="client-email">Email</label>
+                <input type="email" id="client-email" value="carlos.silva@email.com" disabled>
+            </div>
+            <div class="form-group">
+                <label for="client-phone">Telefone</label>
+                <input type="text" id="client-phone" value="(11) 91234-5678" disabled>
+            </div>
+        </div>
+
+        <!-- Seção de Endereço de Entrega -->
+        <div class="section">
+            <div class="section-header">
+                <i class="material-icons icon">location_on</i>
+                <h2>Endereços de Entrega</h2>
+            </div>
+            <div class="form-group">
+
+                <label for="address-select">Escolha o Tipo de endereço:</label>
+                <select id="address-select">
+                    <option value="">Selecione um endereço</option>
+                    <option selected value="endereco1">(Padrão) Rua Exemplo 123</option>
+                    <option value="endereco2">Avenida Teste 456</option>
+                </select>
+                <br>
+                <br>
+                <label for="address-select">Escolha um endereço de entrega:</label>
+                <select id="address-select">
+                    <option value="">Selecione um endereço</option>
+                    <option selected value="endereco1">(Padrão) Rua Exemplo 123</option>
+                    <option value="endereco2">Avenida Teste 456</option>
+                </select>
+            </div>
+            <button class="button" onclick="window.location.href='adicionar_endereco.html'">Adicionar Novo Endereço</button>
+        </div>
+
+        <!-- Seção de Cartão de Crédito -->
+        <div class="section">
+            <div class="section-header">
+                <i class="material-icons icon">credit_card</i>
+                <h2>Formas de Pagamento</h2>
+            </div>
+            <div class="form-group">
+                <label for="card-select">Escolha um cartão de crédito:</label>
+                <select id="card-select">
+                    <option value="">Selecione um cartão</option>
+                    <option selected value="cartao1">(Padrão) **** **** **** 1234</option>
+                    <option value="cartao2">**** **** **** 5678</option>
+                </select>
+            </div>
+            <button class="button" onclick="window.location.href='adicionar_cartao.html'">Adicionar Novo Cartão</button>
+        </div>
+    </div>
+
+</body>
+</html>
