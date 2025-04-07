@@ -102,38 +102,23 @@ const createCart = async (req, res) => {
 
 // Função para renderizar a página do carrinho
 const renderCartView = async (req, res) => {
-    const { cart_id } = req.query;
+    // const { cart_id } = req.query;
 
-    if (!cart_id) {
-        return res.status(400).json({ message: "Cart ID is required" });
-    }
+    // if (!cart_id) {
+    //     return res.status(400).json({ message: "Cart ID is required" });
+    // }
+    res.render("shopping/cart");
 
-    try {
-        const items = await cartRepository.getCartItems(cart_id);
-        res.render("cart", { items });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Error retrieving cart items.");
-    }
+    // try {
+    //     // const items = await cartRepository.getCartItems(cart_id);
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).send("Error retrieving cart items.");
+    // }
 };
 
 // Função para renderizar a página de checkout do carrinho
-const renderCheckoutView = async (req, res) => {
-    const { cart_id } = req.query;
 
-    if (!cart_id) {
-        return res.status(400).json({ message: "Cart ID is required" });
-    }
-
-    try {
-        const items = await cartRepository.getCartItems(cart_id);
-        // Lógica adicional para checkout
-        res.render("checkout", { items });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Error retrieving checkout information.");
-    }
-};
 
 // Função para finalizar a compra
 const checkoutCart = async (req, res) => {
@@ -160,6 +145,5 @@ module.exports = {
     clearCart,
     createCart,
     renderCartView,
-    renderCheckoutView,
     checkoutCart
 };

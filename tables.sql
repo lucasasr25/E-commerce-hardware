@@ -51,6 +51,7 @@ CREATE TABLE customer_carts (
 CREATE TABLE addresses (
     id SERIAL PRIMARY KEY,
     adr_type TEXT,
+    is_default BOOLEAN DEFAULT FALSE,
     nick TEXT,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     street TEXT NOT NULL,
@@ -152,6 +153,7 @@ CREATE TABLE credit_cards (
     card_number TEXT NOT NULL,
     holder_name TEXT NOT NULL,
     expiration_date TEXT NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

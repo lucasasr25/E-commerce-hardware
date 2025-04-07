@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fechamento do Pedido</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #eee; margin-top: 20px; }
+        .ibox { background: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .ibox-title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #e7eaec; padding-bottom: 10px; }
+        .form-control { margin-bottom: 15px; }
+        .btn-primary { width: 100%; }
+        .order-summary { background: #fff; padding: 20px; border-radius: 5px; }
+        input:read-only {
+            background-color: #eee;
+            }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectEndereco = document.getElementById('enderecoSelecionado');
+
+            selectEndereco.addEventListener('change', function () {
+                const selected = selectEndereco.options[selectEndereco.selectedIndex];
+
+                const nick = selected.getAttribute('data-nick') || '';
+                const street = selected.getAttribute('data-street') || '';
+                const number = selected.getAttribute('data-number') || '';
+                const city = selected.getAttribute('data-city') || '';
+                const zipcode = selected.getAttribute('data-zipcode') || '';
+
+                document.getElementById('endereco').value = `${street}, ${number}`;
+                document.getElementById('cidade').value = city;
+                document.getElementById('cep').value = zipcode;
+
+                // Se quiser mudar o texto do apelido também:
+                document.querySelector("label[for='endereco']").innerText = `Endereço Selecionado (Nome: '${nick}')`;
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="ibox">
+                    <div class="ibox-title">Informações de Pagamento</div>
+                                        
+                    <label for="enderecoSelecionado">Selecione o Endereço de Entrega</label>
+                    <select class="form-control" id="enderecoSelecionado" name="enderecoSelecionado">
+                        <% if (enderecos && enderecos.length > 0) { %>
+                            <% enderecos.forEach(end => { %>
+                                <option value="<%= end.id %>"
+                                    data-nick="<%= end.nick %>"
+                                    data-street="<%= end.street %>"
+                                    data-number="<%= end.number %>"
+                                    data-city="<%= end.city %>"
+                                    data-zipcode="<%= end.zipcode %>">
+                                    <%= end.nick %> - <%= end.street %>, <%= end.number %>, <%= end.city %> - CEP <%= end.zipcode %>
+                                </option>
+                            <% }) %>
+                        <% } else { %>
+                            <option disabled selected>Nenhum endereço cadastrado</option>
+                        <% } %>
+                    </select>
+                    
+                    
+                    <form action="/checkout" method="POST">
+                        <div class="mb-3 p-3 border rounded bg-light">
+                            <p class="fw-bold text-muted">Endereço Padrão</p>
+                            
+                            <label for="nome">Nome Completo</label>
+                            <input type="text" class="form-control" id="nome" name="nome" value="<%= nome %>" readonly>
+                        
+                            <label for="email">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<%= email %>" readonly>
+                        
+                            <label for="endereco">Endereço Padrão (Nome: '<%= apelido %>')</label>
+                            <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Rua, Número, Bairro" value="<%= endereco || '' %>" readonly>
+                        
+                            <label for="cidade">Cidade</label>
+                            <input type="text" class="form-control" id="cidade" name="cidade" value="<%= cidade || '' %>" readonly>
+                        
+                            <label for="cep">CEP</label>
+                            <input type="text" class="form-control" id="cep" name="cep" value="<%= cep || '' %>" readonly>
+                        </div>
+                    
+                        <label for="cartao">Selecione o Cartão de Crédito Cadastrado</label>
+                        <select class="form-control" id="cartao" name="cartao">
+                            <% if (cartoes && cartoes.length > 0) { %>
+                                <% cartoes.forEach(cartao => { %>
+                                    <option value="<%= cartao.id %>">
+                                        <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
+                                    </option>
+                                <% }) %>
+                            <% } else { %>
+                                <option disabled selected>Nenhum cartão salvo</option>
+                            <% } %>
+                        </select>
+                        <label for="cupom">Digite o cupom:</label>
+                        <input type="text" class="form-control" id="cupom" name="cupom" value="" >
+                        <button type="submit" class="btn btn-primary">Finalizar Pedido</button>
+                    </form>
+                    
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="order-summary">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Taxas e Frete</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <p><strong>Subtotal:</strong> R$ 1.200,00</p>
+                            <p><strong>Frete:</strong> R$ 50,00</p>
+                            <hr>
+                            <h4><strong>Total:</strong> R$ 1.250,00</h4>
+                        </div>
+                    </div>
+                    <div class="ibox-title">Resumo do Pedido</div>
+                    <ul class="list-group">
+                        <li class="list-group-item">Placa-mãe ASUS ROG Strix <span class="float-end">R$ 1.200,00</span></li>
+                        <li class="list-group-item active">Total <span class="float-end">R$ 1.200,00</span></li>
+                    </ul>
+                    <button class="btn btn-secondary mt-3" onclick="window.location.href='/client/cart'">Voltar ao Carrinho</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

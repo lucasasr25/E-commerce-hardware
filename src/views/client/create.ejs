@@ -138,6 +138,24 @@
             `;
             addressSection.appendChild(newAddressDiv);
         }
+
+        function addCreditCard() {
+            const section = document.getElementById('creditCardSection');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <hr>
+                <label for="card_number">Número do Cartão:</label>
+                <input type="text" name="card_number[]" required><br>
+
+                <label for="holder_name">Nome no Cartão:</label>
+                <input type="text" name="holder_name[]" required><br>
+
+                <label for="expiration_date">Data de Validade:</label>
+                <input type="text" name="expiration_date[]" placeholder="MM/AA" required><br>
+            `;
+            section.appendChild(div);
+        }
+
     </script>
 </head>
 <body>
@@ -208,6 +226,22 @@
             </div>
             <button type="button" onclick="addPhoneNumber()">Adicionar Novo Telefone</button>
         </fieldset>
+
+        <fieldset>
+            <legend>Cartões de Crédito</legend>
+            <div id="creditCardSection">
+                <label for="card_number">Número do Cartão:</label>
+                <input type="text" name="card_number[]" required><br>
+        
+                <label for="holder_name">Nome no Cartão:</label>
+                <input type="text" name="holder_name[]" required><br>
+        
+                <label for="expiration_date">Data de Validade:</label>
+                <input type="text" name="expiration_date[]" placeholder="MM/AA" required><br>
+            </div>
+            <button type="button" onclick="addCreditCard()">Adicionar Novo Cartão</button>
+        </fieldset>
+
 
         <div class="submit-btn-container">
             <button type="submit">Criar Cliente</button>

@@ -64,7 +64,7 @@ const updateClient = async (req, res) => {
             return res.status(404).json({ message: "Client not found" });
         }
 
-        res.redirect(`/clientDetail?id=${id}`);
+        res.redirect(`/client/clientDetail?id=${id}`);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -93,20 +93,20 @@ const renderClientsView = async (req, res) => {
   const renderDetailView = async (req, res) => {
     try {
         const { id } = req.query;
-        
-        // Buscar o cliente com o ID específico
-        const clients = await clientRepository.searchClients({ id });
 
-        if (clients.length === 0) {
+        const client = await clientRepository.getClientById(id); // id deve ser direto, não como objeto
+
+        if (!client) {
             return res.status(404).send("Cliente não encontrado.");
         }
 
-        // Passar o cliente encontrado para a view com o nome 'client'
-        res.render("client/detail", { client: clients[0] });  // Alterado 'clients' para 'client'
+        res.render("client/detail", { client }); // Agora sim está certo
     } catch (error) {
+        console.error("Erro ao buscar detalhes do cliente:", error);
         res.status(500).send("Erro ao buscar detalhes do cliente.");
     }
 };
+
 
 const deleteClient = async (req, res) => {
     try {
@@ -120,7 +120,7 @@ const deleteClient = async (req, res) => {
         }
 
         // Redireciona para a página de clientes após a exclusão
-        res.redirect('/clients');
+        res.redirect('/client/clients');
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao deletar cliente");
@@ -148,7 +148,6 @@ const renderEditView = async (req, res) => {
         res.status(500).send("Erro ao carregar a página de edição");
     }
 };
-
 
 
 const renderCreateview = async (req, res) => {
@@ -201,8 +200,22 @@ const createClient = async (req, res) => {
             });
             await Promise.all(phonePromises);
         }
+
+
+        const { card_number, holder_name, expiration_date } = req.body;
+
+        // Criação dos cartões de crédito
+        if (card_number && holder_name && expiration_date) {
+            const cardPromises = card_number.map((num, i) => {
+                return clientRepository.createCreditCard(newClient.id, num, holder_name[i], expiration_date[i]);
+            });
+            await Promise.all(cardPromises);
+        }
+
+
+
         // Redireciona para a página de detalhes do cliente
-        res.redirect(`/clientDetail?id=${newClient.id}`);
+        res.redirect(`/client/clientDetail?id=${newClient.id}`);
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao criar cliente e endereço");

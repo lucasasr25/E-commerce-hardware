@@ -1,6 +1,32 @@
 const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
+
+const createCreditCard = async (userId, cardNumber, holderName, expirationDate) => {
+    const client = await pool.connect();
+    try {
+        const query = `
+            INSERT INTO credit_cards (user_id, card_number, holder_name, expiration_date)
+            VALUES ($1, $2, $3, $4)
+        `;
+        await client.query(query, [userId, cardNumber, holderName, expirationDate]);
+    } catch (error) {
+        console.error("Erro ao adicionar cartão de crédito:", error);
+        throw error;
+    }
+};
+
+
+const getCreditCardsByUserId = async (userId) => {
+    const client = await pool.connect();
+
+    const result = await client.query(
+        'SELECT id, card_number, holder_name, expiration_date FROM credit_cards WHERE user_id = $1',
+        [userId]
+    );
+    return result.rows;
+};
+
 const createClient = async (name, email, password, document, active, phoneNumbers, addresses) => {
     const client = await pool.connect();
     try {
@@ -55,14 +81,20 @@ const createClient = async (name, email, password, document, active, phoneNumber
 // Função para obter um cliente pelo ID, incluindo os telefones
 const getClientById = async (id) => {
     const result = await pool.query(
-        `SELECT u.*, 
-                json_agg(a.*) AS addresses,
-                json_agg(c.phone_number) AS phone_numbers
-         FROM users u
-         LEFT JOIN addresses a ON u.id = a.user_id
-         LEFT JOIN contact_numbers c ON u.id = c.user_id
-         WHERE u.id = $1
-         GROUP BY u.id`,
+        `SELECT 
+    u.*, 
+    (
+        SELECT json_agg(a.*) 
+        FROM addresses a 
+        WHERE a.user_id = u.id
+    ) AS addresses,
+    (
+        SELECT json_agg(c.phone_number) 
+        FROM contact_numbers c 
+        WHERE c.user_id = u.id
+    ) AS phone_numbers
+FROM users u
+WHERE u.id = $1`,
         [id]
     );
     return result.rowCount ? result.rows[0] : null;
@@ -206,4 +238,4 @@ const searchClients = async ({ id, name, email, document }) => {
     return result.rows;
 };
 
-module.exports = { updateClient, searchClients, getClientById, createClient, createPhone, deleteClient };
+module.exports = { updateClient, searchClients, getClientById, createClient, createPhone, deleteClient, createCreditCard, getCreditCardsByUserId };
