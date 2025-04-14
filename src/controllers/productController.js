@@ -171,7 +171,7 @@ const deleteProductDetails = async (req, res) => {
 const renderProductsView = async (req, res) => {
     try {
         const products = await productRepository.getProducts();
-        res.render("productList", { products });
+        res.render("products/productList", { products });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error fetching products.");
@@ -187,14 +187,14 @@ const renderProductDetailView = async (req, res) => {
     }
 
     try {
-        const product = await productRepository.getProductById(id);
+        const product = await productRepository.getProductById(1);
         const productDetails = await productDetailRepository.getProductDetails(id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        res.render("productDetail", { product, productDetails });
+        res.render("products/productDetail", { product, productDetails });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error fetching product details.");

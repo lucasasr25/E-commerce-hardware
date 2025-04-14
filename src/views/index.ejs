@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('partials/head') %>
+</head>
+
+<body class="main-layout ">
+    <!-- loader  -->
+    <div class="loader_bg">
+        <div class="loader"><img src="images/loading.gif" alt="#" /></div>
+    </div>
+
+    <!-- header -->
+    <%- include('partials/header') %>
+
+    <!-- Banner -->
+    <section class="slider_section">
+        <div id="myCarousel" class="carousel slide banner-main" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img class="first-slide" src="images/BannerRTX.png" alt="Promoção de Placas de Vídeo">
+                    <div class="container">
+                        <div class="carousel-caption relative">
+                            <span>As Melhores Placas de Vídeo</span>
+                            <h1>Descontos de até 25%</h1>
+                            <p>Garanta agora a melhor performance para seus jogos e projetos gráficos.</p>
+                            <a class="buynow" href="#">Compre Agora</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+                <i class='fa fa-angle-left'></i>
+            </a>
+            <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+                <i class='fa fa-angle-right'></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Sobre -->
+    <div class="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-5">
+                    <div class="about_img">
+                        <figure><img src="images/about.png" alt="Sobre nós" /></figure>
+                    </div>
+                </div>
+                <div class="col-xl-7">
+                    <div class="about_box">
+                        <h3>Sobre Nós</h3>
+                        <span>Especialistas em Hardware</span>
+                        <p>Somos uma loja especializada em hardware de alto desempenho, oferecendo as melhores marcas e produtos para gamers e profissionais exigentes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Produtos -->
+    <div class="brand">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="titlepage">
+                        <h2>Nossos Produtos</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="brand-bg">
+            <div class="container">
+                <div class="row">
+                    <% products.forEach(product => { %>
+                        <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 margin">
+                            <a href="/product/product-detail?id=<%= product.id %>" style="text-decoration: none; color: inherit;">
+                                <div class="brand_box">
+                                    <img src="<%= product.image %>" alt="<%= product.name %>" />
+                                    <h3>R$ <strong class="red"><%= product.price %></strong></h3>
+                                    <span><%= product.name %></span>
+                                    <% for (let i = 0; i < product.rating; i++) { %>
+                                        <i><img src="images/star.png" /></i>
+                                    <% } %>
+                                </div>
+                            </a>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <%- include('partials/scripts') %>
+    <button id="cart-button" class="floating-button">🛒</button>
+
+    <div id="cart-preview" style="display: none; position: fixed; right: 30px; bottom: 180px; width: 300px; background-color: white; border-radius: 10px; border: 1px solid #ccc; padding: 10px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); z-index: 9999;">
+        <!-- Conteúdo será carregado aqui -->
+    </div>
+    <%- include('partials/chatbot') %>
+
+    <script>
+        const cartButton = document.getElementById('cart-button');
+        const cartPreview = document.getElementById('cart-preview');
+    
+        cartButton.addEventListener('click', async () => {
+            const isVisible = cartPreview.style.display === 'block';
+            if (!isVisible) {
+                try {
+                    const response = await fetch('/cart/getPreview');
+                    const html = await response.text();  // Aqui está buscando o HTML gerado no controller
+                    cartPreview.innerHTML = html;         // O HTML é inserido no cart-preview
+                    cartPreview.style.display = 'block';  // Exibe o cart-preview
+                } catch (err) {
+                    cartPreview.innerHTML = '<p>Erro ao carregar o carrinho.</p>';
+                    cartPreview.style.display = 'block';
+                }
+            } else {
+                cartPreview.style.display = 'none';
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

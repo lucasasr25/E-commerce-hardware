@@ -3,29 +3,35 @@ const productRepository = require("../repositories/productRepository");
 
 // Função para adicionar um item ao carrinho
 const addItemToCart = async (req, res) => {
-    const { cart_id, product_id, quantity } = req.body;
+    const { productId, quantity, price } = req.body;
+    const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
 
-    if (!cart_id || !product_id || !quantity) {
-        return res.status(400).json({ message: "Cart ID, Product ID and Quantity are required" });
+    if (!userId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    if (!productId || !quantity) {
+        return res.status(400).json({ message: "Product ID and Quantity are required" });
     }
 
     try {
         // Verificar se o produto existe
-        const product = await productRepository.getProductById(product_id);
+        const product = await productRepository.getProductById(productId);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
-
+        
         // Adicionar item ao carrinho
-        const cartItem = await cartRepository.addItemToCart(cart_id, product_id, quantity);
+        const cartItem = await cartRepository.addItemToCart(userId, productId, quantity);
 
+        // Resposta bem-sucedida, você pode retornar um status e mensagem
         res.status(201).json({ message: "Item added to cart successfully", cartItem });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
-
 // Função para listar os itens de um carrinho
 const getCartItems = async (req, res) => {
     const { cart_id } = req.query;
@@ -43,6 +49,21 @@ const getCartItems = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+// Função para listar os itens de um carrinho
+const getCartItemsUser = async (req, res) => {
+    const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
+    try {
+        const items = await cartRepository.getCartItems(userId);
+        // Renderizando diretamente o HTML
+        res.render('partials/cartPreview', { items });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // Função para remover um item do carrinho
 const removeItemFromCart = async (req, res) => {
@@ -139,6 +160,7 @@ const checkoutCart = async (req, res) => {
 };
 
 module.exports = {
+    getCartItemsUser,
     addItemToCart,
     getCartItems,
     removeItemFromCart,

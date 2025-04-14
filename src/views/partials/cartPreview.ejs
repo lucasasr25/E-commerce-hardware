@@ -1,0 +1,34 @@
+<!-- Preview do Carrinho -->
+<style>
+    #cart-preview-content {
+        background-color: rgb(224, 224, 224);
+        padding: 10px;
+        width: 300px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        position: fixed;
+        right: 30px;
+        bottom: 180px;
+        z-index: 9999;
+    }
+
+    #cart-items-list {
+        list-style: none;
+        padding-left: 0;
+    }
+</style>
+
+<div id="cart-preview-content">
+    <strong>Seu Carrinho</strong>
+    <ul id="cart-items-list">
+        <% if (items && items.length > 0) { %>
+            <% items.forEach(item => { %>
+                <li><%= item.name %> - Quantidade: <%= item.quantity %></li>
+            <% }) %>
+        <% } else { %>
+            <li>Seu carrinho está vazio.</li>
+        <% } %>
+    </ul>
+    <a href="/cart" class="btn btn-primary btn-sm mt-2" style="display: inline-block;">Ver Carrinho</a>
+</div>

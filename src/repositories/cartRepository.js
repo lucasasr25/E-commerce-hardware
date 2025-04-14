@@ -6,13 +6,13 @@ const getOrCreateCart = async (userId) => {
     const client = await pool.connect();
     try {
         let result = await client.query(
-            `SELECT * FROM cart WHERE user_id = $1 LIMIT 1`, 
+            `SELECT * FROM customer_carts WHERE user_id = $1 LIMIT 1`, 
             [userId]
         );
 
         if (result.rowCount === 0) {
             result = await client.query(
-                `INSERT INTO cart (user_id) VALUES ($1) RETURNING *`, 
+                `INSERT INTO customer_carts (user_id) VALUES ($1) RETURNING *`, 
                 [userId]
             );
         }
@@ -24,7 +24,7 @@ const getOrCreateCart = async (userId) => {
 };
 
 // Adicionar item ao carrinho
-const addItemToCart = async (userId, productId, quantity, price) => {
+const addItemToCart = async (userId, productId, quantity) => {
     const client = await pool.connect();
     try {
         await client.query("BEGIN");
@@ -48,9 +48,9 @@ const addItemToCart = async (userId, productId, quantity, price) => {
         } else {
             // Adiciona um novo item
             await client.query(
-                `INSERT INTO cart_items (cart_id, product_id, quantity, price) 
-                 VALUES ($1, $2, $3, $4)`,
-                [cart.id, productId, quantity, price]
+                `INSERT INTO cart_items (cart_id, product_id, quantity) 
+                 VALUES ($1, $2, $3)`,
+                [cart.id, productId, quantity]
             );
         }
 
@@ -67,9 +67,9 @@ const addItemToCart = async (userId, productId, quantity, price) => {
 // Listar itens do carrinho
 const getCartItems = async (userId) => {
     const result = await pool.query(
-        `SELECT ci.id, ci.product_id, p.name, ci.quantity, ci.price 
+        `SELECT ci.id, ci.product_id, p.name, ci.quantity
          FROM cart_items ci
-         INNER JOIN cart c ON ci.cart_id = c.id
+         INNER JOIN customer_carts c ON ci.cart_id = c.id
          INNER JOIN products p ON ci.product_id = p.id
          WHERE c.user_id = $1`,
         [userId]
