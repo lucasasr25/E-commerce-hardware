@@ -5,19 +5,21 @@ const path = require("path");
 const app = express();
 const port = 3000;
 
-const clientRoutes = require("./src/routes/clientRoutes.js");
-const apiRoutes = require("./src/routes/apiClientRoutes.js");
-const cartRoutes = require("./src/routes/cartRoutes.js");
-const productRoutes = require("./src/routes/productRoutes.js");
-const websiteRoutes = require("./src/routes/mainRoutes.js");
+const clientRoutes = require("./routes/clientRoutes.js");
+const userRoutes = require("./routes/userRoutes.js");
+const apiRoutes = require("./routes/apiClientRoutes.js");
+const cartRoutes = require("./routes/cartRoutes.js");
+const productRoutes = require("./routes/productRoutes.js");
+const websiteRoutes = require("./routes/mainRoutes.js");
+const settingsRoutes = require("./routes/settingsRoutes.js");
 
-app.set("views", path.join(__dirname, "src/views"));
+app.set("views", path.join(__dirname, "./views"));
 // Defina o mecanismo de view como EJS
 app.set("view engine", "ejs");
 
 
 // Servindo arquivos estáticos da pasta 'public'
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
@@ -48,8 +50,10 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use("/client", clientRoutes);
+app.use("/user", userRoutes);
 app.use("/api", apiRoutes);
 app.use("/product", productRoutes);
+app.use("/settings", settingsRoutes);
 app.use("/cart", cartRoutes);
 app.use("/", websiteRoutes);
 

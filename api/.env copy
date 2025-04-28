@@ -1,8 +1,0 @@
-PORT=3000
-DB_USER=admin
-DB_PASSWORD=admin
-DB_HOST=localhost
-DB_PORT=5432
-DB_DATABASE=ecommerce
-DATABASE_URL=postgresql://neondb_owner:npg_SE4KD7UeqMNA@ep-raspy-dawn-a48jbix8-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
-DATABASE_URL_UNPOOLED=postgresql://neondb_owner:npg_SE4KD7UeqMNA@ep-raspy-dawn-a48jbix8-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require

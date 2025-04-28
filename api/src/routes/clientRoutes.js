@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { validatePassword, updateClient, searchClients, renderClientsView, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient} = require("../controllers/clientController");
+const { validatePassword, updateClient, searchClients, renderClientsView, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient} = require("../controllers/userController");
 
 
 router.get("/clients", renderClientsView);
@@ -10,6 +10,7 @@ router.post("/createClient", createClient);
 router.get("/create", renderCreateview);
 router.post("/clientEdit", updateClient);
 router.get('/delete/:id', deleteClient);
+
 
 
 module.exports = router;

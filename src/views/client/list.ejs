@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/crud.css">
-    <title>Lista de Clientes</title>
-</head>
+<%- include('../partials/settings/head') %>
+<%- include('../partials/settings/header') %>
+
 <body>
-    <h2>Lista de Clientes</h2>
-    <button class="create-client-btn" onclick="window.location.href='/client/create'">Criar Cliente</button>
-    <ul>
+    <div class="container mt-4">
+        <h2 class="mb-4">Lista de Clientes</h2>
+
+        <div class="mb-3">
+            <button class="btn btn-primary" onclick="window.location.href='/client/create'">Criar Novo Cliente</button>
+        </div>
+
         <% if (clients.length === 0) { %>
-            <li>Nenhum cliente encontrado</li>
+            <div class="alert alert-info" role="alert">
+                Nenhum cliente encontrado.
+            </div>
         <% } else { %>
-            <% clients.forEach(client => { %>
-                <li onclick="window.location.href='/client/clientDetail?id=<%= client.id %>'">
-                    <strong><%= client.name %></strong> - <%= client.email %>
-                </li>
-            <% }) %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% clients.forEach(client => { %>
+                            <tr style="cursor: pointer;" onclick="window.location.href='/client/clientDetail?id=<%= client.id %>'">
+                                <td><strong><%= client.name %></strong></td>
+                                <td><%= client.email %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
         <% } %>
-    </ul>
+    </div>
 </body>
 </html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<%- include('../../partials/settings/head') %>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/user">← Voltar para Perfil</a>
+        </div>
+    </nav>
+
+    <div class="container text-center mt-5">
+        <h1 class="mb-4">Painel de Configurações</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="d-grid gap-4">
+                    <a href="/product/view" class="btn btn-primary btn-lg">Gerenciar Produtos</a>
+                    <a href="/client/clients" class="btn btn-success btn-lg">Gerenciar Clientes</a>
+                    <a href="/settings/order-status" class="btn btn-warning btn-lg text-dark">Modificar Status dos Pedidos</a>
+                    <a href="/settings/coupons" class="btn btn-danger btn-lg text-light">Gerar Cupom Promocional</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

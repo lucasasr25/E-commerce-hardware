@@ -187,7 +187,7 @@ const renderProductDetailView = async (req, res) => {
     }
 
     try {
-        const product = await productRepository.getProductById(1);
+        const product = await productRepository.getProductById(id);
         const productDetails = await productDetailRepository.getProductDetails(id);
 
         if (!product) {

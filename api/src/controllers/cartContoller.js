@@ -3,29 +3,35 @@ const productRepository = require("../repositories/productRepository");
 
 // Função para adicionar um item ao carrinho
 const addItemToCart = async (req, res) => {
-    const { cart_id, product_id, quantity } = req.body;
+    const { productId, quantity, price } = req.body;
+    const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
 
-    if (!cart_id || !product_id || !quantity) {
-        return res.status(400).json({ message: "Cart ID, Product ID and Quantity are required" });
+    if (!userId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    if (!productId || !quantity) {
+        return res.status(400).json({ message: "Product ID and Quantity are required" });
     }
 
     try {
         // Verificar se o produto existe
-        const product = await productRepository.getProductById(product_id);
+        const product = await productRepository.getProductById(productId);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
-
+        
         // Adicionar item ao carrinho
-        const cartItem = await cartRepository.addItemToCart(cart_id, product_id, quantity);
+        const cartItem = await cartRepository.addItemToCart(userId, productId, quantity);
 
-        res.status(201).json({ message: "Item added to cart successfully", cartItem });
+        // Resposta bem-sucedida, você pode retornar um status e mensagem
+        res.redirect("/cart/view");
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
-
 // Função para listar os itens de um carrinho
 const getCartItems = async (req, res) => {
     const { cart_id } = req.query;
@@ -43,6 +49,22 @@ const getCartItems = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
+// Função para listar os itens de um carrinho
+const getCartItemsUser = async (req, res) => {
+    const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
+    try {
+        const items = await cartRepository.getCartItems(userId);
+        const total = await cartRepository.getCartTotal(userId);
+        // Renderizando diretamente o HTML
+        res.render('partials/cartPreview', { items, total});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // Função para remover um item do carrinho
 const removeItemFromCart = async (req, res) => {
@@ -99,18 +121,50 @@ const createCart = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const updateCartItemQuantity = async (req, res) => {
+    const { items } = req.body;  // Recebendo os itens com suas quantidades
 
-// Função para renderizar a página do carrinho
-const renderCartView = async (req, res) => {
-    const { cart_id } = req.query;
+    const userId = req.session.user?.id;  // Recuperando o userId da sessão
 
-    if (!cart_id) {
-        return res.status(400).json({ message: "Cart ID is required" });
+    if (!userId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    if (!items || items.length === 0) {
+        return res.status(400).json({ message: "Itens do carrinho são obrigatórios" });
     }
 
     try {
-        const items = await cartRepository.getCartItems(cart_id);
-        res.render("cart", { items });
+        // Atualizar cada item no carrinho
+        for (let item of items) {
+            const { productId, quantity } = item;
+            if (quantity <= 0) {
+                return res.status(400).json({ message: "Quantidade inválida para o produto " + productId });
+            }
+
+            // Atualiza ou remove o item do carrinho
+            await cartRepository.updateCartItemQuantity(userId, productId, quantity);
+        }
+
+        res.status(200).json({ message: "Carrinho atualizado com sucesso!" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+// Função para renderizar a página do carrinho
+const renderCartView = async (req, res) => {
+    const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
+    if (!userId) {
+        return res.status(400).json({ message: "Cart ID is required" });
+    }
+    try {
+        const items = await cartRepository.getCartItems(userId);
+        const total = await cartRepository.getCartTotal(userId);
+        console.log(total)
+        res.render("shopping/cart", { items, total  });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error retrieving cart items.");
@@ -118,22 +172,7 @@ const renderCartView = async (req, res) => {
 };
 
 // Função para renderizar a página de checkout do carrinho
-const renderCheckoutView = async (req, res) => {
-    const { cart_id } = req.query;
 
-    if (!cart_id) {
-        return res.status(400).json({ message: "Cart ID is required" });
-    }
-
-    try {
-        const items = await cartRepository.getCartItems(cart_id);
-        // Lógica adicional para checkout
-        res.render("checkout", { items });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Error retrieving checkout information.");
-    }
-};
 
 // Função para finalizar a compra
 const checkoutCart = async (req, res) => {
@@ -154,12 +193,13 @@ const checkoutCart = async (req, res) => {
 };
 
 module.exports = {
+    getCartItemsUser,
     addItemToCart,
     getCartItems,
     removeItemFromCart,
     clearCart,
     createCart,
     renderCartView,
-    renderCheckoutView,
-    checkoutCart
+    checkoutCart,
+    updateCartItemQuantity
 };

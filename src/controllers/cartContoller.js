@@ -25,7 +25,7 @@ const addItemToCart = async (req, res) => {
         const cartItem = await cartRepository.addItemToCart(userId, productId, quantity);
 
         // Resposta bem-sucedida, você pode retornar um status e mensagem
-        res.status(201).json({ message: "Item added to cart successfully", cartItem });
+        res.redirect("/cart/view");
 
     } catch (error) {
         console.error(error);
@@ -56,8 +56,9 @@ const getCartItemsUser = async (req, res) => {
     const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
     try {
         const items = await cartRepository.getCartItems(userId);
+        const total = await cartRepository.getCartTotal(userId);
         // Renderizando diretamente o HTML
-        res.render('partials/cartPreview', { items });
+        res.render('partials/cartPreview', { items, total});
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
@@ -120,22 +121,54 @@ const createCart = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const updateCartItemQuantity = async (req, res) => {
+    const { items } = req.body;  // Recebendo os itens com suas quantidades
+
+    const userId = req.session.user?.id;  // Recuperando o userId da sessão
+
+    if (!userId) {
+        return res.status(401).json({ message: "Usuário não autenticado" });
+    }
+
+    if (!items || items.length === 0) {
+        return res.status(400).json({ message: "Itens do carrinho são obrigatórios" });
+    }
+
+    try {
+        // Atualizar cada item no carrinho
+        for (let item of items) {
+            const { productId, quantity } = item;
+            if (quantity <= 0) {
+                return res.status(400).json({ message: "Quantidade inválida para o produto " + productId });
+            }
+
+            // Atualiza ou remove o item do carrinho
+            await cartRepository.updateCartItemQuantity(userId, productId, quantity);
+        }
+
+        res.status(200).json({ message: "Carrinho atualizado com sucesso!" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 // Função para renderizar a página do carrinho
 const renderCartView = async (req, res) => {
-    // const { cart_id } = req.query;
-
-    // if (!cart_id) {
-    //     return res.status(400).json({ message: "Cart ID is required" });
-    // }
-    res.render("shopping/cart");
-
-    // try {
-    //     // const items = await cartRepository.getCartItems(cart_id);
-    // } catch (error) {
-    //     console.error(error);
-    //     res.status(500).send("Error retrieving cart items.");
-    // }
+    const userId = req.session.user?.id;  // Obtendo o id do usuário da sessão (já autenticado)
+    if (!userId) {
+        return res.status(400).json({ message: "Cart ID is required" });
+    }
+    try {
+        const items = await cartRepository.getCartItems(userId);
+        const total = await cartRepository.getCartTotal(userId);
+        console.log(total)
+        res.render("shopping/cart", { items, total  });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error retrieving cart items.");
+    }
 };
 
 // Função para renderizar a página de checkout do carrinho
@@ -167,5 +200,6 @@ module.exports = {
     clearCart,
     createCart,
     renderCartView,
-    checkoutCart
+    checkoutCart,
+    updateCartItemQuantity
 };

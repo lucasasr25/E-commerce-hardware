@@ -124,53 +124,65 @@
             <legend>Endereço do Cliente</legend>
             <div id="addressSection">
                 <% addresses.forEach(function(address, index) { %>
-                    <div>
+                    <div class="address-entry"> <!-- Envolvendo com class .address-entry -->
                         <label for="adr_type_<%= index %>">Tipo de Endereço:</label>
                         <input type="text" name="adr_type[]" value="<%= address.adr_type %>" required><br>
-
+            
+                        <label for="is_default<%= index %>">Ativo:</label>
+                        <input type="checkbox" name="is_default[]" id="is_default<%= index %>" value="true" <%= address.is_default ? 'checked' : '' %>><br>
+                        
                         <label for="adr_type_<%= index %>">Apelido:</label>
                         <input type="text" name="nick[]" value="<%= address.nick %>" required><br>
-
+            
                         <label for="street_<%= index %>">Rua:</label>
                         <input type="text" name="street[]" value="<%= address.street %>" required><br>
-
+            
                         <label for="number_<%= index %>">Número:</label>
                         <input type="text" name="number[]" value="<%= address.number %>"><br>
-
+            
                         <label for="complement_<%= index %>">Complemento:</label>
                         <input type="text" name="complement[]" value="<%= address.complement %>"><br>
-
+            
                         <label for="neighborhood_<%= index %>">Bairro:</label>
                         <input type="text" name="neighborhood[]" value="<%= address.neighborhood %>" required><br>
-
+            
                         <label for="city_<%= index %>">Cidade:</label>
                         <input type="text" name="city[]" value="<%= address.city %>" required><br>
-
+            
                         <label for="state_<%= index %>">Estado:</label>
                         <input type="text" name="state[]" value="<%= address.state %>" required><br>
-
+            
                         <label for="country_<%= index %>">País:</label>
                         <input type="text" name="country[]" value="<%= address.country %>" required><br>
-
+            
                         <label for="zipcode_<%= index %>">CEP:</label>
                         <input type="text" name="zipcode[]" value="<%= address.zipcode %>" required><br>
+            
+                        <button type="button" onclick="removeAddress(this)">Remover Endereço</button>
                     </div>
                 <% }) %>
             </div>
+            
             <button type="button" onclick="addAddress()">Adicionar Novo Endereço</button>
         </fieldset>
 
         <fieldset>
             <legend>Telefones do Cliente</legend>
             <div id="phoneSection">
-                <% if (phoneNumbers && phoneNumbers.length > 0) { %> <!-- Alterando para 'phoneNumbers' -->
-                    <% phoneNumbers.forEach(function(phoneNumber, index) { %> <!-- Alterando para 'phoneNumbers' -->
-                        <input type="text" name="phoneNumbers[]" value="<%= phoneNumber %>" placeholder="Telefone"><br>
+                <% if (phoneNumbers && phoneNumbers.length > 0) { %>
+                    <% phoneNumbers.forEach(function(phoneNumber, index) { %>
+                        <div class="phone-entry"> <!-- Envolvendo com class .phone-entry -->
+                            <input type="text" name="phoneNumbers[]" value="<%= phoneNumber %>" placeholder="Telefone">
+                            <button type="button" onclick="removePhone(this)">Remover Telefone</button>
+                        </div>
                     <% }) %>
                 <% } else { %>
-                    <input type="text" name="phoneNumbers[]" placeholder="Telefone"><br>
+                    <div class="phone-entry">
+                        <input type="text" name="phoneNumbers[]" placeholder="Telefone">
+                    </div>
                 <% } %>
             </div>
+            
             <button type="button" onclick="addPhoneNumber()">Adicionar Novo Telefone</button>
         </fieldset>
         
@@ -179,4 +191,20 @@
         <button type="submit" style="margin: 20px;">Salvar Alterações</button>
     </form>
 </body>
+<script>
+    function removeAddress(button) {
+        const entry = button.closest('.address-entry');
+        if (entry) {
+            entry.remove();
+        }
+    }
+
+    function removePhone(button) {
+        const entry = button.closest('.phone-entry');
+        if (entry) {
+            entry.remove();
+        }
+    }
+</script>
+
 </html>

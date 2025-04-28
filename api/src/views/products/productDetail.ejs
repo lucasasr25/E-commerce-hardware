@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../partials/head') %>
+    <title><%= product.name %> | Lucas Store</title>
+</head>
+<body class="main-layout">
+
+    <!-- Loader -->
+    <div class="loader_bg">
+        <div class="loader"><img src="/images/loading.gif" alt="Carregando..." /></div>
+    </div>
+
+    <!-- Header -->
+    <%- include('../partials/header') %>
+
+    <!-- Detalhes do Produto -->
+    <div class="container mt-5 mb-5">
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Imagem padrão até você armazenar imagens reais -->
+                <img src="https://images.kabum.com.br/produtos/fotos/475647/placa-de-video-rx-7600-gaming-oc-8g-radeon-gigabyte-8gb-gddr6-128bits-rgb-gv-r76gaming-oc-8gd_1698435450_g.jpg" alt="<%= product.name %>" class="img-fluid rounded">
+            </div>
+            <div class="col-md-6">
+                <h1><%= product.name %></h1>
+                <h3 class="text-danger">R$ <%= Number(product.price).toFixed(2) %></h3>
+
+                <% if (product.description) { %>
+                    <p><%= product.description %></p>
+                <% } %>
+
+                <h4 class="mt-4">Especificações Técnicas:</h4>
+                <ul class="list-group list-group-flush">
+                    <% if (productDetails.manufacturer) { %>
+                        <li class="list-group-item"><strong>Fabricante:</strong> <%= productDetails.manufacturer %></li>
+                    <% } %>
+                    <% if (productDetails.warranty_period) { %>
+                        <li class="list-group-item"><strong>Garantia:</strong> <%= productDetails.warranty_period %> meses</li>
+                    <% } %>
+                    <% if (productDetails.weight) { %>
+                        <li class="list-group-item"><strong>Peso:</strong> <%= productDetails.weight %> kg</li>
+                    <% } %>
+                    <% if (productDetails.dimensions) { %>
+                        <li class="list-group-item"><strong>Dimensões:</strong> <%= productDetails.dimensions %></li>
+                    <% } %>
+                    <% if (productDetails.color) { %>
+                        <li class="list-group-item"><strong>Cor:</strong> <%= productDetails.color %></li>
+                    <% } %>
+                    <% if (productDetails.material) { %>
+                        <li class="list-group-item"><strong>Material:</strong> <%= productDetails.material %></li>
+                    <% } %>
+                </ul>
+                <form action="/cart/add" method="POST">
+                    <input type="hidden" name="productId" value="<%= product.id %>">
+                    <input type="price" name="price" value="<%= product.price %>">
+                    <input type="number" name="quantity" value="1" min="1" class="form-control w-25 mt-3" />
+                    <button type="submit" class="btn btn-success mt-4">Adicionar ao Carrinho</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <%- include('../partials/chatbot') %>
+
+    <%- include('../partials/scripts') %>
+
+</body>
+</html>

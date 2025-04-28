@@ -1,47 +1,46 @@
 const express = require("express");
 const router = express.Router();
-const cartRepo = require("../repositories/cartRepository");
+const cartController = require("../controllers/cartContoller");
+const checkoutController = require("../controllers/checkoutController");
+// const cartRepo = require("../repositories/cartRepository");
 
-// Adicionar item ao carrinho
-router.post("/add", async (req, res) => {
-    try {
-        const { userId, productId, quantity, price } = req.body;
-        const response = await cartRepo.addItemToCart(userId, productId, quantity, price);
-        res.json(response);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 
-// Listar itens do carrinho
-router.get("/:userId", async (req, res) => {
-    try {
-        const cartItems = await cartRepo.getCartItems(req.params.userId);
-        res.json(cartItems);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+router.post("/add", cartController.addItemToCart);
+router.get("/view", cartController.renderCartView);
+router.post("/update", cartController.updateCartItemQuantity);
+router.get("/getPreview", cartController.getCartItemsUser);
+router.get("/checkout", checkoutController.renderCheckoutView);
+router.post("/checkout", checkoutController.checkout);
 
-// Remover item do carrinho
-router.delete("/remove", async (req, res) => {
-    try {
-        const { userId, productId } = req.body;
-        const response = await cartRepo.removeItemFromCart(userId, productId);
-        res.json(response);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// // Listar itens do carrinho
+// router.get("/:userId", async (req, res) => {
+//     try {
+//         const cartItems = await cartRepo.getCartItems(req.params.userId);
+//         res.json(cartItems);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
 
-// Limpar carrinho
-router.delete("/clear/:userId", async (req, res) => {
-    try {
-        const response = await cartRepo.clearCart(req.params.userId);
-        res.json(response);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// // Remover item do carrinho
+// router.delete("/remove", async (req, res) => {
+//     try {
+//         const { userId, productId } = req.body;
+//         const response = await cartRepo.removeItemFromCart(userId, productId);
+//         res.json(response);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
+
+// // Limpar carrinho
+// router.delete("/clear/:userId", async (req, res) => {
+//     try {
+//         const response = await cartRepo.clearCart(req.params.userId);
+//         res.json(response);
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
 
 module.exports = router;

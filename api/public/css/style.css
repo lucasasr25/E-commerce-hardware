@@ -40,6 +40,29 @@ body {
      font-weight: normal;
      overflow-x: hidden;
 }
+.user-circle {
+     display: flex;
+     align-items: center;
+     margin-left: 15px;
+ }
+ 
+ .user-icon-circle {
+     width: 35px;
+     height: 35px;
+     background-color: #fff;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     color: #333;
+     border: 1px solid #ccc;
+     transition: background-color 0.3s;
+ }
+ 
+ .user-icon-circle:hover {
+     background-color: #f0f0f0;
+ }
+ 
 
 a {
      color: #1f1f1f;

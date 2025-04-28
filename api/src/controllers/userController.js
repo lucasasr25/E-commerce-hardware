@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 const clientRepository = require("../repositories/clientRepository");
 const addressRepository = require("../repositories/adressRepository");
+const orderRepository = require("../repositories/orderRepository");
 
 // Password validation
 const validatePassword = [
@@ -17,6 +18,25 @@ const validatePassword = [
         return true;
     })
 ];
+
+
+const renderOrders = async (req, res) => {
+    try {
+        const userId = req.session.user?.id;
+
+        if (!userId) {
+            return res.status(401).send("Usuário não autenticado.");
+        }
+
+        const orders = await orderRepository.getAllOrders(userId);
+
+        res.render("user/orders/list", { orders });
+    } catch (error) {
+        console.error("Erro ao obter pedidos:", error);
+        res.status(500).send("Erro ao carregar os pedidos.");
+    }
+};
+
 
 const registerClient = async (req, res) => {
     const errors = validationResult(req);
@@ -38,12 +58,11 @@ const registerClient = async (req, res) => {
 
 const updateClient = async (req, res) => {
     
-    // Captura os campos diretamente de req.body
-    const { id, name, email, password, active, phoneNumbers, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode } = req.body;
+    const { id, name, email, password, active, phoneNumbers, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, is_default  } = req.body;
 
-    // Mapeia os endereços para um array de objetos
     const addresses = adr_type.map((type, i) => ({
         adr_type: type,
+        is_default: is_default && is_default[i] === 'true', 
         nick: nick[i] || '',
         street: street[i] || '',
         number: number[i] || '',
@@ -54,7 +73,7 @@ const updateClient = async (req, res) => {
         country: country[i] || '',
         zipcode: zipcode[i] || ''
     }));
-    console.log(phoneNumbers);
+    console.log(addresses);
     
     try {
         // Atualiza os dados do cliente no repositório
@@ -64,7 +83,8 @@ const updateClient = async (req, res) => {
             return res.status(404).json({ message: "Client not found" });
         }
 
-        res.redirect(`/clientDetail?id=${id}`);
+        // res.redirect(`/client/clientDetail?id=${id}`);
+        res.redirect(`/user`);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -93,20 +113,20 @@ const renderClientsView = async (req, res) => {
   const renderDetailView = async (req, res) => {
     try {
         const { id } = req.query;
-        
-        // Buscar o cliente com o ID específico
-        const clients = await clientRepository.searchClients({ id });
 
-        if (clients.length === 0) {
+        const client = await clientRepository.getClientById(id); // id deve ser direto, não como objeto
+
+        if (!client) {
             return res.status(404).send("Cliente não encontrado.");
         }
 
-        // Passar o cliente encontrado para a view com o nome 'client'
-        res.render("client/detail", { client: clients[0] });  // Alterado 'clients' para 'client'
+        res.render("client/detail", { client }); // Agora sim está certo
     } catch (error) {
+        console.error("Erro ao buscar detalhes do cliente:", error);
         res.status(500).send("Erro ao buscar detalhes do cliente.");
     }
 };
+
 
 const deleteClient = async (req, res) => {
     try {
@@ -120,24 +140,32 @@ const deleteClient = async (req, res) => {
         }
 
         // Redireciona para a página de clientes após a exclusão
-        res.redirect('/clients');
+        res.redirect('/client/clients');
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao deletar cliente");
     }
 };
+
+const renderSettingsView = async (req, res) => {
+    try {
+        res.render("user/admin/settings"); // settings.ejs dentro da pasta 'views'
+    } catch (error) {
+        console.error("Erro ao renderizar a tela de configurações:", error);
+        res.status(500).send("Erro ao carregar a tela de configurações");
+    }
+};
+
+
 const renderEditView = async (req, res) => {
     try {
         const { id } = req.query;
 
-        // Buscar o cliente com o ID específico
         const clients = await clientRepository.searchClients({ id });
 
         if (clients.length === 0) {
             return res.status(404).send("Cliente não encontrado.");
         }
-        console.log(clients);
-        // Passar o cliente, endereços e números de telefone para a view
         res.render("client/edit", { 
             client: clients[0], 
             addresses: clients[0].addresses || [],  // Garantir que addresses seja um array
@@ -149,6 +177,70 @@ const renderEditView = async (req, res) => {
     }
 };
 
+const renderCardEdit = async (req, res) => {
+    const userId = req.session.user?.id; 
+
+    try {
+        // Obter os cartões de crédito do banco de dados para o usuário logado
+        const creditCards = await clientRepository.getCreditCardsByUserId(userId);
+
+        // Renderizar a página de edição de cartões de crédito com os dados
+        res.render('user/editCreditCards', { creditCards });
+    } catch (error) {
+        console.error("Erro ao carregar cartões de crédito para edição:", error);
+        res.status(500).send('Erro ao carregar os cartões de crédito');
+    }
+};
+
+
+const updateCreditCardsController = async (req, res) => {
+    const { card_number, holder_name, expiration_date, is_default } = req.body; // Os dados do formulário
+    const userId = req.session.user?.id; 
+    console.log(req.body);  // Adicione essa linha para verificar os dados recebidos
+
+    try {
+        for (let i = 0; i < card_number.length; i++) {
+            await clientRepository.updateCreditCard(userId, card_number[i], holder_name[i], expiration_date[i], is_default[i]);
+        }
+        res.redirect('/user');
+    } catch (error) {
+        console.error("Erro ao atualizar cartões:", error);
+        res.status(500).json({ error: 'Erro ao adicionar cartões de crédito.' });
+    }
+};
+
+
+const renderClientProfile = async (req, res) => {
+    try {
+        const id = req.session.user?.id; 
+
+        // Buscar o cliente com base no ID
+        const client = await clientRepository.getClientById(id);
+        
+        if (!client) {
+            return res.status(404).send("Cliente não encontrado.");
+        }
+
+        // Buscar os endereços do cliente
+        const addresses = await addressRepository.getClientAddresses(id);
+
+        // Buscar os cartões de crédito do cliente
+        const cards = await clientRepository.getCreditCardsByUserId(id);
+
+        // Renderizar a página de perfil do cliente com os dados
+
+        console.log(client, addresses, cards)
+        res.render("user/profile", {
+            client,
+            addresses,
+            cards
+        });
+
+    } catch (error) {
+        console.error("Erro ao buscar o perfil do cliente:", error);
+        res.status(500).send("Erro ao buscar perfil do cliente.");
+    }
+};
 
 
 const renderCreateview = async (req, res) => {
@@ -201,8 +293,22 @@ const createClient = async (req, res) => {
             });
             await Promise.all(phonePromises);
         }
+
+
+        const { card_number, holder_name, expiration_date } = req.body;
+
+        // Criação dos cartões de crédito
+        if (card_number && holder_name && expiration_date) {
+            const cardPromises = card_number.map((num, i) => {
+                return clientRepository.createCreditCard(newClient.id, num, holder_name[i], expiration_date[i]);
+            });
+            await Promise.all(cardPromises);
+        }
+
+
+
         // Redireciona para a página de detalhes do cliente
-        res.redirect(`/clientDetail?id=${newClient.id}`);
+        res.redirect(`/client/clientDetail?id=${newClient.id}`);
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao criar cliente e endereço");
@@ -268,4 +374,4 @@ const createClientAPI = async (req, res) => {
 
 
 
-module.exports = { registerClient, createClientAPI, validatePassword, updateClient, searchClients, renderClientsView, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+module.exports = { registerClient, createClientAPI, renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};

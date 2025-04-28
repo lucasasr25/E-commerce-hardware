@@ -1,17 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const cartController = require("../controllers/cartContoller");
+const checkoutController = require("../controllers/checkoutController");
 // const cartRepo = require("../repositories/cartRepository");
 
 
-// renderCartView
-// // Adicionar item ao carrinho
-
-
 router.post("/add", cartController.addItemToCart);
-
+router.get("/view", cartController.renderCartView);
+router.post("/update", cartController.updateCartItemQuantity);
 router.get("/getPreview", cartController.getCartItemsUser);
-
+router.get("/checkout", checkoutController.renderCheckoutView);
+router.post("/checkout", checkoutController.checkout);
 
 // // Listar itens do carrinho
 // router.get("/:userId", async (req, res) => {

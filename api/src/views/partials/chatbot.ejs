@@ -1,0 +1,110 @@
+<!-- Botão e janela do Chatbot -->
+<style>
+    .floating-button {
+        position: fixed;
+        right: 30px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 9999;
+    }
+
+    #chatbot-button {
+        bottom: 30px;
+    }
+
+    #chatbot-window {
+        position: fixed;
+        right: 30px;
+        bottom: 100px;
+        width: 300px;
+        height: 400px;
+        background-color: white;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 9999;
+    }
+
+    #chatbot-header {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    #chatbot-messages {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    #chatbot-input {
+        display: flex;
+        border-top: 1px solid #ccc;
+    }
+
+    #chatbot-input input {
+        flex: 1;
+        border: none;
+        padding: 10px;
+    }
+
+    #chatbot-input button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+    }
+</style>
+
+<button id="chatbot-button" class="floating-button">💬</button>
+
+<div id="chatbot-window">
+    <div id="chatbot-header">Atendimento</div>
+    <div id="chatbot-messages">
+        <p><strong>Bot:</strong> Olá! Como posso te ajudar hoje?</p>
+    </div>
+    <div id="chatbot-input">
+        <input type="text" id="chatbot-text" placeholder="Digite sua mensagem..." />
+        <button onclick="sendChat()">Enviar</button>
+    </div>
+</div>
+
+<script>
+    const botButton = document.getElementById('chatbot-button');
+    const botWindow = document.getElementById('chatbot-window');
+    const botMessages = document.getElementById('chatbot-messages');
+    const botText = document.getElementById('chatbot-text');
+
+    botButton.addEventListener('click', () => {
+        botWindow.style.display = botWindow.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    function sendChat() {
+        const message = botText.value.trim();
+        if (message !== "") {
+            const userMsg = document.createElement('p');
+            userMsg.innerHTML = `<strong>Você:</strong> ${message}`;
+            botMessages.appendChild(userMsg);
+            botText.value = "";
+
+            setTimeout(() => {
+                const botReply = document.createElement('p');
+                botReply.innerHTML = `<strong>Bot:</strong> Essa funcionalidade ainda está em desenvolvimento 😉`;
+                botMessages.appendChild(botReply);
+                botMessages.scrollTop = botMessages.scrollHeight;
+            }, 500);
+        }
+    }
+</script>
