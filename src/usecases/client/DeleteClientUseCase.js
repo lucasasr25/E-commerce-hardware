@@ -1,0 +1,15 @@
+const clientRepository = require("../../repositories/clientRepository");
+
+const DeleteClientUseCase =
+    async (req, res) => {
+        const { id } = req.params;
+        const client = await clientRepository.deleteClient(id);
+        
+        if (!client) {
+            throw new Error("Cliente não encontrado.");
+        }
+
+        return client;
+}
+
+module.exports = DeleteClientUseCase;

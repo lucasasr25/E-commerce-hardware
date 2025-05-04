@@ -71,7 +71,11 @@
                             <option disabled selected>Nenhum endereço cadastrado</option>
                         <% } %>
                     </select>
-                    
+                    <br>
+                    <button type="button" class="btn btn-success" onclick="window.location.href='/user'">
+                        Criar novo endereço
+                      </button>
+                                          <br><br>
                     
                     <form action="/cart/checkout" method="POST">
                         <div class="mb-3 p-3 border rounded bg-light">
@@ -93,26 +97,42 @@
                             <input type="text" class="form-control" id="cep" name="cep" value="<%= cep || '' %>" readonly>
                         </div>
                     
-                        <label for="cartao">Selecione o Cartão de Crédito Cadastrado</label>
-                        <select class="form-control" id="cartao" name="cartao">
+             
+                        <label>Pagamento com Cartões de Crédito</label>
+                        <div id="cartoes-container">
                             <% if (cartoes && cartoes.length > 0) { %>
-                                <% cartoes.forEach(cartao => { %>
-                                    <option value="<%= cartao.id %>">
-                                        <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
-                                    </option>
-                                <% }) %>
+                                <div class="input-group mb-2">
+                                    <select class="form-control me-2" name="pagamentos_cartao[0][id]">
+                                        <% cartoes.forEach(cartao => { %>
+                                            <option value="<%= cartao.id %>">
+                                                <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                    <input type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[0][valor]" placeholder="Valor (R$)">
+                                </div>
                             <% } else { %>
-                                <option disabled selected>Nenhum cartão salvo</option>
+                                <p class="text-danger">Nenhum cartão salvo</p>
                             <% } %>
-                        </select>
-                        <label for="cupom">Digite o cupom promocional:</label>
-                        <input type="text" class="form-control" id="cupom" name="cupom" value="" >
-                        <label for="cupom">Digite os cupons de troca:</label>
+                        </div>
+                        <button type="button" class="btn btn-secondary mb-3" id="add-cartao">Adicionar outro cartão</button>
+
+
+
+                        <div style="text-align: center;">
+                            <small id="cupomMensagem" class="form-text text-muted"></small>
+                        </div>
+                        <label for="cupomPromocional">Digite o cupom promocional:</label>
+                        <div class="input-group mb-3">
+                          <input type="text" id="cupomPromocional" name="promotionalCupomCode" value="">
+                          <button type="button" class="btn btn-success" id="aplicarCupom">Aplicar Cupom</button>
+                        </div>
+        
+                        <label for="cuponsTroca">Digite os cupons de troca:</label>
                         <div id="cupom-container">
-                            <input type="text" class="form-control" name="cupom[]" placeholder="Digite o cupom de troca">
+                            <input type="text" class="form-control" name="cupons_troca[]" placeholder="Digite o cupom de troca">
                         </div>
                         <button type="button" class="btn btn-primary" id="add-cupom">Adicionar mais cupom</button>
-                        
                         <button type="submit" class="btn btn-primary btn-finalizar">Finalizar Pedido</button>
                     </form>
                     
@@ -129,7 +149,7 @@
                             <p><strong>Subtotal:</strong> R$ <%= total.replace('.', ',') %></p>
                             <p><strong>Frete:</strong> R$ 50,00</p> <!-- aqui pode deixar fixo ou calcular depois -->
                             <hr>
-                            <h4><strong>Total:</strong> R$ <%= (total + 50).replace('.', ',') %></h4>
+                            <h4><strong>Total:</strong> R$ <%= (parseFloat(total.replace(',', '.')) + 50).toFixed(2).replace('.', ',') %></h4>
                         </div>
                     </div>
                 
@@ -146,7 +166,7 @@
                             <li class="list-group-item">Nenhum produto no carrinho</li>
                         <% } %>
                         <li class="list-group-item active">
-                            Total <span class="float-end">R$ <%= total.replace('.', ',') %></span>
+                            Total <span class="float-end" id="globalTotal">R$ <%= (parseFloat(total.replace(',', '.')) + 50).toFixed(2).replace('.', ',') %></span>
                         </li>
                     </ul>
                 
@@ -158,15 +178,123 @@
     </div>
 </body>
 <script>
-    document.getElementById('add-cupom').addEventListener('click', function() {
+document.getElementById('add-cupom').addEventListener('click', function() {
     const container = document.getElementById('cupom-container');
     const newInput = document.createElement('input');
     newInput.type = 'text';
     newInput.classList.add('form-control');
-    newInput.name = 'cupom[]';  // Usamos "cupom[]" para enviar múltiplos cupons como um array
+    newInput.name = 'cupons_troca[]';  // Nome atualizado aqui também
     newInput.placeholder = 'Digite o cupom de troca';
     container.appendChild(newInput);
 });
+
+const totalOriginal = parseFloat("<%= total %>"); // pega o total sem desconto do backend
+
+document.getElementById('aplicarCupom').addEventListener('click', async () => {
+    const cupom = document.getElementById('cupomPromocional').value.trim();
+    const mensagem = document.getElementById('cupomMensagem');
+
+    if (!cupom) {
+        mensagem.textContent = "Digite um cupom primeiro.";
+        return;
+    }
+
+    try {
+        const response = await fetch('/cart/aplicar-cupom', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: cupom })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            const desconto = totalOriginal * (result.discountPercentage / 100);
+            const totalComDesconto = totalOriginal - desconto + 50;
+            globalTotal = document.querySelector("span[id='globalTotal']");
+            globalTotal.textContent = `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
+            document.querySelector('.order-summary .ibox-content').innerHTML = `
+                <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
+                <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${desconto.toFixed(2).replace('.', ',')}</span></p>
+                <p><strong>Frete:</strong> R$ 50,00</p>
+                <hr>
+                <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
+            `;
+
+
+            mensagem.textContent = result.message;
+        } else {
+            mensagem.textContent = result.message || "Erro ao aplicar cupom.";
+        }
+    } catch (err) {
+        mensagem.textContent = "Erro na comunicação com o servidor.";
+        console.error(err);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let cartaoIndex = 1;
+    document.getElementById('add-cartao').addEventListener('click', function () {
+    // Verifica se o número de cartões adicionados é menor que o número de cartões no array
+    if (cartaoIndex < <%= cartoes.length %>) {
+            const container = document.getElementById('cartoes-container');
+            
+            // Cria o HTML do cartão
+            const selectHtml = `<select class="form-control me-2" name="pagamentos_cartao[${cartaoIndex}][id]">
+                <% cartoes.forEach(cartao => { %>
+                    <option value="<%= cartao.id %>">
+                        <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
+                    </option>
+                <% }) %>
+            </select>`;
+
+            const inputHtml = `<input type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
+
+            // Botão de remover
+            const removeButtonHtml = `<button type="button" class="btn btn-danger btn-sm" onclick="removeCartao(this)">X</button>`;
+
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = selectHtml + inputHtml + removeButtonHtml;
+
+            // Adiciona o novo campo de cartão no container
+            container.appendChild(div);
+
+            cartaoIndex++;
+        }
+    });
+
+    // Função para remover o cartão
+    function removeCartao(button) {
+        const cartaoDiv = button.closest('.input-group');
+        cartaoDiv.remove();
+        cartaoIndex += -1;
+    }
+        
 
 </script>
 </html>

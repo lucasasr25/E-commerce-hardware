@@ -1,9 +1,8 @@
-const orderRepository = require("../repositories/orderRepository");
-
+const orderStatusUseCases = require("../usecases/settings/orderStatusUseCases");
 
 const changeOrder = async (req, res) => {
     try {
-        const orderStatusList = await orderRepository.getAllOrderStatus();
+        const orderStatusList = await orderStatusUseCases.getAllOrderStatus();
         res.render("settings/orderStatus", { orderStatusList });
     } catch (error) {
         console.error("Erro ao carregar configurações de pedido:", error);
@@ -14,7 +13,7 @@ const changeOrder = async (req, res) => {
 const createOrderStatus = async (req, res) => {
     try {
         const { status_name } = req.body;
-        await orderRepository.createOrderStatus(status_name);
+        await orderStatusUseCases.createOrderStatus(status_name);
         res.redirect("/settings/order-status");
     } catch (error) {
         console.error("Erro ao criar status:", error);
@@ -25,7 +24,7 @@ const createOrderStatus = async (req, res) => {
 const deleteOrderStatus = async (req, res) => {
     try {
         const { id } = req.body;
-        await orderRepository.deleteOrderStatus(id);
+        await orderStatusUseCases.deleteOrderStatus(id);
         res.redirect("/settings/order-status");
     } catch (error) {
         console.error("Erro ao deletar status:", error);
