@@ -1,10 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
-const clientRepository = require("../repositories/clientRepository");
-const addressRepository = require("../repositories/adressRepository");
-const orderRepository = require("../repositories/orderRepository");
+const clientUseCase = require('../usecases/client');
 
-// Password validation
 const validatePassword = [
     body("password")
         .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long")
@@ -22,21 +19,26 @@ const validatePassword = [
 
 const renderOrders = async (req, res) => {
     try {
-        const userId = req.session.user?.id;
-
-        if (!userId) {
-            return res.status(401).send("Usuário não autenticado.");
-        }
-
-        const orders = await orderRepository.getAllOrders(userId);
-
+        const orders = await clientUseCase.RenderOrdersUseCase(req, res);
         res.render("user/orders/list", { orders });
     } catch (error) {
-        console.error("Erro ao obter pedidos:", error);
-        res.status(500).send("Erro ao carregar os pedidos.");
+        console.error("Erro ao obter pedidos:", error.message);
+        const status = error.message === "Usuário não autenticado." ? 401 : 500;
+        res.status(status).send(error.message);
     }
 };
 
+const renderOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const order = await clientUseCase.RenderOrderUseCase(orderId);
+        console.log(order)
+        res.render("user/orders/details", { order });
+    } catch (error) {
+        console.error("Erro ao buscar detalhes do pedido:", error.message);
+        res.status(500).send("Erro ao carregar os detalhes do pedido.");
+    }
+};
 
 const registerClient = async (req, res) => {
     const errors = validationResult(req);
@@ -44,11 +46,9 @@ const registerClient = async (req, res) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, document, addresses} = req.body;
-    
     try {
-        const passwordHash = await bcrypt.hash(password, 10);
-        const client = await clientRepository.registerClient(name, email, passwordHash, document, addresses);
+        const client = await clientUseCase.RegisterClientUseCase(req, res);
+        // const client = await registerClientUseCase.execute({ name, email, password, document, addresses });
 
         res.status(201).json({ message: "Client successfully registered!", client });
     } catch (error) {
@@ -56,90 +56,55 @@ const registerClient = async (req, res) => {
     }
 };
 
+
 const updateClient = async (req, res) => {
-    
-    const { id, name, email, password, active, phoneNumbers, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, is_default  } = req.body;
-
-    const addresses = adr_type.map((type, i) => ({
-        adr_type: type,
-        is_default: is_default && is_default[i] === 'true', 
-        nick: nick[i] || '',
-        street: street[i] || '',
-        number: number[i] || '',
-        complement: complement[i] || '',
-        neighborhood: neighborhood[i] || '',
-        city: city[i] || '',
-        state: state[i] || '',
-        country: country[i] || '',
-        zipcode: zipcode[i] || ''
-    }));
-    console.log(addresses);
-    
     try {
-        // Atualiza os dados do cliente no repositório
-        const client = await clientRepository.updateClient(id, name, email, password, active, phoneNumbers, addresses);
-
-        if (!client) {
-            return res.status(404).json({ message: "Client not found" });
-        }
-
-        // res.redirect(`/client/clientDetail?id=${id}`);
-        res.redirect(`/user`);
+      const updatedClient = await clientUseCase.updateClientUseCase(req, res);
+  
+      if (!updatedClient) {
+        return res.status(404).json({ message: "Client not found" });
+      }
+  
+      res.redirect(`/user`);
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-const searchClients = async (req, res) => {
-    try {
-        const clients = await clientRepository.searchClients(req.query);
-        res.json(clients);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-
-// Nova função para renderizar a view de clientes
-const renderClientsView = async (req, res) => {
-    try {
-      const clients = await clientRepository.searchClients(req.query);
-      res.render("client/list", { clients }); // Renderizar a view e passar os dados dos clientes
-    } catch (error) {
-      res.status(500).send("Erro ao buscar clientes.");
+      res.status(500).json({ error: error.message });
     }
   };
 
-  const renderDetailView = async (req, res) => {
+
+const searchClients = async (req, res) => {
     try {
-        const { id } = req.query;
+        const clients = await clientUseCase.SearchClientsUseCase(req, res);
+        res.json(clients);
+    } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
-        const client = await clientRepository.getClientById(id); // id deve ser direto, não como objeto
+const renderClientsView = async (req, res) => {
+    try {
+        const clients = await clientUseCase.RenderClientsViewUseCase(req,res);
+        res.render("client/list", { clients });
+    } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+        res.status(500).send("Erro ao buscar clientes.");
+    }
+};
 
-        if (!client) {
-            return res.status(404).send("Cliente não encontrado.");
-        }
-
-        res.render("client/detail", { client }); // Agora sim está certo
+const renderDetailView = async (req, res) => {
+    try {
+        const client = await clientUseCase.RenderClientDetailUseCase(req,res);
+        res.render("client/detail", { client });
     } catch (error) {
         console.error("Erro ao buscar detalhes do cliente:", error);
         res.status(500).send("Erro ao buscar detalhes do cliente.");
     }
 };
 
-
 const deleteClient = async (req, res) => {
-    try {
-        const { id } = req.params; // Pega o ID do cliente da URL
-
-        // Tenta deletar o cliente pelo ID
-        const client = await clientRepository.deleteClient(id);
-
-        if (!client) {
-            return res.status(404).send("Cliente não encontrado.");
-        }
-
-        // Redireciona para a página de clientes após a exclusão
+    try {    
+        const deleteClientUseCase = await clientUseCase.DeleteClientUseCase(req, res);
         res.redirect('/client/clients');
     } catch (error) {
         console.error(error);
@@ -149,7 +114,7 @@ const deleteClient = async (req, res) => {
 
 const renderSettingsView = async (req, res) => {
     try {
-        res.render("user/admin/settings"); // settings.ejs dentro da pasta 'views'
+        res.render("user/admin/settings");
     } catch (error) {
         console.error("Erro ao renderizar a tela de configurações:", error);
         res.status(500).send("Erro ao carregar a tela de configurações");
@@ -159,219 +124,59 @@ const renderSettingsView = async (req, res) => {
 
 const renderEditView = async (req, res) => {
     try {
-        const { id } = req.query;
-
-        const clients = await clientRepository.searchClients({ id });
-
-        if (clients.length === 0) {
-            return res.status(404).send("Cliente não encontrado.");
-        }
-        res.render("client/edit", { 
-            client: clients[0], 
-            addresses: clients[0].addresses || [],  // Garantir que addresses seja um array
-            phoneNumbers: clients[0].phone_numbers || [] // Aqui está o campo correto
-        });
+        const data = await clientUseCase.RenderEditViewUseCase(req, res);
+        res.render("client/edit", { client: data.client, addresses: data.addresses, phoneNumbers: data.phoneNumbers });
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Erro ao carregar a página de edição");
+        res.status(500).send(error.message);
     }
 };
 
 const renderCardEdit = async (req, res) => {
-    const userId = req.session.user?.id; 
-
     try {
-        // Obter os cartões de crédito do banco de dados para o usuário logado
-        const creditCards = await clientRepository.getCreditCardsByUserId(userId);
-
-        // Renderizar a página de edição de cartões de crédito com os dados
+        const creditCards = await clientUseCase.RenderCardEditUseCase(req, res);
         res.render('user/editCreditCards', { creditCards });
     } catch (error) {
-        console.error("Erro ao carregar cartões de crédito para edição:", error);
-        res.status(500).send('Erro ao carregar os cartões de crédito');
+        res.status(500).send(error.message);
     }
 };
 
-
 const updateCreditCardsController = async (req, res) => {
-    const { card_number, holder_name, expiration_date, is_default } = req.body; // Os dados do formulário
-    const userId = req.session.user?.id; 
-    console.log(req.body);  // Adicione essa linha para verificar os dados recebidos
-
     try {
-        for (let i = 0; i < card_number.length; i++) {
-            await clientRepository.updateCreditCard(userId, card_number[i], holder_name[i], expiration_date[i], is_default[i]);
-        }
+        // const userId = req.session.user?.id;
+        const updateCreditCardsUseCase = await clientUseCase.UpdateCreditCardsUseCase(req, res);
         res.redirect('/user');
     } catch (error) {
-        console.error("Erro ao atualizar cartões:", error);
         res.status(500).json({ error: 'Erro ao adicionar cartões de crédito.' });
     }
 };
 
-
 const renderClientProfile = async (req, res) => {
     try {
-        const id = req.session.user?.id; 
-
-        // Buscar o cliente com base no ID
-        const client = await clientRepository.getClientById(id);
-        
-        if (!client) {
-            return res.status(404).send("Cliente não encontrado.");
-        }
-
-        // Buscar os endereços do cliente
-        const addresses = await addressRepository.getClientAddresses(id);
-
-        // Buscar os cartões de crédito do cliente
-        const cards = await clientRepository.getCreditCardsByUserId(id);
-
-        // Renderizar a página de perfil do cliente com os dados
-
-        console.log(client, addresses, cards)
-        res.render("user/profile", {
-            client,
-            addresses,
-            cards
-        });
-
+        const { client, addresses, cards } = await clientUseCase.RenderClientProfileUseCase(req);
+        res.render("user/profile", { client, addresses, cards });
     } catch (error) {
-        console.error("Erro ao buscar o perfil do cliente:", error);
-        res.status(500).send("Erro ao buscar perfil do cliente.");
+        res.status(500).send(error.message);
     }
 };
 
 
+
 const renderCreateview = async (req, res) => {
     try {
-        res.render("client/create", {});
+        const data = await clientUseCase.RenderCreateViewUseCase(req,res);
+        res.render("client/create", data);
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Erro ao carregar a página de edição");
+        res.status(500).send("Erro ao carregar a página de criação");
     }
 };
 
 const createClient = async (req, res) => {
     try {
-        // Verificando o conteúdo de req.body
-        console.log(req.body); // Verifique os dados recebidos
-
-        const { name, email, password, document, active, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, phoneNumbers } = req.body;
-
-        // Tratar os valores dos arrays (pegando o primeiro valor para cada campo, pois você enviará múltiplos valores)
-        const addresses = adr_type.map((type, i) => ({
-            adr_type: type || '',
-            nick: nick[i] || '',
-            street: street[i] || '',
-            number: number[i] || '',
-            complement: complement[i] || '',
-            neighborhood: neighborhood[i] || '',
-            city: city[i] || '',
-            state: state[i] || '',
-            country: country[i] || '',
-            zipcode: zipcode[i] || ''
-        }));
-
-        // Criação do cliente
-        const newClient = await clientRepository.createClient(name, email, password, document, active);
-
-        if (!newClient) {
-            return res.status(400).send("Erro ao criar cliente");
-        }
-
-        // Criação dos endereços para o cliente
-        const addressPromises = addresses.map((address) => {
-            return addressRepository.createAddress(newClient.id, address.adr_type, address.nick, address.street, address.number, address.complement, address.neighborhood, address.city, address.state, address.country, address.zipcode);
-        });
-        await Promise.all(addressPromises);
-
-        // Criação dos números de telefone para o cliente
-        if (phoneNumbers && phoneNumbers.length > 0) {
-            const phonePromises = phoneNumbers.map((phoneNumber) => {
-                return clientRepository.createPhone(newClient.id, phoneNumber);
-            });
-            await Promise.all(phonePromises);
-        }
-
-
-        const { card_number, holder_name, expiration_date } = req.body;
-
-        // Criação dos cartões de crédito
-        if (card_number && holder_name && expiration_date) {
-            const cardPromises = card_number.map((num, i) => {
-                return clientRepository.createCreditCard(newClient.id, num, holder_name[i], expiration_date[i]);
-            });
-            await Promise.all(cardPromises);
-        }
-
-
-
-        // Redireciona para a página de detalhes do cliente
+        const newClient = await clientUseCase.CreateClientUseCase(req,res);
         res.redirect(`/client/clientDetail?id=${newClient.id}`);
     } catch (error) {
-        console.error(error);
         res.status(500).send("Erro ao criar cliente e endereço");
     }
 };
 
-
-const createClientAPI = async (req, res) => {
-    try {
-        // Verificando o conteúdo de req.body
-        console.log(req.body); // Verifique os dados recebidos
-
-        const { name, email, password, document, active, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, phoneNumbers } = req.body;
-
-        // Tratar os valores dos arrays (pegando o primeiro valor para cada campo, pois você enviará múltiplos valores)
-        const addresses = adr_type.map((type, i) => ({
-            adr_type: type || '',
-            nick: nick[i] || '',
-            street: street[i] || '',
-            number: number[i] || '',
-            complement: complement[i] || '',
-            neighborhood: neighborhood[i] || '',
-            city: city[i] || '',
-            state: state[i] || '',
-            country: country[i] || '',
-            zipcode: zipcode[i] || ''
-        }));
-
-        // Criação do cliente
-        const newClient = await clientRepository.createClient(name, email, password, document, active);
-
-        if (!newClient) {
-            return res.status(400).send("Erro ao criar cliente");
-        }
-
-        // Criação dos endereços para o cliente
-        const addressPromises = addresses.map((address) => {
-            return addressRepository.createAddress(newClient.id, address.adr_type, address.nick, address.street, address.number, address.complement, address.neighborhood, address.city, address.state, address.country, address.zipcode);
-        });
-        await Promise.all(addressPromises);
-
-        // Criação dos números de telefone para o cliente
-        if (phoneNumbers && phoneNumbers.length > 0) {
-            const phonePromises = phoneNumbers.map((phoneNumber) => {
-                return clientRepository.createPhone(newClient.id, phoneNumber);
-            });
-            await Promise.all(phonePromises);
-        }
-        res.status(201).send({ message: "Client successfully registered!", client: newClient });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Erro ao criar cliente e endereço");
-    }
-};
-
-
-
-
-
-
-
-
-
-
-
-module.exports = { registerClient, createClientAPI, renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+module.exports = { registerClient, renderOrderDetails, renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};

@@ -56,6 +56,90 @@ const createOrder = async (userId, tradeCouponId, promotionalCouponId, addressId
     }
 };
 
+const getOrderById = async (id) => {
+    const result = await pool.query(`
+        SELECT * FROM orders
+        WHERE id = $1
+    `, [id]);
+    return result.rows[0];
+};
+
+const createOrderWithCards = async (
+    userId,
+    tradeCouponId,
+    promotionalCouponId,
+    addressId,
+    statusId,
+    subTotal,
+    totalPrice,
+    items,
+    cartoes
+) => {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const orderResult = await client.query(`
+            INSERT INTO orders (user_id, trade_coupon_id, promotional_coupon_id, address_id, status_id, sub_total, total_price, ship_value)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;
+        `, [userId, tradeCouponId, promotionalCouponId, addressId, statusId, subTotal, totalPrice, 50]);
+
+        const orderId = orderResult.rows[0].id;
+
+        for (const item of items) {
+            await client.query(`
+                INSERT INTO order_items (order_id, product_id, quantity, price)
+                VALUES ($1, $2, $3, $4);
+            `, [orderId, item.product_id, item.quantity, item.price]);
+        }
+
+        const paymentResult = await client.query(`
+            INSERT INTO payments (order_id, payment_type, status_id)
+            VALUES ($1, $2, $3) RETURNING id;
+        `, [orderId, 'credit_card', statusId]); // ou outro valor em 'payment_type'
+        
+        const paymentId = paymentResult.rows[0].id;
+
+        for (const cartao of cartoes) {
+            const cartaoData = await client.query(`
+                SELECT holder_name, card_number, expiration_date
+                FROM credit_cards
+                WHERE id = $1 AND user_id = $2;
+            `, [cartao.id, userId]);
+
+            if (!cartaoData.rowCount) throw new Error("Cartão inválido para o usuário.");
+
+            const c = cartaoData.rows[0];
+            const last4 = c.card_number.slice(-4);
+            const [mes, ano] = c.expiration_date.split("/");
+
+            await client.query(`
+                INSERT INTO payment_cards (payment_id, card_brand, last_four_digits, cardholder_name, expiration_month, expiration_year, card_token, amount)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+            `, [
+                paymentId,             // payment_id → orderId funciona se você não usa uma tabela separada de "payments"
+                'N/A',               // ou 'VISA', etc. Se você tiver essa info
+                last4,
+                c.holder_name,
+                parseInt(mes),
+                parseInt("20" + ano),
+                'dummy_token',
+                cartao.valor
+            ]);
+        }
+
+        await client.query('COMMIT');
+        return orderId;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Erro ao criar pedido:', error);
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+
 const getAllOrders = async (userId) => {
     const result = await pool.query(`
         SELECT o.id, o.created_at, o.status_id, o.sub_total, o.total_price, os.status_name
@@ -90,5 +174,7 @@ module.exports = {
     deleteOrderStatus,
     getAllOrderStatus,
     createOrder,
-    getAllOrders
+    getAllOrders,
+    getOrderById,
+    createOrderWithCards
 };

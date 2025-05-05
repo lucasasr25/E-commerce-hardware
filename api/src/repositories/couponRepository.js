@@ -24,7 +24,17 @@ const getAllCoupons = async () => {
     return result.rows;
 };
 
+const getCoupon = async (code) => {
+    const result = await pool.query(
+        'SELECT * FROM promotional_coupons WHERE code = $1',
+        [code]
+    );
+    return result.rows[0];
+};
+
+
 module.exports = {
+    getCoupon,
     createCoupon,
     deleteCoupon,
     getAllCoupons

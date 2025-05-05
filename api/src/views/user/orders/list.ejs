@@ -153,7 +153,9 @@
                                 </ul>
                             </div>
                             <div class="order-actions">
-                                <button class="button">Ver Detalhes</button>
+                                <form action="/user/orders/<%= order.id %>" method="GET" style="display:inline;">
+                                    <button type="submit" class="button">Ver Detalhes</button>
+                                </form>
                                 <button class="button button-danger">Solicitar Troca</button>
                             </div>
                         </div>

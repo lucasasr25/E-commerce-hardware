@@ -188,7 +188,7 @@ const updateClient = async (id, name, email, password, active, phoneNumbers, add
              WHERE id = $5 RETURNING *`,
             [name, email, password, active, id]
         );
-
+        console.log("1")
         // Se existirem novos números de telefone, os adiciona
         if (phoneNumbers && phoneNumbers.length > 0) {
             // Remove os telefones antigos antes de adicionar os novos
@@ -203,12 +203,11 @@ const updateClient = async (id, name, email, password, active, phoneNumbers, add
             });
             await Promise.all(phonePromises);
         }
-
         // Se existirem novos endereços, os adiciona
         if (addresses && addresses.length > 0) {
-            // Remove os endereços antigos antes de adicionar os novos
-            await client.query(`DELETE FROM addresses WHERE user_id = $1`, [id]);
-        
+            await client.query(`DELETE FROM addresses WHERE user_id = $1   AND id NOT IN (
+    SELECT address_id FROM orders WHERE address_id IS NOT NULL
+);`, [id]);
             const addressPromises = addresses.map((address) => {
                 return client.query(
                     `INSERT INTO addresses (user_id, adr_type, is_default, nick, street, number, complement, neighborhood, city, state, country, zipcode) 
@@ -220,7 +219,7 @@ const updateClient = async (id, name, email, password, active, phoneNumbers, add
         
             await Promise.all(addressPromises);
         }
-
+        console.log("3")
         await client.query("COMMIT");
         return result.rowCount ? result.rows[0] : null;
 

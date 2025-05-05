@@ -1,48 +1,23 @@
-const productRepository = require("../repositories/productRepository");
-const productDetailRepository = require("../repositories/productDetailRepository");
+const productUseCase = require('../usecases/product');
 
-// Função para criar um produto
+
 const createProduct = async (req, res) => {
-    // Destructure the fields from the request body
-    const { name, description, price, manufacturer, warranty_period, weight, dimensions, color, material } = req.body;
-
-    // Check if the essential fields (name and price) are present
-    if (!name || !price) {
-        return res.status(400).json({ message: "Name and price are required" });
-    }
-
     try {
-        // Step 1: Create the product (without details yet)
-        const newProduct = await productRepository.createProduct(name, description, price);
-
-        // Step 2: Add the product details after the product is created
-        const newProductDetail = await productDetailRepository.addProductDetails(
-            newProduct.id, // Pass the newly created product's id
-            manufacturer,
-            warranty_period,
-            weight,
-            dimensions,
-            color,
-            material
-        );
-
-        // Return a success response including the created product and details
+        const { product, productDetails } = await productUseCase.createProductUseCase(req, res);
         res.status(201).json({
             message: "Product and details created successfully",
-            product: newProduct,
-            productDetails: newProductDetail
+            product: product,
+            productDetails: productDetails
         });
     } catch (error) {
-        // If any error occurs, log it and send an error response
         console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Função para listar todos os produtos
 const getProducts = async (req, res) => {
     try {
-        const products = await productRepository.getProducts();
+        const products = await productUseCase.getProductsUseCase(req, res);
         res.json({ products });
     } catch (error) {
         console.error(error);
@@ -50,16 +25,9 @@ const getProducts = async (req, res) => {
     }
 };
 
-// Função para obter detalhes de um produto
 const getProductDetails = async (req, res) => {
-    const { product_id } = req.query;
-
-    if (!product_id) {
-        return res.status(400).json({ message: "Product ID is required" });
-    }
-
     try {
-        const productDetails = await productDetailRepository.getProductDetails(product_id);
+        const productDetails = await productUseCase.getProductDetailsUseCase(req, res);
         res.json({ productDetails });
     } catch (error) {
         console.error(error);
@@ -67,63 +35,28 @@ const getProductDetails = async (req, res) => {
     }
 };
 
-// Função para adicionar detalhes ao produto
 const addProductDetails = async (req, res) => {
-    const { product_id, manufacturer, warranty_period, weight, dimensions, color, material } = req.body;
-
-    if (!product_id) {
-        return res.status(400).json({ message: "Product ID is required" });
-    }
-
     try {
-        // Adicionar detalhes ao produto
-        const productDetail = await productDetailRepository.addProductDetails(
-            product_id,
-            manufacturer,
-            warranty_period,
-            weight,
-            dimensions,
-            color,
-            material
-        );
+        const productDetail = await productUseCase.addProductDetailsUseCase(req, res);
         res.status(201).json({ message: "Product details added successfully", productDetail });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Função para atualizar os detalhes de um produto
 const updateProductDetails = async (req, res) => {
-    const { id, manufacturer, warranty_period, weight, dimensions, color, material } = req.body;
-
-    if (!id) {
-        return res.status(400).json({ message: "Product Detail ID is required" });
-    }
-
     try {
-        const updatedDetails = await productDetailRepository.updateProductDetails(
-            id,
-            manufacturer,
-            warranty_period,
-            weight,
-            dimensions,
-            color,
-            material
-        );
-
-        if (!updatedDetails) {
-            return res.status(404).json({ message: "Product details not found" });
-        }
-
+        const updatedDetails = await productUseCase.updateProductDetailsUseCase(req, res);
         res.status(200).json({ message: "Product details updated successfully", updatedDetails });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Função para remover um produto
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
 
@@ -132,9 +65,9 @@ const deleteProduct = async (req, res) => {
     }
 
     try {
-        const product = await productRepository.deleteProduct(id);
+        const result = await productUseCase.deleteProduct(req, res);
 
-        if (!product) {
+        if (!result) {
             return res.status(404).json({ message: "Product not found" });
         }
 
@@ -145,7 +78,6 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-// Função para remover detalhes de um produto
 const deleteProductDetails = async (req, res) => {
     const { id } = req.params;
 
@@ -154,9 +86,9 @@ const deleteProductDetails = async (req, res) => {
     }
 
     try {
-        const productDetail = await productDetailRepository.deleteProductDetails(id);
+        const result = await productUseCase.deleteProductDetails(req, res);
 
-        if (!productDetail) {
+        if (!result) {
             return res.status(404).json({ message: "Product detail not found" });
         }
 
@@ -167,10 +99,9 @@ const deleteProductDetails = async (req, res) => {
     }
 };
 
-// Função para renderizar a página de produtos
 const renderProductsView = async (req, res) => {
     try {
-        const products = await productRepository.getProducts();
+        const products = await productUseCase.getProducts();
         res.render("products/productList", { products });
     } catch (error) {
         console.error(error);
@@ -178,7 +109,6 @@ const renderProductsView = async (req, res) => {
     }
 };
 
-// Função para renderizar a página de detalhes de um produto
 const renderProductDetailView = async (req, res) => {
     const { id } = req.query;
 
@@ -187,8 +117,7 @@ const renderProductDetailView = async (req, res) => {
     }
 
     try {
-        const product = await productRepository.getProductById(id);
-        const productDetails = await productDetailRepository.getProductDetails(id);
+        const { product, productDetails } = await productUseCase.renderDetail(req, res);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -201,12 +130,10 @@ const renderProductDetailView = async (req, res) => {
     }
 };
 
-// Função para renderizar a página de criação de produto
-const renderCreateProductView = async (req, res) => {
+const renderCreateProductView = (req, res) => {
     res.render("products/createProduct");
 };
 
-// Função para renderizar a página de edição de produto
 const renderEditProductView = async (req, res) => {
     const { id } = req.query;
 
@@ -215,8 +142,7 @@ const renderEditProductView = async (req, res) => {
     }
 
     try {
-        const product = await productRepository.getProductById(id);
-        const productDetails = await productDetailRepository.getProductDetails(id);
+        const { product, productDetails } = await productUseCase.renderEdit(req, res);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });

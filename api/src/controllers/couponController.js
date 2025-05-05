@@ -1,9 +1,13 @@
-const couponRepository = require('../repositories/couponRepository');
+const {
+    getAllCoupons,
+    createNewCoupon,
+    removeCoupon,
+    validateCoupon
+} = require('../usecases/coupoun/couponUseCases');
 
-// Renderiza a página de cupons
 const renderCouponsPage = async (req, res) => {
     try {
-        const coupons = await couponRepository.getAllCoupons();
+        const coupons = await getAllCoupons();
         res.render('settings/coupons', { coupons });
     } catch (error) {
         console.error('Erro ao obter cupons:', error);
@@ -11,24 +15,41 @@ const renderCouponsPage = async (req, res) => {
     }
 };
 
-// Cria um novo cupom promocional
+const checkCoupoun = async (req, res) => {
+    const { code } = req.body;
+
+    try {
+        const coupon = await validateCoupon(code);
+        if (coupon) {
+            res.status(200).send({
+                message: "Cupom aplicado com sucesso!",
+                discountPercentage: coupon.discount_percentage
+            });
+        } else {
+            res.status(400).send({ message: "Cupom não encontrado" });
+        }
+    } catch (error) {
+        console.error('Erro ao verificar cupom:', error);
+        res.status(500).send({ message: "Erro ao verificar cupom" });
+    }
+};
+
 const createCoupon = async (req, res) => {
     const { code, discountPercentage, expirationDate } = req.body;
     try {
-        const coupon = await couponRepository.createCoupon(code, discountPercentage, expirationDate);
-        res.redirect('/settings/coupons');  // Redireciona para a página de cupons
+        await createNewCoupon(code, discountPercentage, expirationDate);
+        res.redirect('/settings/coupons');
     } catch (error) {
         console.error('Erro ao criar cupom:', error);
         res.status(500).send("Erro ao criar cupom");
     }
 };
 
-// Deleta um cupom promocional
 const deleteCoupon = async (req, res) => {
     const { id } = req.params;
     try {
-        const coupon = await couponRepository.deleteCoupon(id);
-        res.redirect('/settings/coupons');  // Redireciona para a página de cupons
+        await removeCoupon(id);
+        res.redirect('/settings/coupons');
     } catch (error) {
         console.error('Erro ao deletar cupom:', error);
         res.status(500).send("Erro ao deletar cupom");
@@ -38,5 +59,6 @@ const deleteCoupon = async (req, res) => {
 module.exports = {
     renderCouponsPage,
     createCoupon,
-    deleteCoupon
+    deleteCoupon,
+    checkCoupoun
 };
