@@ -9,5 +9,6 @@ router.get("/card", userController.renderCardEdit);
 router.get("/settings", userController.renderSettingsView)
 router.post("/cardUpdate", userController.updateCreditCardsController)
 router.get("/orders", userController.renderOrders)
+router.get("/orders/:id", userController.renderOrderDetails);
 
 module.exports = router;

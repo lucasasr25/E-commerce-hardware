@@ -9,6 +9,14 @@ const getClientAddresses = async (clientId) => {
     return result.rows;
 };
 
+const getAddressById = async (clientId) => {
+    const result = await pool.query(
+        `SELECT * FROM addresses WHERE id = $1`,
+        [clientId]
+    );
+    return result.rows;
+};
+
 // Função para atualizar os endereços do cliente
 const updateAddress = async (id, adr_type, nick, userId, street, number, complement, neighborhood, city, state, country, zipcode) => {
     const result = await pool.query(
@@ -42,6 +50,6 @@ const createAddress = async (userId, adr_type, nick, street, number, complement,
 };
 
 
-module.exports = {updateAddress, getClientAddresses, createAddress};
+module.exports = {updateAddress, getClientAddresses, createAddress, getAddressById};
 
 

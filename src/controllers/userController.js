@@ -28,6 +28,18 @@ const renderOrders = async (req, res) => {
     }
 };
 
+const renderOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const order = await clientUseCase.RenderOrderUseCase(orderId);
+        console.log(order)
+        res.render("user/orders/details", { order });
+    } catch (error) {
+        console.error("Erro ao buscar detalhes do pedido:", error.message);
+        res.status(500).send("Erro ao carregar os detalhes do pedido.");
+    }
+};
+
 const registerClient = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -167,4 +179,4 @@ const createClient = async (req, res) => {
     }
 };
 
-module.exports = { registerClient, renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+module.exports = { registerClient, renderOrderDetails, renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};

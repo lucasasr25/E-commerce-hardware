@@ -122,6 +122,7 @@ CREATE TABLE orders (
     promotional_coupon_id INTEGER REFERENCES promotional_coupons(id) ON DELETE SET NULL, 
     address_id INTEGER REFERENCES addresses(id),
     status_id INTEGER REFERENCES order_status(id) ON DELETE SET NULL,
+    ship_value DECIMAL(10, 2) NULL,
     sub_total DECIMAL(10, 2),
     total_price DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -184,3 +185,27 @@ CREATE TABLE transaction_logs (
     new_data JSONB, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
+
+CREATE TABLE payment_cards (
+    id SERIAL PRIMARY KEY,
+    payment_id INTEGER REFERENCES payments(id) ON DELETE CASCADE,
+    card_brand TEXT NOT NULL,       
+    last_four_digits VARCHAR(4) NOT NULL,
+    amount NUMERIC NULL,
+    cardholder_name TEXT NOT NULL,
+    expiration_month INTEGER NOT NULL,
+    expiration_year INTEGER NOT NULL,
+    card_token TEXT NOT NULL         
+);
+
+CREATE TABLE payment_pix (
+    id SERIAL PRIMARY KEY,
+    payment_id INTEGER REFERENCES payments(id) ON DELETE CASCADE,
+    pix_key TEXT NOT NULL,    
+    amount NUMERIC NULL,
+    qr_code TEXT NOT NULL,        
+    expiration TIMESTAMP NOT NULL,          
+    transaction_id TEXT                 
+);
+
+

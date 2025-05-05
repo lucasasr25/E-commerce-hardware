@@ -53,7 +53,18 @@
             <div class="col-md-8">
                 <div class="ibox">
                     <div class="ibox-title">Informações de Pagamento</div>
-                                        
+
+
+                    <label>Método de Pagamento</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="metodo_pagamento" id="pagamentoCartao" value="cartao" checked>
+                        <label class="form-check-label" for="pagamentoCartao">Cartão de Crédito</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="metodo_pagamento" id="pagamentoPix" value="pix">
+                        <label class="form-check-label" for="pagamentoPix">PIX</label>
+                    </div>
+
                     <label for="enderecoSelecionado">Selecione o Endereço de Entrega</label>
                     <select class="form-control" id="enderecoSelecionado" name="enderecoSelecionado">
                         <% if (enderecos && enderecos.length > 0) { %>
@@ -98,25 +109,29 @@
                         </div>
                     
              
-                        <label>Pagamento com Cartões de Crédito</label>
-                        <div id="cartoes-container">
-                            <% if (cartoes && cartoes.length > 0) { %>
-                                <div class="input-group mb-2">
-                                    <select class="form-control me-2" name="pagamentos_cartao[0][id]">
-                                        <% cartoes.forEach(cartao => { %>
-                                            <option value="<%= cartao.id %>">
-                                                <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
-                                            </option>
-                                        <% }) %>
-                                    </select>
-                                    <input type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[0][valor]" placeholder="Valor (R$)">
-                                </div>
-                            <% } else { %>
-                                <p class="text-danger">Nenhum cartão salvo</p>
-                            <% } %>
+                        <label>Pagamento:</label>
+                        <div id="pagamento-cartao-container">
+                            <div id="cartoes-container">
+                                <% if (cartoes && cartoes.length > 0) { %>
+                                    <div class="input-group mb-2">
+                                        <select class="form-control me-2" name="pagamentos_cartao[0][id]">
+                                            <% cartoes.forEach(cartao => { %>
+                                                <option value="<%= cartao.id %>">
+                                                    <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
+                                                </option>
+                                            <% }) %>
+                                        </select>
+                                        <input type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[0][valor]" placeholder="Valor (R$)">
+                                    </div>
+                                <% } else { %>
+                                    <p class="text-danger">Nenhum cartão salvo</p>
+                                <% } %>
+                            </div>
+                            <button type="button" class="btn btn-secondary mb-3" id="add-cartao">Adicionar outro cartão</button>
                         </div>
-                        <button type="button" class="btn btn-secondary mb-3" id="add-cartao">Adicionar outro cartão</button>
-
+                        <div id="pagamento-pix-container" style="display: none;">
+                            <p>Você receberá um QR Code após finalizar o pedido.</p>
+                        </div>
 
 
                         <div style="text-align: center;">
@@ -190,6 +205,25 @@ document.getElementById('add-cupom').addEventListener('click', function() {
 
 const totalOriginal = parseFloat("<%= total %>"); // pega o total sem desconto do backend
 
+
+
+const radios = document.querySelectorAll('input[name="metodo_pagamento"]');
+const containers = {
+    cartao: document.getElementById('pagamento-cartao-container'),
+    pix: document.getElementById('pagamento-pix-container')
+};
+
+radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+        Object.entries(containers).forEach(([key, el]) => {
+            el.style.display = radio.value === key ? 'block' : 'none';
+        });
+    });
+});
+
+
+
+
 document.getElementById('aplicarCupom').addEventListener('click', async () => {
     const cupom = document.getElementById('cupomPromocional').value.trim();
     const mensagem = document.getElementById('cupomMensagem');
@@ -257,7 +291,7 @@ document.getElementById('aplicarCupom').addEventListener('click', async () => {
 
 
 
-let cartaoIndex = 1;
+    let cartaoIndex = 1;
     document.getElementById('add-cartao').addEventListener('click', function () {
     // Verifica se o número de cartões adicionados é menor que o número de cartões no array
     if (cartaoIndex < <%= cartoes.length %>) {
@@ -272,16 +306,15 @@ let cartaoIndex = 1;
                 <% }) %>
             </select>`;
 
-            const inputHtml = `<input type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
+            const inputHtml = `<input height = 38px type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
 
             // Botão de remover
-            const removeButtonHtml = `<button type="button" class="btn btn-danger btn-sm" onclick="removeCartao(this)">X</button>`;
+            const removeButtonHtml = `<button type="button" class="btn btn-danger btn-sm" style="height: 38px;" onclick="removeCartao(this)">X</button>`;
 
             const div = document.createElement('div');
             div.className = 'input-group mb-2';
             div.innerHTML = selectHtml + inputHtml + removeButtonHtml;
 
-            // Adiciona o novo campo de cartão no container
             container.appendChild(div);
 
             cartaoIndex++;

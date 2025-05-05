@@ -7,6 +7,7 @@ const renderCheckoutView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
         const checkoutData = await getCheckoutData(userId);
+        console.log(checkoutData)
         res.render("shopping/checkout", checkoutData);
     } catch (error) {
         console.error("Erro ao renderizar checkout:", error);
@@ -17,8 +18,10 @@ const renderCheckoutView = async (req, res) => {
 const checkout = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const { promotionalCupomCode } = req.body;
-        await createOrderFromCart(userId, promotionalCupomCode);
+        const { promotionalCupomCode, pagamentos_cartao } = req.body;
+
+        await createOrderFromCart(userId, promotionalCupomCode, pagamentos_cartao);
+
         res.render('status/success', {
             message: "Pedido realizado com sucesso!"
         });
@@ -27,6 +30,7 @@ const checkout = async (req, res) => {
         res.status(500).send(error.message || "Erro ao processar o pedido.");
     }
 };
+
 
 module.exports = {
     renderCheckoutView,

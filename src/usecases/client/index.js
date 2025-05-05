@@ -11,6 +11,7 @@ const UpdateCreditCardsUseCase = require('./UpdateCreditCardsUseCase');
 const RenderClientProfileUseCase = require('./RenderClientProfileUseCase');
 const RenderCreateViewUseCase = require('./RenderCreateViewUseCase');
 const CreateClientUseCase = require('./CreateClientUseCase');
+const RenderOrderUseCase = require('./RenderOrderUseCase')
 
 module.exports = {
     RenderOrdersUseCase,
@@ -25,5 +26,6 @@ module.exports = {
     UpdateCreditCardsUseCase,
     RenderClientProfileUseCase,
     RenderCreateViewUseCase,
-    CreateClientUseCase
+    CreateClientUseCase,
+    RenderOrderUseCase
 };

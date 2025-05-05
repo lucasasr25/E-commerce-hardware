@@ -30,7 +30,7 @@ const getCheckoutData = async (userId) => {
     };
 };
 
-const createOrderFromCart = async (userId, promotionalCupomCode) => {
+const createOrderFromCart = async (userId, promotionalCupomCode, pagamentos_cartao) => {
     if (!userId) throw new Error("Usuário não autenticado");
 
     const cliente = await clientRepository.getClientById(userId);
@@ -40,7 +40,7 @@ const createOrderFromCart = async (userId, promotionalCupomCode) => {
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
     const items = await cartRepository.getCartItems(userId);
-    const subttotal = await cartRepository.getCartTotal(userId);
+    const subttotal = Number(await cartRepository.getCartTotal(userId)) + 50;
 
     if (!items.length) throw new Error("Carrinho vazio");
 
@@ -51,10 +51,15 @@ const createOrderFromCart = async (userId, promotionalCupomCode) => {
     let total = subttotal;
     if (promotionalCoupon) {
         const discountPercentage = promotionalCoupon.discount_percentage;
-        total -= total * (discountPercentage / 100); // Apply the discount
+        total -= total * (discountPercentage / 100);
     }
 
-    await orderRepository.createOrder(
+    const formattedCartoes = Object.values(pagamentos_cartao || {}).map(c => ({
+        id: parseInt(c.id),
+        valor: parseFloat(c.valor)
+    }));
+
+    const orderId = await orderRepository.createOrderWithCards(
         userId,
         null,
         promotionalCoupon?.id || null,
@@ -66,11 +71,13 @@ const createOrderFromCart = async (userId, promotionalCupomCode) => {
             product_id: item.product_id,
             quantity: item.quantity,
             price: item.price
-        }))
+        })),
+        formattedCartoes
     );
 
     await cartRepository.clearCart(userId);
 };
+
 
 module.exports = {
     getCheckoutData,
