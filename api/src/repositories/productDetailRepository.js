@@ -10,7 +10,7 @@ const addProductDetails = async (product_id, manufacturer, warranty_period, weig
 
 const getProductDetails = async (product_id) => {
     const result = await pool.query("SELECT * FROM product_details WHERE product_id = $1", [product_id]);
-    return result.rows;
+    return result.rows[0];
 };
 
 const updateProductDetails = async (id, manufacturer, warranty_period, weight, dimensions, color, material) => {
