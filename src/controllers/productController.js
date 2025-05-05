@@ -122,7 +122,7 @@ const renderProductDetailView = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
-
+        console.log({ product, productDetails })
         res.render("products/productDetail", { product, productDetails });
     } catch (error) {
         console.error(error);

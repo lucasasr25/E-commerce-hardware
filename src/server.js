@@ -16,7 +16,6 @@ app.set("views", path.join(__dirname, "./views"));
 app.set("view engine", "ejs");
 
 
-app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
@@ -58,5 +57,6 @@ if (process.env.NODE_ENV !== 'test') {
       console.log('Servidor rodando em http://localhost:3000');
   });
 }
+app.use(express.static(path.join(__dirname, "../public")));
 
 module.exports = app;  // Exporta a instância do app
