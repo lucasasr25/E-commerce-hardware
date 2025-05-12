@@ -31,7 +31,9 @@ const getCartItemsUser = async (req, res) => {
         const { items, total } = await cartUseCases.getCartItemsUser(userId);
         res.render("partials/cartPreview", { items, total });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -86,7 +88,9 @@ const renderCartView = async (req, res) => {
         const { items, total } = await cartUseCases.renderCartView(userId);
         res.render("shopping/cart", { items, total });
     } catch (error) {
-        res.status(500).send("Erro ao carregar o carrinho");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 

@@ -2,8 +2,8 @@ const clientRepository = require("../../repositories/clientRepository");
 
 
 
-const updateClientUseCase = async(req, res) =>{
-  const { id, name, email, password, active, phoneNumbers, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, is_default  } = req.body;
+const updateClientUseCase = async(clientData) =>{
+  const { id, name, email, password, active, phoneNumbers, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, is_default  } = clientData;
 
   const addresses = adr_type.map((type, i) => ({
       adr_type: type,

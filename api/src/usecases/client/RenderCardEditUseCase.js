@@ -2,8 +2,7 @@ const clientRepository = require("../../repositories/clientRepository");
 
 
 const RenderCardEditUseCase =
-    async (req, res) => {
-        const userId = req.session.user?.id;
+    async (userId) => {
         return await clientRepository.getCreditCardsByUserId(userId);
     }
 

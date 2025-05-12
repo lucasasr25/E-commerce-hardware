@@ -3,10 +3,23 @@ const productUseCase = require('../usecases/product');
 
 const createProduct = async (req, res) => {
     try {
-        const { product, productDetails } = await productUseCase.createProductUseCase(req, res);
+        const {
+            name, description, price,
+            manufacturer, warranty_period,
+            weight, dimensions, color, material,
+            qtd 
+        } = req.body;
+
+        const { newProduct, productDetails } = await productUseCase.createProductUseCase({
+            name, description, price,
+            manufacturer, warranty_period,
+            weight, dimensions, color, material,
+            qtd 
+        });
+
         res.status(201).json({
             message: "Product and details created successfully",
-            product: product,
+            product: newProduct,
             productDetails: productDetails
         });
     } catch (error) {
@@ -15,9 +28,10 @@ const createProduct = async (req, res) => {
     }
 };
 
+
 const getProducts = async (req, res) => {
     try {
-        const products = await productUseCase.getProductsUseCase(req, res);
+        const products = await productUseCase.getProductsUseCase();
         res.json({ products });
     } catch (error) {
         console.error(error);
@@ -27,7 +41,8 @@ const getProducts = async (req, res) => {
 
 const getProductDetails = async (req, res) => {
     try {
-        const productDetails = await productUseCase.getProductDetailsUseCase(req, res);
+        const { product_id } = req.query;
+        const productDetails = await productUseCase.getProductDetailsUseCase(product_id);
         res.json({ productDetails });
     } catch (error) {
         console.error(error);
@@ -37,7 +52,8 @@ const getProductDetails = async (req, res) => {
 
 const addProductDetails = async (req, res) => {
     try {
-        const productDetail = await productUseCase.addProductDetailsUseCase(req, res);
+        const productData = req.body;
+        const productDetail = await productUseCase.addProductDetailsUseCase(productData);
         res.status(201).json({ message: "Product details added successfully", productDetail });
 
     } catch (error) {
@@ -48,7 +64,8 @@ const addProductDetails = async (req, res) => {
 
 const updateProductDetails = async (req, res) => {
     try {
-        const updatedDetails = await productUseCase.updateProductDetailsUseCase(req, res);
+        const productData = req.body;
+        const updatedDetails = await productUseCase.updateProductDetailsUseCase(productData);
         res.status(200).json({ message: "Product details updated successfully", updatedDetails });
 
     } catch (error) {
@@ -65,7 +82,7 @@ const deleteProduct = async (req, res) => {
     }
 
     try {
-        const result = await productUseCase.deleteProduct(req, res);
+        const result = await productUseCase.deleteProduct(id);
 
         if (!result) {
             return res.status(404).json({ message: "Product not found" });
@@ -86,7 +103,7 @@ const deleteProductDetails = async (req, res) => {
     }
 
     try {
-        const result = await productUseCase.deleteProductDetails(req, res);
+        const result = await productUseCase.deleteProductDetails(id);
 
         if (!result) {
             return res.status(404).json({ message: "Product detail not found" });
@@ -101,11 +118,13 @@ const deleteProductDetails = async (req, res) => {
 
 const renderProductsView = async (req, res) => {
     try {
-        const products = await productUseCase.getProducts();
+        const products = await productUseCase.getProductsUseCase();
         res.render("products/productList", { products });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error fetching products.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -117,7 +136,7 @@ const renderProductDetailView = async (req, res) => {
     }
 
     try {
-        const { product, productDetails } = await productUseCase.renderDetail(req, res);
+        const { product, productDetails } = await productUseCase.renderDetail(id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -126,7 +145,9 @@ const renderProductDetailView = async (req, res) => {
         res.render("products/productDetail", { product, productDetails });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error fetching product details.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -142,7 +163,7 @@ const renderEditProductView = async (req, res) => {
     }
 
     try {
-        const { product, productDetails } = await productUseCase.renderEdit(req, res);
+        const { product, productDetails } = await productUseCase.renderEdit(id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -151,7 +172,9 @@ const renderEditProductView = async (req, res) => {
         res.render("editProduct", { product, productDetails });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error fetching product data for editing.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 

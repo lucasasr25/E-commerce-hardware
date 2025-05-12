@@ -2,6 +2,8 @@ const clientRepository = require('../../repositories/clientRepository');
 const cartRepository = require("../../repositories/cartRepository");
 const orderRepository = require("../../repositories/orderRepository");
 const couponRepository = require("../../repositories/couponRepository");
+const stockRepository = require("../../repositories/stockRepository"); // Importa o repositório de estoque
+
 
 const getCheckoutData = async (userId) => {
     const cliente = await clientRepository.getClientById(userId);
@@ -40,18 +42,22 @@ const createOrderFromCart = async (userId, promotionalCupomCode, pagamentos_cart
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
     const items = await cartRepository.getCartItems(userId);
-    const subttotal = Number(await cartRepository.getCartTotal(userId)) + 50;
-
     if (!items.length) throw new Error("Carrinho vazio");
 
+    const subtotal = Number(await cartRepository.getCartTotal(userId));
+
+    // Cálculo do cupom (se existir)
     const promotionalCoupon = promotionalCupomCode
         ? await couponRepository.getCoupon(promotionalCupomCode)
         : null;
 
-    let total = subttotal;
+    let valorCupom = 0;
+    let total = subtotal;
+
     if (promotionalCoupon) {
         const discountPercentage = promotionalCoupon.discount_percentage;
-        total -= total * (discountPercentage / 100);
+        valorCupom = total * (discountPercentage / 100);
+        total -= valorCupom;
     }
 
     const formattedCartoes = Object.values(pagamentos_cartao || {}).map(c => ({
@@ -59,13 +65,38 @@ const createOrderFromCart = async (userId, promotionalCupomCode, pagamentos_cart
         valor: parseFloat(c.valor)
     }));
 
+    
+    //adiciona frete
+    total += 50;
+
+    
+    // Soma dos cartões
+    const totalCartoes = formattedCartoes.reduce((acc, curr) => acc + curr.valor, 0);
+
+    // Validação: soma dos cartões + cupons deve ser igual ao total da compra original
+    const somaFinal = totalCartoes;
+    if (Math.abs(somaFinal - total) > 0.01) {
+        throw new Error(`A soma dos cartões (${totalCartoes.toFixed(2)}) e do cupom (${valorCupom.toFixed(2)}) deve ser igual ao total da compra (${total.toFixed(2)}).`);
+    }
+
+    // Validação dos valores dos cartões
+    for (const [index, c] of formattedCartoes.entries()) {
+        if (isNaN(c.valor)) {
+            throw new Error(`Valor inválido no cartão ${index + 1}.`);
+        }
+        if (c.valor < 10 && valorCupom <= 0) {
+            throw new Error(`O valor do cartão ${index + 1} deve ser no mínimo R$ 10,00 ou parte do pagamento deve ser com cupom.`);
+        }
+    }
+
+    // Criação do pedido
     const orderId = await orderRepository.createOrderWithCards(
         userId,
         null,
         promotionalCoupon?.id || null,
         enderecoFavorito.id,
         2,
-        subttotal,
+        subtotal,
         total,
         items.map(item => ({
             product_id: item.product_id,
@@ -75,8 +106,19 @@ const createOrderFromCart = async (userId, promotionalCupomCode, pagamentos_cart
         formattedCartoes
     );
 
+    for (const item of items) {
+        try {
+            await stockRepository.removeStock(item.product_id, item.quantity);
+        } catch (error) {
+            // Lidar com o erro de estoque insuficiente ou outro erro relacionado
+            console.error(`Erro ao dar baixa no estoque do produto ${item.product_id}: ${error.message}`);
+            throw new Error(`Erro ao dar baixa no estoque do produto ${item.product_id}`);
+        }
+    }
+
     await cartRepository.clearCart(userId);
 };
+
 
 
 module.exports = {

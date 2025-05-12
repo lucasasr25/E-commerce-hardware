@@ -1,7 +1,7 @@
 const productRepository = require("../../repositories/productRepository");
 
-const deleteProductUseCase = async (req, res) => {
-    const { id } = req.params;
+const deleteProductUseCase = async (id) => {
+    
 
     if (!id) {
         return null;

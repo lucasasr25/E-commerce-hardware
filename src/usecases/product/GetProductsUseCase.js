@@ -1,6 +1,6 @@
 const productRepository = require('../../repositories/productRepository');
 
-const getProductsUseCase = async (req, res) => {
+const getProductsUseCase = async () => {
 
     const products = await productRepository.getProducts();
 

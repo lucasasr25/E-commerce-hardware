@@ -1,8 +1,7 @@
 const clientRepository = require("../../repositories/clientRepository");
 
 const UpdateCreditCardsUseCase =
-async (req, res) => {
-    const userId = req.session.user?.id;
+async (userId) => {
     for (let i = 0; i < cardData.card_number.length; i++) {
         await clientRepository.updateCreditCard(
             userId,

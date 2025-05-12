@@ -1,5 +1,6 @@
 const orderStatusUseCases = require("../usecases/settings/orderStatusUseCases");
 const paymentStatusUseCases = require("../usecases/settings/paymentStatusUseCases");
+const returnStatusUseCases = require("../usecases/settings/returnStatusUseCases");
 
 
 const changeOrder = async (req, res) => {
@@ -8,7 +9,9 @@ const changeOrder = async (req, res) => {
         res.render("settings/orderStatus", { orderStatusList });
     } catch (error) {
         console.error("Erro ao carregar configurações de pedido:", error);
-        res.status(500).send("Erro interno ao carregar configurações");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -19,7 +22,9 @@ const createOrderStatus = async (req, res) => {
         res.redirect("/settings/order-status");
     } catch (error) {
         console.error("Erro ao criar status:", error);
-        res.status(500).send("Erro ao criar status");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar status:"
+        });
     }
 };
 
@@ -30,7 +35,9 @@ const deleteOrderStatus = async (req, res) => {
         res.redirect("/settings/order-status");
     } catch (error) {
         console.error("Erro ao deletar status:", error);
-        res.status(500).send("Erro ao deletar status");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar status:"
+        });
     }
 };
 
@@ -40,7 +47,9 @@ const changePaymentStatus = async (req, res) => {
         res.render("settings/paymentStatus", { paymentStatusList });
     } catch (error) {
         console.error("Erro ao carregar configurações de pagamento:", error);
-        res.status(500).send("Erro interno ao carregar configurações");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao carregar configurações de pagamento:"
+        });
     }
 };
 
@@ -51,7 +60,9 @@ const createPaymentStatus = async (req, res) => {
         res.redirect("/settings/payment-status");
     } catch (error) {
         console.error("Erro ao criar status de pagamento:", error);
-        res.status(500).send("Erro ao criar status");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar status"
+        });
     }
 };
 
@@ -62,9 +73,52 @@ const deletePaymentStatus = async (req, res) => {
         res.redirect("/settings/payment-status");
     } catch (error) {
         console.error("Erro ao deletar status de pagamento:", error);
-        res.status(500).send("Erro ao deletar status");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar status"
+        });
     }
 };
+
+
+const changeReturnStatus = async (req, res) => {
+    try {
+        const returnStatusList = await returnStatusUseCases.getAllReturnStatus();
+        res.render("settings/returnStatus", { returnStatusList });
+    } catch (error) {
+        console.error("Erro ao carregar configurações de devolução:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao carregar status de devolução."
+        });
+    }
+};
+
+const createReturnStatus = async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        await returnStatusUseCases.createReturnStatus(name, description);
+        res.redirect("/settings/return-status");
+    } catch (error) {
+        console.error("Erro ao criar status de devolução:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar status de devolução."
+        });
+    }
+};
+
+const deleteReturnStatus = async (req, res) => {
+    try {
+        const { id } = req.body;
+        await returnStatusUseCases.deleteReturnStatus(id);
+        res.redirect("/settings/return-status");
+    } catch (error) {
+        console.error("Erro ao deletar status de devolução:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar status de devolução."
+        });
+    }
+};
+
+
 
 
 module.exports = {
@@ -73,5 +127,8 @@ module.exports = {
     deleteOrderStatus,
     changePaymentStatus,
     createPaymentStatus,
+    changeReturnStatus,
+    createReturnStatus,
+    deleteReturnStatus,
     deletePaymentStatus
 };

@@ -64,6 +64,13 @@ const getOrderById = async (id) => {
     return result.rows[0];
 };
 
+const getItemsByOrderId = async (id) => {
+    const result = await pool.query(`
+SELECT p.*, pd.*, order_items.* FROM products p INNER JOIN product_details pd ON p.id = pd.product_id INNER JOIN order_items on order_items.product_id = p.id WHERE order_items.order_id = $1;
+    `, [id]);
+    return result.rows;
+};
+
 const createOrderWithCards = async (
     userId,
     tradeCouponId,
@@ -167,14 +174,38 @@ const getAllOrders = async (userId) => {
 };
 
 
+const getOrdersByClientId = async (clientId) => {
+    const query = `
+        SELECT o.*, 
+               os.status_name,
+               a.street || ', ' || a.number || ' - ' || a.city AS full_address
+        FROM orders o
+        JOIN order_status os ON o.status_id = os.id
+        LEFT JOIN addresses a ON o.address_id = a.id
+        WHERE o.user_id = $1
+        ORDER BY o.created_at DESC;
+    `;
+    const { rows } = await pool.query(query, [clientId]);
+    return rows;
+};
+
+const updateOrderStatus = async (orderId, statusId) => {
+    const query = `UPDATE orders SET status_id = $1 WHERE id = $2`;
+    await pool.query(query, [statusId, orderId]);
+};
+
+
 
 
 module.exports = {
     createOrderStatus,
     deleteOrderStatus,
     getAllOrderStatus,
+    updateOrderStatus,
     createOrder,
     getAllOrders,
     getOrderById,
+    getItemsByOrderId,
+    getOrdersByClientId,
     createOrderWithCards
 };

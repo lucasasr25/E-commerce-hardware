@@ -1,8 +1,8 @@
 const clientRepository = require("../../repositories/clientRepository");
 
 const RenderEditViewUseCase =
-    async (req, res) => {
-        const { id } = req.query;
+    async (id) => {
+
         const clients = await clientRepository.searchClients({ id: id });
 
         if (clients.length === 0) {

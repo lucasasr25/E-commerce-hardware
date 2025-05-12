@@ -1,7 +1,7 @@
 const productDetailRepository = require('../../repositories/productDetailRepository');
 
-const updateProductDetailsUseCase = async (req, res) => {
-    const { id, manufacturer, warranty_period, weight, dimensions, color, material } = req.body;
+const updateProductDetailsUseCase = async (product) => {
+    const { id, manufacturer, warranty_period, weight, dimensions, color, material } = product;
 
     if (!id) {
         return null;

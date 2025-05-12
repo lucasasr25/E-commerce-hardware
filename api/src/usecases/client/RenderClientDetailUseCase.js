@@ -1,8 +1,7 @@
 const clientRepository = require("../../repositories/clientRepository");
 
 const RenderClientDetailUseCase =
-    async (req, res) => {
-        const { id } = req.query;
+    async (id) => {
         const client = await clientRepository.getClientById(id);
         
         if (!client) {

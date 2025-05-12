@@ -9,8 +9,7 @@ const RenderOrderUseCase = async (orderId) => {
     if (!order) throw new Error("Pedido não encontrado");
 
     // 2. Itens do pedido
-    // const orderItems = await orderRepository.getItemsByOrderId(orderId);
-
+    const orderItems = await orderRepository.getItemsByOrderId(orderId);
     // 3. Dados do status (opcional se já estiver em `order`)
     // const status = await orderRepository.getOrderStatusById(order.status_id);
 
@@ -28,6 +27,7 @@ const RenderOrderUseCase = async (orderId) => {
         // user,
         address,
         // status,
+        orderItems,
         paymentCards
     };
 };

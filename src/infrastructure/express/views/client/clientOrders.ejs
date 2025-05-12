@@ -1,0 +1,46 @@
+<%- include('../partials/settings/head') %>
+<%- include('../partials/settings/header') %>
+
+<div class="container mt-4">
+    <h2>Vendas do Cliente</h2>
+
+    <% if (orders.length > 0) { %>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Endereço</th>
+                    <th>Data</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%= order.id %></td>
+                        <form method="POST" action="/client/updateOrderStatus">
+                            <input type="hidden" name="orderId" value="<%= order.id %>">
+                            <td>
+                                <select name="statusId" class="form-select form-select-sm">
+                                    <% statuses.forEach(status => { %>
+                                        <option value="<%= status.id %>" <%= status.id === order.status_id ? 'selected' : '' %>><%= status.status_name %></option>
+                                    <% }) %>
+                                </select>
+                            </td>
+                            <td>R$ <%= order.total_price %></td>
+                            <td><%= order.full_address %></td>
+                            <td><%= new Date(order.created_at).toLocaleDateString("pt-BR") %></td>
+                            <td><button type="submit" class="btn btn-sm btn-success">Salvar</button></td>
+                        </form>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>Este cliente ainda não possui pedidos.</p>
+    <% } %>
+
+    <a href="/client/list" class="btn btn-secondary mt-3">Voltar</a>
+</div>

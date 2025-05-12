@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<%- include('../partials/settings/head') %>
+<%- include('../partials/settings/header') %>
+
+<body>
+    <div class="container mt-4">
+        <h2 class="mb-4">Lista de Clientes</h2>
+
+        <div class="mb-3">
+            <button class="btn btn-primary" onclick="window.location.href='/client/create'">Criar Novo Cliente</button>
+        </div>
+
+        <% if (clients.length === 0) { %>
+            <div class="alert alert-info" role="alert">
+                Nenhum cliente encontrado.
+            </div>
+        <% } else { %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Ações</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% clients.forEach(client => { %>
+                            <tr>
+                                <td><strong><%= client.name %></strong></td>
+                                <td><%= client.email %></td>
+                                <td>
+                                    <button class="btn btn-info btn-sm" onclick="window.location.href='/client/clientOders?id=<%= client.id %>'">
+                                        Ver Vendas
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>

@@ -1,8 +1,8 @@
 const clientRepository = require("../../repositories/clientRepository");
 
 const DeleteClientUseCase =
-    async (req, res) => {
-        const { id } = req.params;
+    async (id) => {
+
         const client = await clientRepository.deleteClient(id);
         
         if (!client) {

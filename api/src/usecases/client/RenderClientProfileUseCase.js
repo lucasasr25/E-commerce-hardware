@@ -1,8 +1,8 @@
 const clientRepository = require("../../repositories/clientRepository");
 const addressRepository = require("../../repositories/addressRepository");
 
-const RenderClientProfileUseCase = async (req) => {
-    const userId = req.session.user?.id;
+const RenderClientProfileUseCase = async (userId) => {
+
 
     const client = await clientRepository.getClientById(userId);
     if (!client) {

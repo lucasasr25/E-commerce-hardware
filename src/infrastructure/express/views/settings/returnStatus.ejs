@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<%- include('../partials/settings/head') %>
+<%- include('../partials/settings/header') %>
+
+<body>
+    <div class="container">
+        <h1>Gerenciar Status de Devolução</h1>
+
+        <!-- Formulário para criar novo status de devolução -->
+        <form action="/settings/return-status/create" method="POST" class="mb-4">
+            <div class="form-group">
+                <label for="name">Novo Status</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group mt-2">
+                <label for="description">Descrição (opcional)</label>
+                <textarea id="description" name="description" class="form-control" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success mt-2">Criar Status</button>
+        </form>
+
+        <hr>
+
+        <h2>Status de Devolução Existentes</h2>
+        <ul class="list-group">
+            <% returnStatusList.forEach(status => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong><%= status.name %></strong>
+                    <form action="/settings/return-status/delete" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<%= status.id %>">
+                        <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+</body>
+</html>

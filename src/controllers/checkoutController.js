@@ -11,7 +11,9 @@ const renderCheckoutView = async (req, res) => {
         res.render("shopping/checkout", checkoutData);
     } catch (error) {
         console.error("Erro ao renderizar checkout:", error);
-        res.status(500).send("Erro ao carregar o checkout");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -27,7 +29,9 @@ const checkout = async (req, res) => {
         });
     } catch (error) {
         console.error("Erro no checkout:", error);
-        res.status(500).send(error.message || "Erro ao processar o pedido.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 

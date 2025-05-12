@@ -10,7 +10,9 @@ const mainView = async (req, res) => {
         });
     } catch (error) {
         console.error('Erro ao buscar produtos:', error);
-        res.status(500).send('Erro interno do servidor');
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 

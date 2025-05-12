@@ -1,8 +1,7 @@
 const productRepository = require("../../repositories/productRepository");
 const productDetailRepository = require("../../repositories/productDetailRepository");
 
-const renderProductDetailViewUseCase = async (req, res) => {
-    const { id } = req.query;
+const renderProductDetailViewUseCase = async (id) => {
 
     if (!id) {
         return null;

@@ -12,7 +12,7 @@ const productRoutes = require("./routes/productRoutes.js");
 const websiteRoutes = require("./routes/mainRoutes.js");
 const settingsRoutes = require("./routes/settingsRoutes.js");
 
-app.set("views", path.join(__dirname, "./views"));
+app.set("views", path.join(__dirname, "./infrastructure/express/views"));
 app.set("view engine", "ejs");
 
 

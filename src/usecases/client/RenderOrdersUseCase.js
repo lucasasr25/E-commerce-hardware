@@ -3,8 +3,8 @@ const orderRepository = require("../../repositories/orderRepository");
 
 const RenderOrdersUseCase =
 
-async (req,res) => {
-    const userId = req.session.user?.id;
+async (userId) => {
+
     if (!userId) {
         throw new Error("Usuário não autenticado.");
     }

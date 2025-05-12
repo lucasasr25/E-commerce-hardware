@@ -1,8 +1,8 @@
 const clientRepository = require("../../repositories/clientRepository");
 const addressRepository = require("../../repositories/addressRepository");
 
-const CreateClientUseCase = async (req, res) => {
-    const { name, email, password, document, active, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, phoneNumbers, card_number, holder_name, expiration_date } = req.body;
+const CreateClientUseCase = async (clientData) => {
+    const { name, email, password, document, active, adr_type, nick, street, number, complement, neighborhood, city, state, country, zipcode, phoneNumbers, card_number, holder_name, expiration_date } = clientData;
 
     const addresses = adr_type.map((type, i) => ({
         adr_type: type || '',

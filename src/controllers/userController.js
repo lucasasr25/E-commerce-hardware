@@ -17,9 +17,31 @@ const validatePassword = [
 ];
 
 
+const viewReturns = async (req, res) => {
+    try {
+        const userId = req.session.user?.id;
+
+        if (!userId) {
+            return res.status(401).render("status/error", {
+                message: "Usuário não autenticado.",
+            });
+        }
+
+        const returns = await clientUseCase.ViewReturnsUseCase(userId);
+
+        res.render("user/returns", { returns });
+    } catch (error) {
+        console.error("Erro ao buscar trocas:", error);
+        res.status(500).render("status/error", {
+            message: error.message || "Erro ao buscar trocas.",
+        });
+    }
+};
+
 const renderOrders = async (req, res) => {
     try {
-        const orders = await clientUseCase.RenderOrdersUseCase(req, res);
+        const userId = req.session.user?.id;
+        const orders = await clientUseCase.RenderOrdersUseCase(userId);
         res.render("user/orders/list", { orders });
     } catch (error) {
         console.error("Erro ao obter pedidos:", error.message);
@@ -36,9 +58,57 @@ const renderOrderDetails = async (req, res) => {
         res.render("user/orders/details", { order });
     } catch (error) {
         console.error("Erro ao buscar detalhes do pedido:", error.message);
-        res.status(500).send("Erro ao carregar os detalhes do pedido.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao buscar detalhes do pedido:"
+        });
     }
 };
+
+const returnOrderDetails = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const order = await clientUseCase.RenderOrderUseCase(orderId);
+        res.render("user/orders/return", { order });
+    } catch (error) {
+        console.error("Erro ao buscar detalhes do pedido:", error.message);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao buscar detalhes do pedido:"
+        });
+    }
+};
+
+const getClientOrders = async (req, res) => {
+    try {
+        const clientId = req.query.id;
+
+        if (!clientId) {
+            return res.status(400).send("ID do cliente não fornecido.");
+        }
+
+        const { orders, statuses } = await clientUseCase.GetOrdersByClientIdUseCase(clientId);
+
+        res.render("client/clientOrders", { orders, statuses });
+
+    } catch (error) {
+        console.error("Erro ao buscar vendas do cliente:", error);
+        res.status(500).send("Erro interno ao buscar vendas.");
+    }
+};
+
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { orderId, statusId } = req.body;
+
+        await clientUseCase.UpdateOrderStatusUseCase({ orderId, statusId });
+
+        res.redirect("back");
+    } catch (error) {
+        console.error("Erro ao atualizar status do pedido:", error);
+        res.status(500).send("Erro ao atualizar status.");
+    }
+};
+
+
 
 const registerClient = async (req, res) => {
     const errors = validationResult(req);
@@ -47,7 +117,8 @@ const registerClient = async (req, res) => {
     }
 
     try {
-        const client = await clientUseCase.RegisterClientUseCase(req, res);
+        const clientData = req.body;
+        const client = await clientUseCase.RegisterClientUseCase(clientData);
         // const client = await registerClientUseCase.execute({ name, email, password, document, addresses });
 
         res.status(201).json({ message: "Client successfully registered!", client });
@@ -57,24 +128,61 @@ const registerClient = async (req, res) => {
 };
 
 
+const registerReturn = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const order_id = req.params.id; // Vindo da rota: /user/exchange/:id
+        const user_id = req.user?.id || req.session.user?.id; // ou defina conforme sua autenticação
+        const itemsToExchange = req.body.itemsToExchange; // Array de product_id
+
+        if (!itemsToExchange || itemsToExchange.length === 0) {
+            res.status(500).render("status/error", {
+                message: "Nenhum item foi selecionado para troca.",
+            });
+        }
+
+        const returnData = await clientUseCase.RegisterReturnUseCase({
+            user_id,
+            order_id,
+            product_ids: itemsToExchange
+        });
+
+        res.render('status/success', {
+            message: "Troca registrada! Aguarde atualizações."
+        });
+
+    } catch (error) {
+
+        res.status(500).render("status/error", {
+            message: error.message || "Erro ao registrar troca:",
+        });
+    }
+};
+
+
+
 const updateClient = async (req, res) => {
     try {
-      const updatedClient = await clientUseCase.updateClientUseCase(req, res);
-  
-      if (!updatedClient) {
-        return res.status(404).json({ message: "Client not found" });
-      }
-  
-      res.redirect(`/user`);
+        const clientData = req.body;
+        const updatedClient = await clientUseCase.updateClientUseCase(clientData);
+        if (!updatedClient) {
+            return res.status(404).json({ message: "Client not found" });
+        }
+        res.redirect(`/user`);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
   };
 
 
 const searchClients = async (req, res) => {
     try {
-        const clients = await clientUseCase.SearchClientsUseCase(req, res);
+        const queryParams = req.query;
+        const clients = await clientUseCase.SearchClientsUseCase(queryParams);
         res.json(clients);
     } catch (error) {
         console.error("Erro ao buscar clientes:", error);
@@ -84,31 +192,40 @@ const searchClients = async (req, res) => {
 
 const renderClientsView = async (req, res) => {
     try {
-        const clients = await clientUseCase.RenderClientsViewUseCase(req,res);
+        const queryParams = req.query;
+        const clients = await clientUseCase.RenderClientsViewUseCase(queryParams);
         res.render("client/list", { clients });
     } catch (error) {
         console.error("Erro ao buscar clientes:", error);
-        res.status(500).send("Erro ao buscar clientes.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao buscar clientes:"
+        });
     }
 };
 
 const renderDetailView = async (req, res) => {
     try {
-        const client = await clientUseCase.RenderClientDetailUseCase(req,res);
+        const { id } = req.query;
+        const client = await clientUseCase.RenderClientDetailUseCase(id);
         res.render("client/detail", { client });
     } catch (error) {
         console.error("Erro ao buscar detalhes do cliente:", error);
-        res.status(500).send("Erro ao buscar detalhes do cliente.");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao buscar detalhes do cliente:"
+        });
     }
 };
 
 const deleteClient = async (req, res) => {
     try {    
-        const deleteClientUseCase = await clientUseCase.DeleteClientUseCase(req, res);
+        const { id } = req.params;
+        const deleteClientUseCase = await clientUseCase.DeleteClientUseCase(id);
         res.redirect('/client/clients');
     } catch (error) {
         console.error(error);
-        res.status(500).send("Erro ao deletar cliente");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar cliente"
+        });
     }
 };
 
@@ -117,66 +234,82 @@ const renderSettingsView = async (req, res) => {
         res.render("user/admin/settings");
     } catch (error) {
         console.error("Erro ao renderizar a tela de configurações:", error);
-        res.status(500).send("Erro ao carregar a tela de configurações");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao renderizar a tela de configurações:"
+        });
     }
 };
 
 
 const renderEditView = async (req, res) => {
     try {
-        const data = await clientUseCase.RenderEditViewUseCase(req, res);
+        const { id } = req.query;
+        const data = await clientUseCase.RenderEditViewUseCase(id);
         res.render("client/edit", { client: data.client, addresses: data.addresses, phoneNumbers: data.phoneNumbers });
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao renderizar a tela"
+        });
     }
 };
 
 const renderCardEdit = async (req, res) => {
     try {
-        const creditCards = await clientUseCase.RenderCardEditUseCase(req, res);
+        const userId = req.session.user?.id;
+        const creditCards = await clientUseCase.RenderCardEditUseCase(userId);
         res.render('user/editCreditCards', { creditCards });
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao renderizar a tela"
+        });
     }
 };
 
 const updateCreditCardsController = async (req, res) => {
     try {
-        // const userId = req.session.user?.id;
-        const updateCreditCardsUseCase = await clientUseCase.UpdateCreditCardsUseCase(req, res);
+        const userId = req.session.user?.id;
+        const updateCreditCardsUseCase = await clientUseCase.UpdateCreditCardsUseCase(userId);
         res.redirect('/user');
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao adicionar cartões de crédito.' });
+        res.status(500).render('status/error', {
+            message: error.message || 'Erro ao adicionar cartões de crédito.'
+        });
     }
 };
 
 const renderClientProfile = async (req, res) => {
     try {
-        const { client, addresses, cards } = await clientUseCase.RenderClientProfileUseCase(req);
+        const userId = req.session.user?.id;
+        const { client, addresses, cards } = await clientUseCase.RenderClientProfileUseCase(userId);
         res.render("user/profile", { client, addresses, cards });
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).render('status/error', {
+            message: error.message || 'Erro ao renderClientProfile'
+        });
     }
 };
-
-
 
 const renderCreateview = async (req, res) => {
     try {
         const data = await clientUseCase.RenderCreateViewUseCase(req,res);
         res.render("client/create", data);
     } catch (error) {
-        res.status(500).send("Erro ao carregar a página de criação");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao carregar a página de criação"
+        });
     }
 };
 
 const createClient = async (req, res) => {
     try {
-        const newClient = await clientUseCase.CreateClientUseCase(req,res);
+        const clientData = req.body;
+        const newClient = await clientUseCase.CreateClientUseCase(clientData);
         res.redirect(`/client/clientDetail?id=${newClient.id}`);
     } catch (error) {
-        res.status(500).send("Erro ao criar cliente e endereço");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar cliente e endereço"
+        });
     }
 };
 
-module.exports = { registerClient, renderOrderDetails, renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+module.exports = { registerClient, viewReturns, updateOrderStatus, getClientOrders, renderOrderDetails, returnOrderDetails,  registerReturn , renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};

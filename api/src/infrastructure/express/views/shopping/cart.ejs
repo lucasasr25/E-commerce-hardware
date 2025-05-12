@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head') %>
+</head>
+
+<body class="main-layout ">
+    <%- include('../partials/header') %>
+    <br>
+    <br>
+    <br>
+
+    <div class="container">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <span class="pull-right">(<strong>1</strong>) item</span>
+                            <h5>Itens no seu carrinho</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="table-responsive">
+                              <table class="table shopping-cart-table">
+                                <tbody>
+                                  <% items.forEach(item => { %>
+                                    <tr>
+                                      <td width="90">
+                                        <div class="cart-product-imitation">
+                                          <!-- Imagem do produto poderia ser carregada pelo product_id -->
+                                          <img src="https://images.kabum.com.br/produtos/fotos/475647/placa-de-video-rx-7600-gaming-oc-8g-radeon-gigabyte-8gb-gddr6-128bits-rgb-gv-r76gaming-oc-8gd_1698435450_g.jpg" width="70" />
+                                        </div>
+                                      </td>
+                          
+                                      <td class="desc">
+                                        <h3>
+                                          <a href="#" class="text-navy">
+                                            <%= item.name %>
+                                          </a>
+                                        </h3>
+                                        <p class="small">Descrição do produto aqui.</p>
+                                        <dl class="small m-b-none">
+                                          <dt>Especificações</dt>
+                                          <dd>Especificações do produto.</dd>
+                                        </dl>
+                                        <div class="m-t-sm">
+                                          <a href="#" class="text-muted">
+                                            <i class="fa fa-trash"></i> Remover item
+                                          </a>
+                                        </div>
+                                      </td>
+                          
+                                      <td>
+                                        R$ <%= parseFloat(item.price).toFixed(2).replace(".", ",") %>
+                                      </td>
+                          
+                                      <td width="110">
+                                        <input type="number"
+                                               class="form-control quantity-input"
+                                               value="<%= item.quantity %>"
+                                               data-price="<%= item.price %>"
+                                               data-item-id="<%= item.product_id %>"
+                                               onchange="updateItemTotal(this)">
+                                      </td>
+                          
+                                      <td>
+                                        <h4 id="item-total-<%= item.id %>">
+                                          R$ <%= (parseFloat(item.price) * item.quantity).toFixed(2).replace(".", ",") %>
+                                        </h4>
+                                      </td>
+                                    </tr>
+                                  <% }) %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        <div class="ibox-content">
+                            <button onclick="window.location.href='/cart/checkout'" class="btn btn-primary pull-right">
+                                <i class="fa fa-shopping-cart"></i> Finalizar compra
+                            </button>
+                            
+                            <button onclick="saveCart()" class="btn btn-success pull-right" style="margin-right: 10px;">
+                                <i class="fa fa-shopping-cart"></i> Salvar Carrinho
+                            </button>
+                            
+                            <button onclick="window.location.href='/main'" class="btn btn-white"><i class="fa fa-arrow-left"></i> Continuar comprando</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Resumo do Carrinho</h5>
+                        </div>
+                        <div class="ibox-content">
+                            <span>Total</span>
+                            <h2 class="font-bold">R$ <%= total.replace(".", ",") %></h2>
+                            <hr>
+                            <div class="m-t-sm">
+                                <div class="btn-group">
+                                    <a href="/cart/checkout" class="btn btn-primary btn-sm"><i class="fa fa-shopping-cart"></i> Finalizar compra</a>
+                                    <a href="/main" class="btn btn-white btn-sm"> Cancelar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../partials/chatbot') %>
+    <script>
+        function updateItemTotal(input) {
+          const quantity = parseInt(input.value) || 0;
+          const price = parseFloat(input.dataset.price);
+          const itemId = input.dataset.itemId;
+        
+          const itemTotal = quantity * price;
+        
+          // Atualiza o valor do item
+          const itemTotalElement = document.getElementById('item-total-' + itemId);
+          if (itemTotalElement) {
+            itemTotalElement.innerText = 'R$ ' + itemTotal.toFixed(2).replace('.', ',');
+          }
+        
+          updateCartTotal();
+        }
+        
+        function updateCartTotal() {
+          let total = 0;
+          
+          document.querySelectorAll('.quantity-input').forEach(input => {
+            const quantity = parseInt(input.value) || 0;
+            const price = parseFloat(input.dataset.price);
+            total += quantity * price;
+          });
+        
+          // Atualiza o resumo do carrinho
+          const cartTotalElement = document.querySelector('.ibox-content h2.font-bold');
+          if (cartTotalElement) {
+            cartTotalElement.innerText = 'R$ ' + total.toFixed(2).replace('.', ',');
+          }
+        }
+
+// Função para enviar os dados atualizados do carrinho ao servidor
+async function saveCart() {
+    try {
+        const items = getItemsFromPage();  // Esta função precisa pegar os itens com suas quantidades atualizadas na página
+
+        // Caso os itens estejam vazios ou o usuário não tenha sido identificado
+        if (!items) {
+            alert('Erro: carrinho vazio.');
+            return;
+        }
+
+        // Fazendo a requisição para atualizar os itens no servidor
+        const response = await fetch('/cart/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ items }),  // Envia os itens com suas quantidades atualizadas (sem precisar enviar o userId)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log("Salvo")
+        } else {
+            alert('Erro ao salvar carrinho: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Erro ao salvar carrinho:', error);
+        alert('Erro inesperado ao salvar o carrinho.');
+    }
+}
+
+// Função para pegar os itens atualizados da página
+function getItemsFromPage() {
+    const items = [];
+    
+    // Selecionando todas as linhas de itens da tabela
+    const itemElements = document.querySelectorAll('.shopping-cart-table tbody tr');
+    
+    itemElements.forEach((itemElement) => {
+        const productId = itemElement.querySelector('.quantity-input').dataset.itemId;  // Captura o ID do item
+        const quantity = itemElement.querySelector('.quantity-input').value;  // Captura a quantidade do input
+
+        // Adiciona os dados do item (produto e quantidade) ao array de itens
+        items.push({ productId, quantity });
+    });
+
+    return items;
+}
+
+
+        </script>
+        
+</body>
+</html>

@@ -1,10 +1,12 @@
 const productRepository = require('../../repositories/productRepository');
 const productDetailRepository = require('../../repositories/productDetailRepository');
+const stockRepository = require('../../repositories/stockRepository');
+
 
 const createProductUseCase = async ({
     name, description, price,
     manufacturer, warranty_period,
-    weight, dimensions, color, material
+    weight, dimensions, color, material, qtd
 }) => {
     if (!name || !price) {
         throw new Error("Name and price are required");
@@ -20,6 +22,8 @@ const createProductUseCase = async ({
         color,
         material
     );
+
+    await stockRepository.createStock(newProduct.id, qtd);
 
     return { newProduct, productDetails };
 };

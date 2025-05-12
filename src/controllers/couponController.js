@@ -11,7 +11,9 @@ const renderCouponsPage = async (req, res) => {
         res.render('settings/coupons', { coupons });
     } catch (error) {
         console.error('Erro ao obter cupons:', error);
-        res.status(500).send("Erro ao carregar cupons");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -41,7 +43,9 @@ const createCoupon = async (req, res) => {
         res.redirect('/settings/coupons');
     } catch (error) {
         console.error('Erro ao criar cupom:', error);
-        res.status(500).send("Erro ao criar cupom");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 
@@ -52,7 +56,9 @@ const deleteCoupon = async (req, res) => {
         res.redirect('/settings/coupons');
     } catch (error) {
         console.error('Erro ao deletar cupom:', error);
-        res.status(500).send("Erro ao deletar cupom");
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
     }
 };
 

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <%- include('../../partials/settings/head') %>
+  <%- include('../../partials/settings/header') %>
+
+  <body>
+    <div class="container">
+      <h1>Detalhes do Pedido #<%= order.id %></h1>
+
+      <div class="mb-4">
+        <h3>Informações Gerais</h3>
+        <p><strong>Data:</strong> <%= new Date(order.created_at).toLocaleDateString("pt-BR") %></p>
+        <p><strong>Status ID:</strong> <%= order.status_id %></p>
+        <p><strong>Subtotal:</strong> R$ <%= order.sub_total %></p>
+        <p><strong>Total com desconto:</strong> R$ <%= order.total_price %></p>
+        <p><strong>Cupom Promocional:</strong> <%= order.promotional_coupon_id || "Nenhum" %></p>
+        <p><strong>Cupom de Troca:</strong> <%= order.trade_coupon_id || "Nenhum" %></p>
+      </div>
+
+      <div class="mb-4">
+        <h3>Endereço de Entrega</h3>
+        <% if (order.address && order.address.length > 0) { %>
+          <% const addr = order.address[0]; %>
+          <p><strong>Apelido:</strong> <%= addr.nick %></p>
+          <p><%= addr.street %>, nº <%= addr.number %> - <%= addr.complement %></p>
+          <p><%= addr.neighborhood %> - <%= addr.city %> / <%= addr.state %></p>
+          <p><%= addr.country %> - CEP: <%= addr.zipcode %></p>
+        <% } else { %>
+          <p>Endereço não disponível.</p>
+        <% } %>
+      </div>
+      
+      <div class="mb-4">
+        <h3>Itens do Pedido</h3>
+        <% if (order.orderItems) { %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5 class="card-title"><%= order.orderItems.name %></h5>
+              <p class="card-text"><strong>Descrição:</strong> <%= order.orderItems.description %></p>
+              <p class="card-text"><strong>Fabricante:</strong> <%= order.orderItems.manufacturer %></p>
+              <p class="card-text"><strong>Quantidade:</strong> <%= order.orderItems.quantity %></p>
+              <p class="card-text"><strong>Preço Unitário:</strong> R$ <%= order.orderItems.price %></p>
+              <p class="card-text"><strong>Garantia:</strong> <%= order.orderItems.warranty_period %> meses</p>
+              <p class="card-text"><strong>Peso:</strong> <%= order.orderItems.weight %> kg</p>
+              <p class="card-text"><strong>Cor:</strong> <%= order.orderItems.color %></p>
+              <p class="card-text"><strong>Material:</strong> <%= order.orderItems.material %></p>
+              <p class="card-text"><strong>Dimensões:</strong> <%= order.orderItems.dimensions %> cm</p>
+            </div>
+          </div>
+        <% } else { %>
+          <p>Nenhum item encontrado para este pedido.</p>
+        <% } %>
+      </div>
+      
+
+      <div class="mb-4">
+        <h3>Cartões Utilizados</h3>
+        <% if (order.paymentCards && order.paymentCards.length > 0) { %>
+          <ul class="list-group">
+            <% order.paymentCards.forEach(card => { %>
+              <li class="list-group-item">
+                <strong>Nome:</strong> <%= card.cardholder_name %><br>
+                <strong>Bandeira:</strong> <%= card.card_brand %><br>
+                <strong>Final:</strong> **** **** **** <%= card.last_four_digits %><br>
+                <strong>Validade:</strong> <%= card.expiration_month %>/<%= card.expiration_year %><br>
+                <strong>Valor no cart'ao:</strong> <%= card.amount %><br>
+              </li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p>Nenhum cartão associado.</p>
+        <% } %>
+      </div>
+
+      <a href="/user/orders" class="btn btn-secondary">Voltar para Meus Pedidos</a>
+    </div>
+  </body>
+</html>

@@ -1,9 +1,6 @@
 const pool = require("../config/db");
 const { v4: uuidv4 } = require("uuid");
 
-
-
-
 const createCreditCard = async (userId, cardNumber, holderName, expirationDate, is_default_) => {
     const client = await pool.connect();
     try {
