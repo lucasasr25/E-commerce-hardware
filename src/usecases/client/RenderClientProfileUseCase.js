@@ -1,5 +1,7 @@
 const clientRepository = require("../../repositories/clientRepository");
 const addressRepository = require("../../repositories/addressRepository");
+const creditCardRepository = require("../../repositories/creditCardRepository");
+
 
 const RenderClientProfileUseCase = async (userId) => {
 
@@ -10,7 +12,7 @@ const RenderClientProfileUseCase = async (userId) => {
     }
 
     const addresses = await addressRepository.getClientAddresses(userId);
-    const cards = await clientRepository.getCreditCardsByUserId(userId);
+    const cards = await creditCardRepository.getCreditCardsByUserId(userId);
 
     return { client, addresses, cards };
 }

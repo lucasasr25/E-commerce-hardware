@@ -1,9 +1,9 @@
-const clientRepository = require("../../repositories/clientRepository");
+const creditCardRepository = require("../../repositories/creditCardRepository");
 
 
 const RenderCardEditUseCase =
     async (userId) => {
-        return await clientRepository.getCreditCardsByUserId(userId);
+        return await creditCardRepository.getCreditCardsByUserId(userId);
     }
 
 

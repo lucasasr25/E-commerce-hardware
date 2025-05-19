@@ -169,7 +169,7 @@ CREATE TABLE cart_items (
 CREATE TABLE credit_cards (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    card_number TEXT NOT NULL,
+    card_number TEXT NOT NULL UNIQUE,
     holder_name TEXT NOT NULL,
     expiration_date TEXT NOT NULL,
     is_default BOOLEAN DEFAULT FALSE,

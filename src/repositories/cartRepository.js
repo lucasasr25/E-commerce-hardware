@@ -24,6 +24,33 @@ const getOrCreateCart = async (userId) => {
 };
 
 
+const saveCart = async (cart) => {
+    const client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        const dbCart = await getOrCreateCart(cart.userId);
+        const cartId = dbCart.id;
+
+        await client.query(`DELETE FROM cart_items WHERE cart_id = $1`, [cartId]);
+
+        for (const item of cart.items) {
+            await client.query(
+                `INSERT INTO cart_items (cart_id, product_id, quantity)
+                 VALUES ($1, $2, $3)`,
+                [cartId, item.productId, item.quantity]
+            );
+        }
+
+        await client.query("COMMIT");
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+
 const updateCartItemQuantity = async (userId, productId, quantity) => {
     const client = await pool.connect();
     try {
@@ -179,4 +206,4 @@ const clearCart = async (userId) => {
     }
 };
 
-module.exports = { getOrCreateCart, updateCartItemQuantity, addItemToCart, getCartItems, removeItemFromCart, clearCart, getCartTotal };
+module.exports = { getOrCreateCart, updateCartItemQuantity, saveCart, addItemToCart, getCartItems, removeItemFromCart, clearCart, getCartTotal };
