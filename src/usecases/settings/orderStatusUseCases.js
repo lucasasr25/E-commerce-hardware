@@ -1,4 +1,4 @@
-const orderRepository = require("../../repositories/orderRepository");
+const orderRepository = new (require("../../repositories/orderRepository"))();
 
 const getAllOrderStatus = async () => {
     return await orderRepository.getAllOrderStatus();

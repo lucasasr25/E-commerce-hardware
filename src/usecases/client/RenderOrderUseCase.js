@@ -1,13 +1,13 @@
-const orderRepository = require("../../repositories/orderRepository");
-const paymentRepository = require("../../repositories/paymentRepository"); // novo
-const addressRepository = require("../../repositories/addressRepository"); // se você tiver um
-const userRepository = require("../../repositories/clientRepository"); // se necessário
+const orderRepository = new (require("../../repositories/orderRepository"))();
+const paymentRepository = new (require("../../repositories/paymentRepository"))(); 
+const addressRepository = new (require("../../repositories/addressRepository"))();
+const userRepository = new (require("../../repositories/clientRepository"))();
 
 const RenderOrderUseCase = async (orderId) => {
     const order = await orderRepository.getOrderById(orderId);
     if (!order) throw new Error("Pedido não encontrado");
     const orderItems = await orderRepository.getItemsByOrderId(orderId);
-    const address = await addressRepository.getAddressById(order.address_id);
+    const address = await addressRepository.getById(order.address_id, "addresses");
     const paymentCards = await paymentRepository.getPaymentCardsByOrderId(orderId);
 
     return {

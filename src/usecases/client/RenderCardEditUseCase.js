@@ -1,5 +1,4 @@
-const creditCardRepository = require("../../repositories/creditCardRepository");
-
+const creditCardRepository = new (require("../../repositories/creditCardRepository"))();
 
 const RenderCardEditUseCase =
     async (userId) => {

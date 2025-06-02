@@ -1,7 +1,7 @@
 const Cart = require("../../entities/Cart");
 const { Product } = require("../../entities/Product");
-const cartRepository = require("../../repositories/cartRepository");
-const productRepository = require("../../repositories/productRepository");
+const cartRepository = new (require("../../repositories/cartRepository"))();
+const productRepository = new (require("../../repositories/productRepository"))();
 
 const addItemToCart = async ({ userId, productId, quantity = 1 }) => {
     const dbItems = await cartRepository.getCartItems(userId);

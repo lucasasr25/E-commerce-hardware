@@ -1,4 +1,4 @@
-const returnRepository = require("../../repositories/returnRepository");
+const returnRepository = new (require("../../repositories/returnRepository"))();
 
 const ViewReturnsUseCase = async (userId) => {
     if (!userId) {

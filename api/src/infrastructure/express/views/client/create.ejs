@@ -109,7 +109,10 @@
 
             newAddressDiv.innerHTML = `
                 <label for="adr_type">Tipo de Endereço:</label>
-                <input type="text" name="adr_type[]" required><br>
+                <select name="adr_type[]" id="adr_type_<%= index %>" required>
+                    <option value="entrega" <%= address.adr_type === 'entrega' ? 'selected' : '' %>>Endereço de Entrega</option>
+                    <option value="cobranca" <%= address.adr_type === 'cobranca' ? 'selected' : '' %>>Endereço de Cobrança</option>
+                </select><br>
 
                 <label for="street">Rua:</label>
                 <input type="text" name="street[]" required><br>
@@ -184,9 +187,11 @@
             <legend>Endereço do Cliente</legend>
             <div id="addressSection">
                 <div>
-                    <label for="adr_type">Tipo de Endereço:</label>
-                    <input type="text" name="adr_type[]" required><br>
-
+                    <select name="adr_type[]" id="adr_type_<%= index %>" required>
+                        <option value="entrega" <%= address.adr_type === 'entrega' ? 'selected' : '' %>>Endereço de Entrega</option>
+                        <option value="cobranca" <%= address.adr_type === 'cobranca' ? 'selected' : '' %>>Endereço de Cobrança</option>
+                    </select><br>
+            
                     <label for="nick">Apelido:</label>
                     <input type="text" name="nick[]" required><br>
 

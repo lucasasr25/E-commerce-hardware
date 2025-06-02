@@ -1,4 +1,4 @@
-const stockRepository = require('../../repositories/stockRepository');
+const stockRepository = new (require('../../repositories/stockRepository'))();
 
 const decreaseStockOnSaleUseCase = async ({ product_id, quantity }) => {
     if (!product_id || quantity == null || quantity <= 0) {

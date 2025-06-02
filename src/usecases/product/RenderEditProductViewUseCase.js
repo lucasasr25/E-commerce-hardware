@@ -1,5 +1,5 @@
-const productRepository = require("../../repositories/productRepository");
-const productDetailRepository = require("../../repositories/productDetailRepository");
+const productRepository = new (require('../../repositories/productRepository'))();
+const productDetailRepository = new (require('../../repositories/productDetailRepository'))();
 
 const renderEditProductViewUseCase = async (id) => {
 

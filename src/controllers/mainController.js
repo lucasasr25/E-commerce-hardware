@@ -1,4 +1,4 @@
-const productRepository = require("../repositories/productRepository");
+const productRepository = new (require("../repositories/productRepository"))();
 
 const mainView = async (req, res) => {
     try {

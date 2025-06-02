@@ -1,4 +1,4 @@
-const productDetailRepository = require('../../repositories/productDetailRepository');
+const productDetailRepository = new (require('../../repositories/productDetailRepository'))();
 
 const getProductDetailsUseCase = async (product_id) => {
     if (!product_id) {

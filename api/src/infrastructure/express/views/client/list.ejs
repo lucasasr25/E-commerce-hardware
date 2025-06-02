@@ -28,8 +28,16 @@
                     <tbody>
                         <% clients.forEach(client => { %>
                             <tr>
-                                <td><strong><%= client.name %></strong></td>
-                                <td><%= client.email %></td>
+                                <td><strong>
+                                <a href="clientDetail?id=<%= client.id %>" target="_blank" rel="noopener noreferrer">
+                                    <%= client.name %>
+                                </a>
+                                </strong></td>
+                                <td>
+                                <a href="clientDetail?id=<%= client.id %>" target="_blank" rel="noopener noreferrer">
+                                    <%= client.email %>
+                                </a>
+                                </td>
                                 <td>
                                     <button class="btn btn-info btn-sm" onclick="window.location.href='/client/clientOders?id=<%= client.id %>'">
                                         Ver Vendas

@@ -29,7 +29,7 @@
                     </thead>
                     <tbody>
                         <% products.forEach(product => { %>
-                            <tr>
+                            <tr onclick="window.location='http://localhost:3000/product/edit?id=<%= product.id %>'" style="cursor: pointer;">
                                 <td><%= product.id %></td>
                                 <td><%= product.name %></td>
                                 <td><%= product.description %></td>

@@ -1,9 +1,10 @@
-const clientRepository = require('../../repositories/clientRepository');
-const cartRepository = require("../../repositories/cartRepository");
-const orderRepository = require("../../repositories/orderRepository");
-const couponRepository = require("../../repositories/couponRepository");
-const stockRepository = require("../../repositories/stockRepository");
-const creditCardRepository = require("../../repositories/creditCardRepository");
+const clientRepository = new (require('../../repositories/clientRepository'))();
+const cartRepository = new (require('../../repositories/cartRepository'))();
+const orderRepository = new (require('../../repositories/orderRepository'))();
+const couponRepository = new (require('../../repositories/couponRepository'))();
+const stockRepository = new (require('../../repositories/stockRepository'))();
+const creditCardRepository = new (require('../../repositories/creditCardRepository'))();
+
 
 const {Order} = require('../../entities/Order');
 

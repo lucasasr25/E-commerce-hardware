@@ -1,6 +1,6 @@
-const clientRepository = require("../../repositories/clientRepository");
-const addressRepository = require("../../repositories/addressRepository");
-const creditCardRepository = require("../../repositories/creditCardRepository");
+const clientRepository = new (require("../../repositories/clientRepository"))();
+const addressRepository = new (require("../../repositories/addressRepository"))();
+const creditCardRepository = new (require("../../repositories/creditCardRepository"))();
 
 
 const RenderClientProfileUseCase = async (userId) => {

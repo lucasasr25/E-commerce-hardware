@@ -60,12 +60,12 @@
                                                class="form-control quantity-input"
                                                value="<%= item.quantity %>"
                                                data-price="<%= item.price %>"
-                                               data-item-id="<%= item.product_id %>"
+                                               data-item-id="<%= item.productId %>"
                                                onchange="updateItemTotal(this)">
                                       </td>
                           
                                       <td>
-                                        <h4 id="item-total-<%= item.id %>">
+                                        <h4 id="item-total-<%= item.productId %>">
                                           R$ <%= (parseFloat(item.price) * item.quantity).toFixed(2).replace(".", ",") %>
                                         </h4>
                                       </td>

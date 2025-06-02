@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 const clientUseCase = require('../usecases/client');
+const ClientBuilderService = require('../services/ClientBuilderService');
 
 const validatePassword = [
     body("password")
@@ -167,7 +168,7 @@ const registerReturn = async (req, res) => {
 
 const updateClient = async (req, res) => {
     try {
-        const clientData = req.body;
+        const clientData = ClientBuilderService.buildFromRequest(req.body);
         const updatedClient = await clientUseCase.updateClientUseCase(clientData);
         if (!updatedClient) {
             return res.status(404).json({ message: "Client not found" });
@@ -268,7 +269,7 @@ const renderCardEdit = async (req, res) => {
 const updateCreditCardsController = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const updateCreditCardsUseCase = await clientUseCase.UpdateCreditCardsUseCase(userId);
+        const updateCreditCardsUseCase = await clientUseCase.UpdateCreditCardsUseCase(userId, req.body);
         res.redirect('/user');
     } catch (error) {
         res.status(500).render('status/error', {
@@ -302,7 +303,7 @@ const renderCreateview = async (req, res) => {
 
 const createClient = async (req, res) => {
     try {
-        const clientData = req.body;
+        const clientData = ClientBuilderService.buildFromRequest(req.body);
         const newClient = await clientUseCase.CreateClientUseCase(clientData);
         res.redirect(`/client/clientDetail?id=${newClient.id}`);
     } catch (error) {

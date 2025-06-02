@@ -7,7 +7,6 @@ const renderCheckoutView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
         const checkoutData = await getCheckoutData(userId);
-        console.log(checkoutData)
         res.render("shopping/checkout", checkoutData);
     } catch (error) {
         console.error("Erro ao renderizar checkout:", error);

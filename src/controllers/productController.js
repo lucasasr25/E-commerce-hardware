@@ -65,14 +65,20 @@ const addProductDetails = async (req, res) => {
 const updateProductDetails = async (req, res) => {
     try {
         const productData = req.body;
-        const updatedDetails = await productUseCase.updateProductDetailsUseCase(productData);
-        res.status(200).json({ message: "Product details updated successfully", updatedDetails });
+        await productUseCase.updateProductDetailsUseCase(productData);
 
+        // Redireciona para a listagem ou visualização do produto
+        res.redirect("/product/view"); 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+
+        // Em caso de erro, renderiza uma tela amigável
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao atualizar o produto."
+        });
     }
 };
+
 
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
@@ -169,7 +175,8 @@ const renderEditProductView = async (req, res) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        res.render("editProduct", { product, productDetails });
+
+        res.render("products/editProduct", { product, productDetails});
     } catch (error) {
         console.error(error);
         res.status(500).render('status/error', {

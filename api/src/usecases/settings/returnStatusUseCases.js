@@ -1,4 +1,4 @@
-const returnStatusRepository = require("../../repositories/returnStatusRepository");
+const productDetailRepository = new (require('../../repositories/productDetailRepository'))();
 
 const getAllReturnStatus = async () => {
     return await returnStatusRepository.findAll();

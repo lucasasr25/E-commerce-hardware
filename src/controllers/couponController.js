@@ -3,7 +3,7 @@ const {
     createNewCoupon,
     removeCoupon,
     validateCoupon
-} = require('../usecases/coupoun/couponUseCases');
+} = require('../usecases/coupon/couponUseCases');
 
 const renderCouponsPage = async (req, res) => {
     try {

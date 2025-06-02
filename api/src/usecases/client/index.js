@@ -1,21 +1,21 @@
 const RenderOrdersUseCase = require('./RenderOrdersUseCase');
-const RegisterClientUseCase = require('./RegisterClientUseCase');
-const updateClientUseCase = require('./updateClientUseCase');
+const {RegisterClientUseCase} = require('./ClientUseCases');
+const {updateClientUseCase} = require('./ClientUseCases');
 const RenderClientsViewUseCase = require('./RenderClientsViewUseCase');
 const RenderClientDetailUseCase = require('./RenderClientDetailUseCase');
-const DeleteClientUseCase = require('./DeleteClientUseCase');
+const {DeleteClientUseCase} = require('./ClientUseCases');
 const SearchClientsUseCase = require('./SearchClientsUseCase');
 const RenderEditViewUseCase = require('./RenderEditViewUseCase');
 const RenderCardEditUseCase = require('./RenderCardEditUseCase');
-const UpdateCreditCardsUseCase = require('./UpdateCreditCardsUseCase');
+const {UpdateCreditCardsUseCase} = require('./ClientUseCases');
 const RenderClientProfileUseCase = require('./RenderClientProfileUseCase');
 const RenderCreateViewUseCase = require('./RenderCreateViewUseCase');
-const CreateClientUseCase = require('./CreateClientUseCase');
+const {CreateClientUseCase} = require('./ClientUseCases');
 const RenderOrderUseCase = require('./RenderOrderUseCase');
-const RegisterReturnUseCase = require('./RegisterReturnUseCase');
+const {RegisterReturnUseCase} = require('./ClientUseCases');
 const ViewReturnsUseCase = require('./ViewReturnsUseCase');
-const GetOrdersByClientIdUseCase = require('./GetOrdersByClientIdUseCase');
-const UpdateOrderStatusUseCase = require('./UpdateOrderStatusUseCase');
+const {GetOrdersByClientIdUseCase} = require('./ClientUseCases');
+const {UpdateOrderStatusUseCase} = require('./ClientUseCases');
 
 module.exports = {
     RenderOrdersUseCase,

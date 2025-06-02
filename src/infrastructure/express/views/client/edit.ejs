@@ -24,7 +24,11 @@
     
             newAddressDiv.innerHTML = `
                 <label for="adr_type">Tipo de Endereço:</label>
-                <input type="text" name="adr_type[]" required><br>
+                <select name="adr_type[]" required>
+                        <option value="">Selecione</option>
+                        <option value="entrega">Endereço de Entrega</option>
+                        <option value="cobranca">Endereço de Cobrança</option>
+                    </select><br>
     
                 <label for="street">Rua:</label>
                 <input type="text" name="street[]" required><br>
@@ -124,9 +128,11 @@
             <legend>Endereço do Cliente</legend>
             <div id="addressSection">
                 <% addresses.forEach(function(address, index) { %>
-                    <div class="address-entry"> <!-- Envolvendo com class .address-entry -->
                         <label for="adr_type_<%= index %>">Tipo de Endereço:</label>
-                        <input type="text" name="adr_type[]" value="<%= address.adr_type %>" required><br>
+                        <select name="adr_type[]" id="adr_type_<%= index %>" required>
+                            <option value="entrega" <%= address.adr_type === 'entrega' ? 'selected' : '' %>>Endereço de Entrega</option>
+                            <option value="cobranca" <%= address.adr_type === 'cobranca' ? 'selected' : '' %>>Endereço de Cobrança</option>
+                        </select><br>
             
                         <label for="is_default<%= index %>">Este é default?:</label>
                         <input type="checkbox" name="is_default[]" id="is_default<%= index %>" value="true" <%= address.is_default ? 'checked' : '' %>><br>

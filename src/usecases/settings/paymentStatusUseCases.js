@@ -1,4 +1,4 @@
-const paymentStatusRepository = require("../../repositories/paymentRepository");
+const paymentStatusRepository = new (require("../../repositories/paymentRepository"))();
 
 const getAllPaymentStatus = async () => {
     return await paymentStatusRepository.getAllPaymentStatus();

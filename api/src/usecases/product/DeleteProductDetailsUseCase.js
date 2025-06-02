@@ -1,4 +1,4 @@
-const productDetailRepository = require("../../repositories/productDetailRepository");
+const productDetailRepository = new (require("../../repositories/productDetailRepository"))();
 
 const deleteProductDetailsUseCase = async (id) => {
     if (!id) {

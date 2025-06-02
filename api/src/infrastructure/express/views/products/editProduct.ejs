@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Produto</title>
+    <link rel="stylesheet" href="/css/crud.css">
+</head>
+<body>
+    <h1>Editar Produto</h1>
+
+    <form action="/product/updateProduct" method="POST">
+
+        <input type="hidden" name="id" value="<%= product.id %>">
+
+        <div>
+            <label for="name">Nome do Produto:</label>
+            <input type="text" id="name" name="name" required value="<%= product.name %>">
+        </div>
+        <div>
+            <label for="description">Descrição:</label>
+            <textarea id="description" name="description"><%= product.description %></textarea>
+        </div>
+        <div>
+            <label for="price">Preço:</label>
+            <input type="number" id="price" name="price" required step="0.01" value="<%= product.price %>">
+        </div>
+        <div>
+            <label for="manufacturer">Fabricante:</label>
+            <input type="text" id="manufacturer" name="manufacturer" value="<%= productDetails.manufacturer %>">
+        </div>
+        <div>
+            <label for="warranty_period">Período de Garantia (meses):</label>
+            <input type="number" id="warranty_period" name="warranty_period" step="1" value="<%= productDetails.warranty_period %>">
+        </div>
+        <div>
+            <label for="weight">Peso (kg):</label>
+            <input type="number" id="weight" name="weight" step="0.01" value="<%= productDetails.weight %>">
+        </div>
+        <div>
+            <label for="dimensions">Dimensões (cm):</label>
+            <input type="text" id="dimensions" name="dimensions" value="<%= productDetails.dimensions %>">
+        </div>
+        <div>
+            <label for="color">Cor:</label>
+            <input type="text" id="color" name="color" value="<%= productDetails.color %>">
+        </div>
+        <div>
+            <label for="material">Material:</label>
+            <input type="text" id="material" name="material" value="<%= productDetails.material %>">
+        </div>
+
+
+        <div>
+            <button type="submit">Salvar Alterações</button>
+        </div>
+    </form>
+
+    <br>
+    <a href="/product/view">Voltar para a lista de produtos</a>
+</body>
+</html>

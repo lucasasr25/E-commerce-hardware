@@ -1,4 +1,4 @@
-const clientRepository = require("../../repositories/clientRepository");
+const clientRepository = new (require("../../repositories/clientRepository"))();
 
 const RenderClientsViewUseCase =
 async (queryParams) => {

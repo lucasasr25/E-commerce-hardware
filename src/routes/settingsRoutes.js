@@ -23,9 +23,14 @@ router.get('/return-status', settingsController.changeReturnStatus);
 router.post('/return-status/create', settingsController.createReturnStatus);
 router.post('/return-status/delete', settingsController.deleteReturnStatus);
 
-
 router.get("/entry", stockController.showEntryForm);
 router.post("/entry", stockController.manualEntry);
+
+router.get('/returns', settingsController.viewReturns);
+
+
+router.post('/exchange/update-status', settingsController.updateExchangeStatus);
+
 
 
 module.exports = router;

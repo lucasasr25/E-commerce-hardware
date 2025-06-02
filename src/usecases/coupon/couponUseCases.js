@@ -1,4 +1,4 @@
-const couponRepository = require('../../repositories/couponRepository');
+const couponRepository = new (require('../../repositories/couponRepository'))();
 const Coupon = require('../../entities/Coupon');
 
 const getAllCoupons = async () => {

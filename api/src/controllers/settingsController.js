@@ -1,6 +1,9 @@
 const orderStatusUseCases = require("../usecases/settings/orderStatusUseCases");
 const paymentStatusUseCases = require("../usecases/settings/paymentStatusUseCases");
 const returnStatusUseCases = require("../usecases/settings/returnStatusUseCases");
+const viewExchanges = require("../usecases/settings/viewExchanges");
+const updateExchangeStatusUseCase = require("../usecases/settings/UpdateExchangeStatusUseCase");
+
 
 
 const changeOrder = async (req, res) => {
@@ -14,6 +17,22 @@ const changeOrder = async (req, res) => {
         });
     }
 };
+
+
+const updateExchangeStatus = async (req, res) => {
+    try {
+        const { exchangeID, statusId } = req.body; 
+        console.log(req.body);
+        await updateExchangeStatusUseCase.execute(exchangeID, statusId);
+
+        res.redirect('/settings/returns');
+    } catch (error) {
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
+    }
+};
+
 
 const createOrderStatus = async (req, res) => {
     try {
@@ -119,6 +138,24 @@ const deleteReturnStatus = async (req, res) => {
 };
 
 
+const viewReturns = async (req, res) => {
+    try {
+        const userId = req.session.user?.id;
+        if (!userId) {
+            return res.status(401).render("status/error", {
+                message: "Usuário não autenticado.",
+            });
+        }
+        const {returns, statuses} = await viewExchanges(userId);
+        res.render("settings/returns", { returns, statuses });
+    } catch (error) {
+        console.error("Erro ao buscar trocas:", error);
+        res.status(500).render("status/error", {
+            message: error.message || "Erro ao buscar trocas.",
+        });
+    }
+};
+
 
 
 module.exports = {
@@ -130,5 +167,7 @@ module.exports = {
     changeReturnStatus,
     createReturnStatus,
     deleteReturnStatus,
-    deletePaymentStatus
+    deletePaymentStatus,
+    viewReturns,
+    updateExchangeStatus
 };
