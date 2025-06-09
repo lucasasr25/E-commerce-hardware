@@ -4,7 +4,6 @@ const Coupon = require('../entities/Coupon');
 const TradeCoupon = require('../entities/TradeCoupon');
 
 class CouponRepository extends IGenericRepository {
-    // Criar cupom promocional
     async createCoupon(code, discountPercentage, expirationDate) {
         const result = await pool.query(
             'INSERT INTO promotional_coupons (code, discount_percentage, expiration_date) VALUES ($1, $2, $3) RETURNING *',

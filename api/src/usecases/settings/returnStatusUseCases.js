@@ -1,21 +1,27 @@
-const productDetailRepository = new (require('../../repositories/productDetailRepository'))();
+const ReturnStatusRepository = require('../../repositories/returnStatusRepository');
 
-const getAllReturnStatus = async () => {
-    return await returnStatusRepository.findAll();
-};
+class ReturnStatusUseCases {
+  constructor() {
+    this.returnStatusRepository = new ReturnStatusRepository();
+  }
 
-const createReturnStatus = async (name, description) => {
-    if (!name) throw new Error("Nome do status é obrigatório.");
-    return await returnStatusRepository.create({ name, description });
-};
+  async getAllReturnStatus() {
+    return await this.returnStatusRepository.findAll();
+  }
 
-const deleteReturnStatus = async (id) => {
-    if (!id) throw new Error("ID inválido para exclusão.");
-    return await returnStatusRepository.delete(id);
-};
+  async createReturnStatus(name, description) {
+    if (!name) {
+      throw new Error("Nome do status é obrigatório.");
+    }
+    return await this.returnStatusRepository.create({ name, description });
+  }
 
-module.exports = {
-    getAllReturnStatus,
-    createReturnStatus,
-    deleteReturnStatus,
-};
+  async deleteReturnStatus(id) {
+    if (!id) {
+      throw new Error("ID inválido para exclusão.");
+    }
+    return await this.returnStatusRepository.delete(id);
+  }
+}
+
+module.exports = ReturnStatusUseCases;

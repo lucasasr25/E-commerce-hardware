@@ -1,5 +1,5 @@
-const productUseCase = require('../usecases/product');
-
+const ProductUseCases = new (require('../usecases/product/ProductUseCases'))();
+const RenderProductUseCases = new (require('../usecases/product/RenderProductUseCases'))();
 
 const createProduct = async (req, res) => {
     try {
@@ -10,7 +10,7 @@ const createProduct = async (req, res) => {
             qtd 
         } = req.body;
 
-        const { newProduct, productDetails } = await productUseCase.createProductUseCase({
+        const { newProduct, productDetails } = await ProductUseCases.createProduct({
             name, description, price,
             manufacturer, warranty_period,
             weight, dimensions, color, material,
@@ -31,7 +31,7 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
-        const products = await productUseCase.getProductsUseCase();
+        const products = await ProductUseCases.getProductsUseCase();
         res.json({ products });
     } catch (error) {
         console.error(error);
@@ -42,7 +42,7 @@ const getProducts = async (req, res) => {
 const getProductDetails = async (req, res) => {
     try {
         const { product_id } = req.query;
-        const productDetails = await productUseCase.getProductDetailsUseCase(product_id);
+        const productDetails = await ProductUseCases.getProductDetailsUseCase(product_id);
         res.json({ productDetails });
     } catch (error) {
         console.error(error);
@@ -53,7 +53,7 @@ const getProductDetails = async (req, res) => {
 const addProductDetails = async (req, res) => {
     try {
         const productData = req.body;
-        const productDetail = await productUseCase.addProductDetailsUseCase(productData);
+        const productDetail = await ProductUseCases.addProductDetails(productData);
         res.status(201).json({ message: "Product details added successfully", productDetail });
 
     } catch (error) {
@@ -65,7 +65,7 @@ const addProductDetails = async (req, res) => {
 const updateProductDetails = async (req, res) => {
     try {
         const productData = req.body;
-        await productUseCase.updateProductDetailsUseCase(productData);
+        await ProductUseCases.updateProductDetails(productData);
 
         // Redireciona para a listagem ou visualização do produto
         res.redirect("/product/view"); 
@@ -88,7 +88,7 @@ const deleteProduct = async (req, res) => {
     }
 
     try {
-        const result = await productUseCase.deleteProduct(id);
+        const result = await ProductUseCases.deleteProduct(id);
 
         if (!result) {
             return res.status(404).json({ message: "Product not found" });
@@ -109,7 +109,7 @@ const deleteProductDetails = async (req, res) => {
     }
 
     try {
-        const result = await productUseCase.deleteProductDetails(id);
+        const result = await ProductUseCases.deleteProductDetailsUseCase(id);
 
         if (!result) {
             return res.status(404).json({ message: "Product detail not found" });
@@ -124,7 +124,7 @@ const deleteProductDetails = async (req, res) => {
 
 const renderProductsView = async (req, res) => {
     try {
-        const products = await productUseCase.getProductsUseCase();
+        const products = await ProductUseCases.getProductsUseCase();
         res.render("products/productList", { products });
     } catch (error) {
         console.error(error);
@@ -142,12 +142,11 @@ const renderProductDetailView = async (req, res) => {
     }
 
     try {
-        const { product, productDetails } = await productUseCase.renderDetail(id);
+        const { product, productDetails } = await RenderProductUseCases.renderProductDetailViewUseCase(id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
-        console.log({ product, productDetails })
         res.render("products/productDetail", { product, productDetails });
     } catch (error) {
         console.error(error);
@@ -169,7 +168,7 @@ const renderEditProductView = async (req, res) => {
     }
 
     try {
-        const { product, productDetails } = await productUseCase.renderEdit(id);
+        const { product, productDetails } = await RenderProductUseCases.renderEditProductViewUseCase(id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });

@@ -1,19 +1,21 @@
-const orderRepository = new (require("../../repositories/orderRepository"))();
+const OrderRepository = require("../../repositories/orderRepository");
 
-const getAllOrderStatus = async () => {
-    return await orderRepository.getAllOrderStatus();
-};
+class OrderStatusUseCases {
+  constructor() {
+    this.orderRepository = new OrderRepository();
+  }
 
-const createOrderStatus = async (status_name) => {
-    return await orderRepository.createOrderStatus(status_name);
-};
+  async getAllOrderStatus() {
+    return await this.orderRepository.getAllOrderStatus();
+  }
 
-const deleteOrderStatus = async (id) => {
-    return await orderRepository.deleteOrderStatus(id);
-};
+  async createOrderStatus(status_name) {
+    return await this.orderRepository.createOrderStatus(status_name);
+  }
 
-module.exports = {
-    getAllOrderStatus,
-    createOrderStatus,
-    deleteOrderStatus,
-};
+  async deleteOrderStatus(id) {
+    return await this.orderRepository.deleteOrderStatus(id);
+  }
+}
+
+module.exports = OrderStatusUseCases;

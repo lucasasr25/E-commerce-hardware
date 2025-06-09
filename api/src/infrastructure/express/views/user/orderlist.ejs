@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Meus Pedidos - E-commerce de Hardware</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="/css/user.css">
+
+    </head>
+    <body>
+        <div class="navbar">
+            <a href="/user/returns"><i class="material-icons">swap_horiz</i>Trocas</a>
+            <a href="/user/orders"><i class="material-icons">swap_vert</i>Pedidos</a>
+            <a href="/main" class="btn btn-primary">
+                <i class="material-icons">shopping_cart</i> Comprar
+            </a>
+            <a href="/user/settings"><i class="material-icons">settings</i>Configurações</a>
+        </div>
+        <div class="container">
+            <h1>Meus Pedidos</h1>
+
+            <% if (orders.length === 0) { %>
+                <p>Você não tem pedidos ainda.</p>
+            <% } else { %>
+                <div class="order-list">
+                    <% orders.forEach(order => { %>
+                        <div class="order-item">
+                            <h2>Pedido #<%= order.id %></h2>
+                            <div class="order-details">
+                                <span>Data:</span> <%= new Date(order.created_at).toLocaleDateString("pt-BR") %><br>
+                                <span>Status:</span> <%= order.status_name %><br>
+                                <span>Valor Total:</span> R$ <%= order.total_price %>
+                            </div>
+                            <div class="order-details">
+                                <span>Itens:</span><br>
+                                <ul>
+                                    <% order.items.forEach(item => { %>
+                                        <li><%= item.name %> - R$ <%= item.price %> x <%= item.quantity %></li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+                            <div class="order-actions">
+                                <form action="/user/orders/<%= order.id %>" method="GET" style="display:inline;">
+                                    <button type="submit" class="button">Ver Detalhes</button>
+                                </form>
+                                <form action="/user/returns/<%= order.id %>" method="GET" style="display:inline;">
+                                    <button type="submit" class="button button-danger">Realizar Troca</button>
+                                </form>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+    </body>
+</html>

@@ -2,7 +2,6 @@ const IGenericRepository = require('./interfaces/IGenericRepository');
 const pool = require("../config/db");
 
 class OrderRepository extends IGenericRepository {
-    // Cria um status de pedido
     async createOrderStatus(statusName) {
         const result = await pool.query(
             "INSERT INTO order_status (status_name) VALUES ($1) RETURNING *",

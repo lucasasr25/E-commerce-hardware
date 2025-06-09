@@ -1,19 +1,21 @@
-const paymentStatusRepository = new (require("../../repositories/paymentRepository"))();
+const PaymentStatusRepository = require("../../repositories/paymentRepository");
 
-const getAllPaymentStatus = async () => {
-    return await paymentStatusRepository.getAllPaymentStatus();
-};
+class PaymentStatusUseCases {
+  constructor() {
+    this.paymentStatusRepository = new PaymentStatusRepository();
+  }
 
-const createPaymentStatus = async (status_name) => {
-    return await paymentStatusRepository.createPaymentStatus(status_name);
-};
+  async getAllPaymentStatus() {
+    return await this.paymentStatusRepository.getAllPaymentStatus();
+  }
 
-const deletePaymentStatus = async (id) => {
-    return await paymentStatusRepository.deletePaymentStatus(id);
-};
+  async createPaymentStatus(status_name) {
+    return await this.paymentStatusRepository.createPaymentStatus(status_name);
+  }
 
-module.exports = {
-    getAllPaymentStatus,
-    createPaymentStatus,
-    deletePaymentStatus,
-};
+  async deletePaymentStatus(id) {
+    return await this.paymentStatusRepository.deletePaymentStatus(id);
+  }
+}
+
+module.exports = PaymentStatusUseCases;

@@ -57,6 +57,7 @@ if (process.env.NODE_ENV !== 'test') {
       console.log('Servidor rodando em http://localhost:3000');
   });
 }
-app.use(express.static(path.join(__dirname, "../public")));
+console.log(__dirname)
+app.use(express.static(path.join(__dirname, "./infrastructure/public")));
 
 module.exports = app;  // Exporta a instância do app

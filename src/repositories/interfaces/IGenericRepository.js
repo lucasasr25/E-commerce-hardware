@@ -50,7 +50,9 @@ class IGenericRepository {
   }
 
   async getAll() {
-    throw new Error('Method getAll() must be implemented.');
+      const query = `SELECT * FROM ${this.module} `;
+      const result = await pool.query(query);
+      return result.rows;
   }
 }
 

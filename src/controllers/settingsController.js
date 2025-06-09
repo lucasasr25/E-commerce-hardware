@@ -11,8 +11,8 @@ const suppliersUseCases = require("../usecases/settings/suppliersUseCases");
 
 const productSupplier = async (req, res) => {
     try {
-        const orderStatusList = await suppliersUseCases.getAllOrderStatus();
-        res.render("settings/orderStatus", { orderStatusList });
+        const supplierList = await suppliersUseCases.getAllSuppliers();
+        res.render("settings/suppliers", { supplierList });
     } catch (error) {
         console.error("Erro ao carregar configurações de pedido:", error);
         res.status(500).render('status/error', {

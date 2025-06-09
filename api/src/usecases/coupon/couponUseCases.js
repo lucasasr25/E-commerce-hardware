@@ -1,45 +1,50 @@
-const couponRepository = new (require('../../repositories/couponRepository'))();
+const CouponRepository = require('../../repositories/couponRepository');
 const Coupon = require('../../entities/Coupon');
 
-const getAllCoupons = async () => {
-  return await couponRepository.getAllCoupons();
-};
-
-const validateCoupon = async (code) => {
-  const couponData = await couponRepository.getCoupon(code);
-  if (!couponData) {
-    return null;
+class CouponUseCases {
+  constructor() {
+    this.couponRepository = new CouponRepository();
   }
 
-  try {
-    const coupon = new Coupon(couponData);
+  async getAllCoupons() {
+    return await this.couponRepository.getAllCoupons();
+  }
 
-    if (!coupon.isValid()) {
+  async validateCoupon(code) {
+    const couponData = await this.couponRepository.getCoupon(code);
+    if (!couponData) {
       return null;
     }
 
-    return coupon;
-  } catch (error) {
-    return null;
+    try {
+      const coupon = new Coupon(couponData);
+
+      if (!coupon.isValid()) {
+        return null;
+      }
+
+      return coupon;
+    } catch (error) {
+      return null;
+    }
   }
-};
 
-const createNewCoupon = async (code, discountPercentage, expirationDate) => {
-  try {
-    const coupon = new Coupon({ code, discountPercentage, expirationDate });
-    return await couponRepository.createCoupon(coupon.code, coupon.discountPercentage, coupon.expirationDate);
-  } catch (error) {
-    throw new Error(`Erro ao criar cupom: ${error.message}`);
+  async createNewCoupon(code, discountPercentage, expirationDate) {
+    try {
+      const coupon = new Coupon({ code, discountPercentage, expirationDate });
+      return await this.couponRepository.createCoupon(
+        coupon.code,
+        coupon.discountPercentage,
+        coupon.expirationDate
+      );
+    } catch (error) {
+      throw new Error(`Erro ao criar cupom: ${error.message}`);
+    }
   }
-};
 
-const removeCoupon = async (id) => {
-  return await couponRepository.deleteCoupon(id);
-};
+  async removeCoupon(id) {
+    return await this.couponRepository.deleteCoupon(id);
+  }
+}
 
-module.exports = {
-  getAllCoupons,
-  validateCoupon,
-  createNewCoupon,
-  removeCoupon,
-};
+module.exports = CouponUseCases;

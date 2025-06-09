@@ -1,178 +1,168 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fechamento do Pedido</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background: #eee; margin-top: 20px; }
-        .ibox { background: #fff; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        .ibox-title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #e7eaec; padding-bottom: 10px; }
-        .form-control { margin-bottom: 15px; }
-        .btn-primary { width: 100%; }
-        .order-summary { background: #fff; padding: 20px; border-radius: 5px; }
-        input:read-only {
-            background-color: #eee;
-            }
-            /* Botão vermelho neutro */
-        .btn-finalizar {
-            background-color: #dc3545; /* Vermelho neutro */
-            border-color: #dc3545;
-            margin-top: 10px;
-        }
-
-    </style>
-
-    <script>
-      
-    </script>
+    <%- include('../partials/head') %>
 </head>
-<body>
-    <div class="container">
+<body class="main-layout bg-light">
+    <%- include('../partials/header') %>
+    <div class="container py-5">
         <div class="row">
-            <div class="col-md-8">
-                <div class="ibox">
-                    <div class="ibox-title">Informações de Pagamento</div>
+            <div class="col-md-8 mb-4">
+                <div class="shadow p-4 bg-white rounded">
+                    <h4 class="mb-3 border-bottom pb-2">Informações de Pagamento</h4>
 
-
-                    <label>Método de Pagamento</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="metodo_pagamento" id="pagamentoCartao" value="cartao" checked>
-                        <label class="form-check-label" for="pagamentoCartao">Cartão de Crédito</label>
+                    <div class="mb-3">
+                        <label class="form-label">Método de Pagamento</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodo_pagamento" id="pagamentoCartao" value="cartao" checked>
+                            <label class="form-check-label" for="pagamentoCartao">Cartão de Crédito</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="metodo_pagamento" id="pagamentoPix" value="pix">
+                            <label class="form-check-label" for="pagamentoPix">PIX</label>
+                        </div>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="metodo_pagamento" id="pagamentoPix" value="pix">
-                        <label class="form-check-label" for="pagamentoPix">PIX</label>
+
+                    <div class="mb-3">
+                        <label for="enderecoSelecionado" class="form-label">Selecione o Endereço de Entrega</label>
+                        <select class="form-select" id="enderecoSelecionado" name="enderecoSelecionado">
+                            <% if (enderecos && enderecos.length > 0) { %>
+                                <% enderecos.forEach(end => { %>
+                                    <option value="<%= end.id %>"
+                                        data-nick="<%= end.nick %>"
+                                        data-street="<%= end.street %>"
+                                        data-number="<%= end.number %>"
+                                        data-city="<%= end.city %>"
+                                        data-zipcode="<%= end.zipcode %>">
+                                        <%= end.nick %> - <%= end.street %>, <%= end.number %>, <%= end.city %> - CEP <%= end.zipcode %>
+                                    </option>
+                                <% }) %>
+                            <% } else { %>
+                                <option disabled selected>Nenhum endereço cadastrado</option>
+                            <% } %>
+                        </select>
+                        <button type="button" class="btn btn-success mt-3" onclick="window.location.href='/user'">
+                            Criar novo endereço
+                        </button>
                     </div>
 
-                    <label for="enderecoSelecionado">Selecione o Endereço de Entrega</label>
-                    <select class="form-control" id="enderecoSelecionado" name="enderecoSelecionado">
-                        <% if (enderecos && enderecos.length > 0) { %>
-                            <% enderecos.forEach(end => { %>
-                                <option value="<%= end.id %>"
-                                    data-nick="<%= end.nick %>"
-                                    data-street="<%= end.street %>"
-                                    data-number="<%= end.number %>"
-                                    data-city="<%= end.city %>"
-                                    data-zipcode="<%= end.zipcode %>">
-                                    <%= end.nick %> - <%= end.street %>, <%= end.number %>, <%= end.city %> - CEP <%= end.zipcode %>
-                                </option>
-                            <% }) %>
-                        <% } else { %>
-                            <option disabled selected>Nenhum endereço cadastrado</option>
-                        <% } %>
-                    </select>
-                    <br>
-                    <button type="button" class="btn btn-success" onclick="window.location.href='/user'">
-                        Criar novo endereço
-                      </button>
-                                          <br><br>
-                    
                     <form action="/cart/checkout" method="POST">
-                        <div class="mb-3 p-3 border rounded bg-light">
+                        <div class="mb-4 p-3 border rounded bg-light">
                             <p class="fw-bold text-muted">Endereço Padrão</p>
-                            
-                            <label for="nome">Nome Completo</label>
-                            <input type="text" class="form-control" id="nome" name="nome" value="<%= nome %>" readonly>
-                        
-                            <label for="email">E-mail</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<%= email %>" readonly>
-                        
-                            <label for="endereco">Endereço Padrão (Nome: '<%= apelido %>')</label>
-                            <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Rua, Número, Bairro" value="<%= endereco || '' %>" readonly>
-                        
-                            <label for="cidade">Cidade</label>
-                            <input type="text" class="form-control" id="cidade" name="cidade" value="<%= cidade || '' %>" readonly>
-                        
-                            <label for="cep">CEP</label>
-                            <input type="text" class="form-control" id="cep" name="cep" value="<%= cep || '' %>" readonly>
-                        </div>
-                    
-             
-                        <label>Pagamento:</label>
-                        <div id="pagamento-cartao-container">
-                            <div id="cartoes-container">
-                                <% if (cartoes && cartoes.length > 0) { %>
-                                    <div class="input-group mb-2">
-                                        <select class="form-control me-2" name="pagamentos_cartao[0][id]">
-                                            <% cartoes.forEach(cartao => { %>
-                                                <option value="<%= cartao.id %>">
-                                                    <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
-                                                </option>
-                                            <% }) %>
-                                        </select>
-                                        <input type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[0][valor]" placeholder="Valor (R$)">
-                                    </div>
-                                <% } else { %>
-                                    <p class="text-danger">Nenhum cartão salvo</p>
-                                <% } %>
+
+                            <div class="mb-2">
+                                <label for="nome" class="form-label">Nome Completo</label>
+                                <input type="text" class="input-readonly" id="nome" name="nome" value="<%= nome %>" readonly>
                             </div>
-                            <button type="button" class="btn btn-secondary mb-3" id="add-cartao">Adicionar outro cartão</button>
-                        </div>
-                        <div id="pagamento-pix-container" style="display: none;">
-                            <p>Você receberá um QR Code após finalizar o pedido.</p>
+
+                            <div class="mb-2">
+                                <label for="email" class="form-label">E-mail</label>
+                                <input type="email" class="input-readonly" id="email" name="email" value="<%= email %>" readonly>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="endereco" class="form-label">Endereço Padrão (Nome: '<%= apelido %>')</label>
+                                <input type="text" class="input-readonly" id="endereco" name="endereco" value="<%= endereco || '' %>" readonly>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="cidade" class="form-label">Cidade</label>
+                                <input type="text" class="input-readonly" id="cidade" name="cidade" value="<%= cidade || '' %>" readonly>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="cep" class="form-label">CEP</label>
+                                <input type="text" class="input-readonly" id="cep" name="cep" value="<%= cep || '' %>" readonly>
+                            </div>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label">Pagamento:</label>
+                            <div id="pagamento-cartao-container">
+                                <div id="cartoes-container">
+                                    <% if (cartoes && cartoes.length > 0) { %>
+                                        <div class="input-group mb-2">
+                                            <select class="form-select me-2" name="pagamentos_cartao[0][id]">
+                                                <% cartoes.forEach(cartao => { %>
+                                                    <option value="<%= cartao.id %>">
+                                                        <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
+                                                    </option>
+                                                <% }) %>
+                                            </select>
+                                            <input type="number" min="0.01" step="0.01" class="" name="pagamentos_cartao[0][valor]" placeholder="Valor (R$)">
+                                        </div>
+                                    <% } else { %>
+                                        <p class="text-danger">Nenhum cartão salvo</p>
+                                    <% } %>
+                                </div>
+                                <button type="button" class="btn btn-secondary mt-2" id="add-cartao">Adicionar outro cartão</button>
+                            </div>
+                            <div id="pagamento-pix-container" class="mt-3" style="display: none;">
+                                <p>Você receberá um QR Code após finalizar o pedido.</p>
+                            </div>
+                        </div>
 
-                        <div style="text-align: center;">
-                            <small id="cupomMensagem" class="form-text text-muted"></small>
+                        <div class="mb-3">
+                            <label for="cupomPromocional" class="form-label">Digite o cupom promocional:</label>
+                            <div class="input-group">
+                                <input type="text" id="cupomPromocional" name="promotionalCupomCode" class="input-readonly-coupon">
+                                <button type="button" class="btn btn-success" style="height: 40px;" id="aplicarCupom">Aplicar Cupom</button>
+                            </div>
+                            <small id="cupomMensagem" class="form-text text-muted text-center d-block mt-2"></small>
                         </div>
-                        <label for="cupomPromocional">Digite o cupom promocional:</label>
-                        <div class="input-group mb-3">
-                          <input type="text" id="cupomPromocional" name="promotionalCupomCode" value="">
-                          <button type="button" class="btn btn-success" id="aplicarCupom">Aplicar Cupom</button>
+
+                        <div class="mb-3">
+                            <label class="form-label">Digite os cupons de troca:</label>
+                            <div id="cupom-container" style="margin-bottom: 30px;">
+                                <input type="text" class="input-readonly-new" name="cupons_troca[]" placeholder="Digite o cupom de troca">
+                            </div>
+                            <button type="button" class="btn btn-primary mb-3" id="add-cupom">Adicionar mais cupom</button>
                         </div>
-        
-                        <label for="cuponsTroca">Digite os cupons de troca:</label>
-                        <div id="cupom-container">
-                            <input type="text" class="form-control" name="cupons_troca[]" placeholder="Digite o cupom de troca">
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-finalizar">Finalizar Pedido</button>
                         </div>
-                        <button type="button" class="btn btn-primary" id="add-cupom">Adicionar mais cupom</button>
-                        <button type="submit" class="btn btn-primary btn-finalizar">Finalizar Pedido</button>
                     </form>
-                    
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="order-summary">
-                    <div class="ibox">
-                        <div class="ibox-title">
-                            <h5>Taxas e Frete</h5>
-                        </div>
-                        <div class="ibox-content">
-                            <p><strong>Subtotal:</strong> R$ <%= total.replace('.', ',') %></p>
-                            <p><strong>Frete:</strong> R$ 50,00</p> <!-- aqui pode deixar fixo ou calcular depois -->
-                            <hr>
-                            <h4><strong>Total:</strong> R$ <%= (parseFloat(total.replace(',', '.')) + 50).toFixed(2).replace('.', ',') %></h4>
-                        </div>
+                <div class="shadow p-3 bg-white rounded">
+                    <div class="mb-3">
+                        <h5>Taxas e Frete</h5>
+                        <p><strong>Subtotal:</strong> R$ <%= total.replace('.', ',') %></p>
+                        <p><strong>Frete:</strong> R$ 50,00</p>
+                        <hr>
+                        <h4><strong>Total:</strong> R$ <%= (parseFloat(total.replace(',', '.')) + 50).toFixed(2).replace('.', ',') %></h4>
                     </div>
-                
-                    <div class="ibox-title">Resumo do Pedido</div>
-                    <ul class="list-group">
+
+                    <h5 class="mt-4 mb-2">Resumo do Pedido</h5>
+                    <ul class="list-group mb-3">
                         <% if (items && items.length > 0) { %>
                             <% items.forEach(item => { %>
-                                <li class="list-group-item">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <%= item.name %> 
-                                    <span class="float-end">R$ <%= item.price.replace('.', ',') %></span>
+                                    <span>R$ <%= item.price.replace('.', ',') %></span>
                                 </li>
                             <% }) %>
                         <% } else { %>
                             <li class="list-group-item">Nenhum produto no carrinho</li>
                         <% } %>
-                        <li class="list-group-item active">
-                            Total <span class="float-end" id="globalTotal">R$ <%= (parseFloat(total.replace(',', '.')) + 50).toFixed(2).replace('.', ',') %></span>
+                        <li class="list-group-item active d-flex justify-content-between">
+                            Total
+                            <span id="globalTotal">R$ <%= (parseFloat(total.replace(',', '.')) + 50).toFixed(2).replace('.', ',') %></span>
                         </li>
                     </ul>
-                
-                    <button class="btn btn-secondary mt-3" onclick="window.location.href='/cart/view'">Voltar ao Carrinho</button>
+
+                    <div class="d-grid">
+                        <button class="btn btn-outline-secondary" onclick="window.location.href='/cart/view'">Voltar ao Carrinho</button>
+                    </div>
                 </div>
-                
             </div>
         </div>
     </div>
 </body>
+
 <script>
 
 
@@ -202,7 +192,7 @@ document.getElementById('add-cupom').addEventListener('click', function() {
     const container = document.getElementById('cupom-container');
     const newInput = document.createElement('input');
     newInput.type = 'text';
-    newInput.classList.add('form-control');
+    newInput.classList.add('input-readonly-new');
     newInput.name = 'cupons_troca[]';  // Nome atualizado aqui também
     newInput.placeholder = 'Digite o cupom de troca';
     container.appendChild(newInput);
@@ -280,7 +270,7 @@ if (cartaoIndex < <%= cartoes.length %>) {
         const container = document.getElementById('cartoes-container');
         
         // Cria o HTML do cartão
-        const selectHtml = `<select class="form-control me-2" name="pagamentos_cartao[${cartaoIndex}][id]">
+        const selectHtml = `<select class="" name="pagamentos_cartao[${cartaoIndex}][id]">
             <% cartoes.forEach(cartao => { %>
                 <option value="<%= cartao.id %>">
                     <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
@@ -288,7 +278,7 @@ if (cartaoIndex < <%= cartoes.length %>) {
             <% }) %>
         </select>`;
 
-        const inputHtml = `<input height = 38px type="number" min="0.01" step="0.01" class="form-control" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
+        const inputHtml = `<input height = 38px type="number" min="0.01" step="0.01" class="" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
 
         // Botão de remover
         const removeButtonHtml = `<button type="button" class="btn btn-danger btn-sm" style="height: 38px;" onclick="removeCartao(this)">X</button>`;
@@ -359,4 +349,3 @@ document.querySelector('form').addEventListener('submit', function (e) {
 });
 
 </script>
-</html>

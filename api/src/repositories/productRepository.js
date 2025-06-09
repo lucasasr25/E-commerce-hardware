@@ -2,6 +2,8 @@ const IGenericRepository = require('./interfaces/IGenericRepository');
 const pool = require("../config/db");
 
 class ProductRepository extends IGenericRepository {
+
+
   async createProduct(name, description, price) {
     const result = await pool.query(
       "INSERT INTO products (name, description, price) VALUES ($1, $2, $3) RETURNING *",

@@ -2,7 +2,6 @@ const IGenericRepository = require('./interfaces/IGenericRepository');
 const pool = require("../config/db");
 
 class CreditCardRepository extends IGenericRepository {
-    // Cria um cartão com objeto card
     async createCard(userId, card) {
         const { card_number, holder_name, expiration_date, is_default } = card;
         await pool.query(

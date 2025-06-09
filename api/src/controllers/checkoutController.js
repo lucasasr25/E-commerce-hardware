@@ -1,12 +1,10 @@
-const {
-    getCheckoutData,
-    createOrderFromCart
-} = require("../usecases/checkout/checkoutUseCases");
+const CheckoutUseCases = new (require('../usecases/checkout/CheckoutUseCases'))();
+
 
 const renderCheckoutView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const checkoutData = await getCheckoutData(userId);
+        const checkoutData = await CheckoutUseCases.getCheckoutData(userId);
         res.render("shopping/checkout", checkoutData);
     } catch (error) {
         console.error("Erro ao renderizar checkout:", error);
@@ -21,7 +19,7 @@ const checkout = async (req, res) => {
         const userId = req.session.user?.id;
         const { promotionalCupomCode, pagamentos_cartao } = req.body;
 
-        await createOrderFromCart(userId, promotionalCupomCode, pagamentos_cartao);
+        await CheckoutUseCases.createOrderFromCart(userId, promotionalCupomCode, pagamentos_cartao);
 
         res.render('status/success', {
             message: "Pedido realizado com sucesso!"

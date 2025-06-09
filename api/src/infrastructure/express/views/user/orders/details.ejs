@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <%- include('../../partials/settings/head') %>
-  <%- include('../../partials/settings/header') %>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Cliente - E-commerce</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/css/user.css">
+</head>
   <body>
+
+    <div class="navbar">
+        <a href="/user/returns"><i class="material-icons">swap_horiz</i>Trocas</a>
+        <a href="/user/orders"><i class="material-icons">swap_vert</i>Pedidos</a>
+        <a href="/main" class="btn btn-primary">
+            <i class="material-icons">shopping_cart</i> Comprar
+        </a>
+        <a href="/user/settings"><i class="material-icons">settings</i>Configurações</a>
+    </div>
+
+
     <div class="container">
       <h1>Detalhes do Pedido #<%= order.id %></h1>
-
-      <div class="mb-4">
+      <div class="mb-4 container">
         <h3>Informações Gerais</h3>
         <p><strong>Data:</strong> <%= new Date(order.created_at).toLocaleDateString("pt-BR") %></p>
         <p><strong>Status ID:</strong> <%= order.status_id %></p>
@@ -17,7 +31,7 @@
         <p><strong>Cupom de Troca:</strong> <%= order.trade_coupon_id || "Nenhum" %></p>
       </div>
 
-      <div class="mb-4">
+      <div class="mb-4 container">
         <h3>Endereço de Entrega</h3>
         <% if (order.address && order.address.length > 0) { %>
           <% const addr = order.address[0]; %>
@@ -30,7 +44,7 @@
         <% } %>
       </div>
       
-      <div class="mb-4">
+      <div class="mb-4 container">
         <h3>Itens do Pedido</h3>
         <% if (order.orderItems) { %>
           <div class="card mb-3">
@@ -53,7 +67,7 @@
       </div>
       
 
-      <div class="mb-4">
+      <div class="mb-4 container">
         <h3>Cartões Utilizados</h3>
         <% if (order.paymentCards && order.paymentCards.length > 0) { %>
           <ul class="list-group">
@@ -71,8 +85,6 @@
           <p>Nenhum cartão associado.</p>
         <% } %>
       </div>
-
-      <a href="/user/orders" class="btn btn-secondary">Voltar para Meus Pedidos</a>
     </div>
   </body>
 </html>

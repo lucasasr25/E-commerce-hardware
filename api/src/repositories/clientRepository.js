@@ -2,7 +2,7 @@ const pool = require("../config/db");
 const IGenericRepository = require('./interfaces/IGenericRepository');
 
 class ClientRepository extends IGenericRepository {
-    // Criar cliente
+
     async createClient(clientData) {
         const client = await pool.connect();
         try {

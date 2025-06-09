@@ -2,7 +2,6 @@ const manualStockEntryUseCase = require("../usecases/stock/manualStockEntryUseCa
 const decreaseStockOnSaleUseCase = require("../usecases/stock/decreaseStockOnSaleUseCase");
 const reenterStockOnReturnUseCase = require("../usecases/stock/reenterStockOnReturnUseCase");
 const showEntryFormUseCase = require("../usecases/stock/getProductsForStockEntryUseCase");
-const productUseCase = require('../usecases/product');
 
 // GET – Renderiza a view da entrada
 const showEntryForm = async (req, res) => {

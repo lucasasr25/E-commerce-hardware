@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/user.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Editar Cliente</title>
+    <script>
+        // Função para adicionar novos campos de telefone
+        function addPhoneNumber() {
+            const phoneSection = document.getElementById('phoneSection');
+            const newPhoneDiv = document.createElement('div');
+            newPhoneDiv.classList.add('phone-entry');
+            newPhoneDiv.innerHTML = `
+                <input type="text" name="phoneNumbers[]" placeholder="Telefone">
+                <button class="button button-danger" type="button" onclick="removePhone(this)">Remover Telefone</button>
+            `;
+            phoneSection.appendChild(newPhoneDiv);
+        }
+
+        // Função para adicionar novos endereços
+        function addAddress() {
+            const addressSection = document.getElementById('addressSection');
+            const newAddressDiv = document.createElement('div');
+            newAddressDiv.classList.add('address-entry');
+
+            newAddressDiv.innerHTML = `
+                <label>Tipo de Endereço:</label>
+                <select name="adr_type[]" required>
+                    <option value="">Selecione</option>
+                    <option value="entrega">Endereço de Entrega</option>
+                    <option value="cobranca">Endereço de Cobrança</option>
+                </select><br>
+
+                <label>Rua:</label>
+                <input type="text" name="street[]" required><br>
+
+                <label>Número:</label>
+                <input type="text" name="number[]"><br>
+
+                <label>Complemento:</label>
+                <input type="text" name="complement[]"><br>
+
+                <label>Bairro:</label>
+                <input type="text" name="neighborhood[]" required><br>
+
+                <label>Cidade:</label>
+                <input type="text" name="city[]" required><br>
+
+                <label>Estado:</label>
+                <input type="text" name="state[]" required><br>
+
+                <label>País:</label>
+                <input type="text" name="country[]" required><br>
+
+                <label>CEP:</label>
+                <input type="text" name="zipcode[]" required><br>
+
+                <button class="button button-danger" type="button" onclick="removeAddress(this)">Remover Endereço</button>
+                <hr>
+            `;
+            addressSection.appendChild(newAddressDiv);
+        }
+
+        function preventDuplicates(event) {
+            const phoneNumbers = document.querySelectorAll('input[name="phoneNumbers[]"]');
+            const adrTypes = document.querySelectorAll('select[name="adr_type[]"]');
+            const streets = document.querySelectorAll('input[name="street[]"]');
+            const zipcodes = document.querySelectorAll('input[name="zipcode[]"]');
+
+            let phoneNumbersArray = [];
+            let addressArray = [];
+
+            phoneNumbers.forEach(phoneInput => {
+                if (phoneNumbersArray.includes(phoneInput.value) && phoneInput.value !== "") {
+                    alert('Telefone duplicado encontrado.');
+                    phoneInput.focus();
+                    event.preventDefault();
+                    return;
+                } else {
+                    phoneNumbersArray.push(phoneInput.value);
+                }
+            });
+
+            for (let i = 0; i < adrTypes.length; i++) {
+                const adrType = adrTypes[i].value;
+                const street = streets[i].value;
+                const zipcode = zipcodes[i].value;
+
+                const addressKey = `${adrType}-${street}-${zipcode}`;
+                if (addressArray.includes(addressKey) && adrType !== "" && street !== "" && zipcode !== "") {
+                    alert('Endereço duplicado encontrado.');
+                    adrTypes[i].focus();
+                    event.preventDefault();
+                    return;
+                } else {
+                    addressArray.push(addressKey);
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('form').addEventListener('submit', preventDuplicates);
+        });
+    </script>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="/user/returns"><i class="material-icons">swap_horiz</i>Trocas</a>
+        <a href="/user/orders"><i class="material-icons">swap_vert</i>Pedidos</a>
+        <a href="/main" class="btn btn-primary">
+            <i class="material-icons">shopping_cart</i> Comprar
+        </a>
+        <a href="/user/settings"><i class="material-icons">settings</i>Configurações</a>
+    </div>
+    <h1>Editar Cliente</h1>
+    <form class="edit-form" action="/client/clientEdit" method="POST">
+        <fieldset>
+            <h3>Informações do Cliente</h3>
+            <div class="container">
+                <input type="hidden" name="id" value="<%= client.id %>">
+
+                <label for="name">Nome:</label>
+                <input type="text" id="name" name="name" value="<%= client.name %>" required><br>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<%= client.email %>" required><br>
+
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password" value="<%= client.password %>" required><br>
+
+                <label for="document">Documento:</label>
+                <input type="text" id="document" name="document" value="<%= client.document %>" required><br>
+
+                <label for="active">Ativo:</label>
+                <input type="checkbox" id="active" name="active" <%= client.active ? 'checked' : '' %>><br>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <h3>Endereço do Cliente</h3>
+            <div class="container" id="addressSection">
+                <% addresses.forEach(function(address, index) { %>
+                <div class="address-entry">
+                    <label for="adr_type_<%= index %>">Tipo de Endereço:</label>
+                    <select name="adr_type[]" id="adr_type_<%= index %>" required>
+                        <option value="entrega" <%= address.adr_type === 'entrega' ? 'selected' : '' %>>Endereço de Entrega</option>
+                        <option value="cobranca" <%= address.adr_type === 'cobranca' ? 'selected' : '' %>>Endereço de Cobrança</option>
+                    </select><br>
+
+                    <label for="is_default<%= index %>">Este é default?:</label>
+                    <input type="checkbox" name="is_default[]" id="is_default<%= index %>" value="true" <%= address.is_default ? 'checked' : '' %>><br>
+
+                    <label for="nick_<%= index %>">Apelido:</label>
+                    <input type="text" name="nick[]" value="<%= address.nick %>" required><br>
+
+                    <label for="street_<%= index %>">Rua:</label>
+                    <input type="text" name="street[]" value="<%= address.street %>" required><br>
+
+                    <label for="number_<%= index %>">Número:</label>
+                    <input type="text" name="number[]" value="<%= address.number %>"><br>
+
+                    <label for="complement_<%= index %>">Complemento:</label>
+                    <input type="text" name="complement[]" value="<%= address.complement %>"><br>
+
+                    <label for="neighborhood_<%= index %>">Bairro:</label>
+                    <input type="text" name="neighborhood[]" value="<%= address.neighborhood %>" required><br>
+
+                    <label for="city_<%= index %>">Cidade:</label>
+                    <input type="text" name="city[]" value="<%= address.city %>" required><br>
+
+                    <label for="state_<%= index %>">Estado:</label>
+                    <input type="text" name="state[]" value="<%= address.state %>" required><br>
+
+                    <label for="country_<%= index %>">País:</label>
+                    <input type="text" name="country[]" value="<%= address.country %>" required><br>
+
+                    <label for="zipcode_<%= index %>">CEP:</label>
+                    <input type="text" name="zipcode[]" value="<%= address.zipcode %>" required><br>
+
+                    <button class="button button-danger" type="button" onclick="removeAddress(this)">Remover Endereço</button>
+                    <hr>
+                </div>
+                <% }) %>
+            </div>
+            <button class="button" type="button" onclick="addAddress()">Adicionar Novo Endereço</button>
+        </fieldset>
+
+       <fieldset>
+            <h3>Telefones do Cliente</h3>
+            <div id="phoneSection">
+                <% if (phoneNumbers && phoneNumbers.length > 0) { %>
+                    <% phoneNumbers.forEach(function(phoneNumber, index) { %>
+                        <div class="phone-entry"> <!-- Envolvendo com class .phone-entry -->
+                            <input type="text" name="phoneNumbers[]" value="<%= phoneNumber %>" placeholder="Telefone">
+                            <button class="button button-danger" type="button" onclick="removePhone(this)">Remover Telefone</button>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="phone-entry">
+                        <input type="text" name="phoneNumbers[]" placeholder="Telefone">
+                    </div>
+                <% } %>
+            </div>
+            
+            <button class="button" type="button" onclick="addPhoneNumber()">Adicionar Novo Telefone</button>
+        </fieldset>
+        
+
+        <button class ="button-edit" type="submit" >Salvar Alterações</button>
+    </form>
+
+    <script>
+        function removeAddress(button) {
+            const entry = button.closest('.address-entry');
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        function removePhone(button) {
+            const entry = button.closest('.phone-entry');
+            if (entry) {
+                entry.remove();
+            }
+        }
+    </script>
+</body>
+</html>

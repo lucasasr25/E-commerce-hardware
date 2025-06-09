@@ -3,7 +3,6 @@ const router = express.Router();
 const cartController = require("../controllers/cartContoller");
 const checkoutController = require("../controllers/checkoutController");
 const couponController = require("../controllers/couponController");
-// const cartRepo = require("../repositories/cartRepository");
 
 
 router.post("/add", cartController.addItemToCart);

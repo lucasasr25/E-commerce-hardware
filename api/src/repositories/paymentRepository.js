@@ -2,6 +2,7 @@ const IGenericRepository = require('./interfaces/IGenericRepository');
 const pool = require('../config/db');
 
 class PaymentRepository extends IGenericRepository {
+
   async getAllPaymentStatus() {
     const result = await pool.query("SELECT * FROM payment_status ORDER BY id ASC;");
     return result.rows;
