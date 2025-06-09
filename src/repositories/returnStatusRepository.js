@@ -2,6 +2,7 @@ const IGenericRepository = require('./interfaces/IGenericRepository');
 const pool = require("../config/db");
 
 class ReturnStatusRepository extends IGenericRepository {
+
   async findAll() {
     const { rows } = await pool.query('SELECT * FROM return_statuses ORDER BY id');
     return rows;

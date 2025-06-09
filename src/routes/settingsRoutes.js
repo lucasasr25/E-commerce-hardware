@@ -14,6 +14,12 @@ router.post("/order-status/create", settingsController.createOrderStatus);
 router.post("/order-status/delete", settingsController.deleteOrderStatus);
 
 
+router.get("/suppliers", settingsController.productSupplier);
+router.post("/order-status/create", settingsController.createOrderStatus);
+router.post("/order-status/delete", settingsController.deleteOrderStatus);
+
+
+
 router.get("/payment-status", settingsController.changePaymentStatus);
 router.post("/payment-status/create", settingsController.createPaymentStatus);
 router.post("/payment-status/delete", settingsController.deletePaymentStatus);

@@ -21,8 +21,28 @@ CREATE TABLE customer_ranking (
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
+    category_id INTEGER REFERENCES product_category(id) ON DELETE CASCADE,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
+);
+
+-- product_category
+CREATE TABLE product_category (
+    id SERIAL PRIMARY KEY,
+    name TEXT,
+    description TEXT
+);
+
+-- product_details
+CREATE TABLE product_details (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    manufacturer TEXT,  
+    warranty_period INTEGER,   
+    weight DECIMAL(10, 2),      
+    dimensions TEXT, 
+    color TEXT,          
+    material TEXT
 );
 
 
@@ -42,17 +62,6 @@ CREATE TABLE returns (
     return_status_id INTEGER REFERENCES return_statuses(id) ON DELETE RESTRICT,
 );
 
--- product_details
-CREATE TABLE product_details (
-    id SERIAL PRIMARY KEY,
-    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
-    manufacturer TEXT,  
-    warranty_period INTEGER,   
-    weight DECIMAL(10, 2),      
-    dimensions TEXT, 
-    color TEXT,          
-    material TEXT
-);
 
 -- customer_carts
 CREATE TABLE customer_carts (
@@ -88,15 +97,26 @@ CREATE TABLE contact_numbers (
 CREATE TABLE stock (
     id SERIAL PRIMARY KEY,
     product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    product_supplier_id INTEGER REFERENCES product_supplier(id),
     quantity INTEGER NOT NULL DEFAULT 0,
 );
 
 -- price_book
 CREATE TABLE price_book (
     id SERIAL PRIMARY KEY,
-    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    category_id INTEGER REFERENCES product_category(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
-    discount_percentage DECIMAL(5, 2) DEFAULT 0.00,
+    discount_percentage DECIMAL(5, 2) DEFAULT 0.00
+);
+
+CREATE TABLE product_supplier (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    tax_id VARCHAR(18) UNIQUE NOT NULL,  -- para CNPJ ou equivalente
+    phone VARCHAR(20),
+    email TEXT,
+    address TEXT,
+    registration_date DATE DEFAULT CURRENT_DATE
 );
 
 -- order_status

@@ -2,9 +2,6 @@ const { v4: uuidv4 } = require('uuid');
 
 class TradeCoupon {
   constructor({userId, value }) {
-    console.log(userId);
-    console.log(value);
-
     this.userId = userId;
     this.code = uuidv4();
     this.value = Number(value);

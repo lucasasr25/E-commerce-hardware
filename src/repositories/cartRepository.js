@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const IGenericRepository = require('./interfaces/IGenericRepository');
 
 class CartRepository extends IGenericRepository {
-  // Criar ou obter carrinho ativo do usuário
+
   async getOrCreateCart(userId) {
     const client = await pool.connect();
     try {

@@ -1,22 +1,7 @@
-const bcrypt = require("bcryptjs");
-const { body, validationResult } = require("express-validator");
-const clientUseCase = require('../usecases/client');
+const { validationResult } = require("express-validator");
 const ClientBuilderService = require('../services/ClientBuilderService');
-
-const validatePassword = [
-    body("password")
-        .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long")
-        .matches(/[A-Z]/).withMessage("Password must contain at least one uppercase letter")
-        .matches(/[a-z]/).withMessage("Password must contain at least one lowercase letter")
-        .matches(/[\W]/).withMessage("Password must contain at least one special character"),
-    body("confirmPassword").custom((value, { req }) => {
-        if (value !== req.body.password) {
-            throw new Error("Passwords do not match");
-        }
-        return true;
-    })
-];
-
+const ClientUseCases = new (require('../usecases/client/ClientUseCases'))();
+const RenderClientUseCases = new (require('../usecases/client/RenderClientUseCases'))();
 
 const viewReturns = async (req, res) => {
     try {
@@ -28,7 +13,7 @@ const viewReturns = async (req, res) => {
             });
         }
 
-        const returns = await clientUseCase.ViewReturnsUseCase(userId);
+        const returns = await RenderClientUseCases.viewReturns(userId);
 
         res.render("user/returns", { returns });
     } catch (error) {
@@ -42,8 +27,8 @@ const viewReturns = async (req, res) => {
 const renderOrders = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const orders = await clientUseCase.RenderOrdersUseCase(userId);
-        res.render("user/orders/list", { orders });
+        const orders = await RenderClientUseCases.renderOrders(userId);
+        res.render("user/orderlist", { orders });
     } catch (error) {
         console.error("Erro ao obter pedidos:", error.message);
         const status = error.message === "Usuário não autenticado." ? 401 : 500;
@@ -54,8 +39,7 @@ const renderOrders = async (req, res) => {
 const renderOrderDetails = async (req, res) => {
     try {
         const orderId = req.params.id;
-        const order = await clientUseCase.RenderOrderUseCase(orderId);
-        console.log(order)
+        const order = await RenderClientUseCases.renderOrder(orderId);
         res.render("user/orders/details", { order });
     } catch (error) {
         console.error("Erro ao buscar detalhes do pedido:", error.message);
@@ -68,7 +52,7 @@ const renderOrderDetails = async (req, res) => {
 const returnOrderDetails = async (req, res) => {
     try {
         const orderId = req.params.id;
-        const order = await clientUseCase.RenderOrderUseCase(orderId);
+        const order = await RenderClientUseCases.renderOrder(orderId);
         res.render("user/orders/return", { order });
     } catch (error) {
         console.error("Erro ao buscar detalhes do pedido:", error.message);
@@ -86,7 +70,7 @@ const getClientOrders = async (req, res) => {
             return res.status(400).send("ID do cliente não fornecido.");
         }
 
-        const { orders, statuses } = await clientUseCase.GetOrdersByClientIdUseCase(clientId);
+        const { orders, statuses } = await ClientUseCases.getOrdersByClientId(clientId);
 
         res.render("client/clientOrders", { orders, statuses });
 
@@ -100,7 +84,7 @@ const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, statusId } = req.body;
 
-        await clientUseCase.UpdateOrderStatusUseCase({ orderId, statusId });
+        await ClientUseCases.updateOrderStatus({ orderId, statusId });
 
         res.redirect("back");
     } catch (error) {
@@ -119,8 +103,8 @@ const registerClient = async (req, res) => {
 
     try {
         const clientData = req.body;
-        const client = await clientUseCase.RegisterClientUseCase(clientData);
-        // const client = await registerClientUseCase.execute({ name, email, password, document, addresses });
+        const client = await ClientUseCases.RegisterClientUseCases(clientData);
+        // const client = await registerClientUseCases.execute({ name, email, password, document, addresses });
 
         res.status(201).json({ message: "Client successfully registered!", client });
     } catch (error) {
@@ -146,7 +130,7 @@ const registerReturn = async (req, res) => {
             });
         }
 
-        const returnData = await clientUseCase.RegisterReturnUseCase({
+        const returnData = await ClientUseCases.registerReturn({
             user_id,
             order_id,
             product_ids: itemsToExchange
@@ -165,11 +149,10 @@ const registerReturn = async (req, res) => {
 };
 
 
-
 const updateClient = async (req, res) => {
     try {
         const clientData = ClientBuilderService.buildFromRequest(req.body);
-        const updatedClient = await clientUseCase.updateClientUseCase(clientData);
+        const updatedClient = await ClientUseCases.updateClientUseCases(clientData);
         if (!updatedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
@@ -183,7 +166,7 @@ const updateClient = async (req, res) => {
 const searchClients = async (req, res) => {
     try {
         const queryParams = req.query;
-        const clients = await clientUseCase.SearchClientsUseCase(queryParams);
+        const clients = await RenderClientUseCases.searchClients(queryParams);
         res.json(clients);
     } catch (error) {
         console.error("Erro ao buscar clientes:", error);
@@ -194,7 +177,7 @@ const searchClients = async (req, res) => {
 const renderClientsView = async (req, res) => {
     try {
         const queryParams = req.query;
-        const clients = await clientUseCase.RenderClientsViewUseCase(queryParams);
+        const clients = await RenderClientUseCases.renderClientsView(queryParams);
         res.render("client/list", { clients });
     } catch (error) {
         console.error("Erro ao buscar clientes:", error);
@@ -207,7 +190,7 @@ const renderClientsView = async (req, res) => {
 const renderDetailView = async (req, res) => {
     try {
         const { id } = req.query;
-        const client = await clientUseCase.RenderClientDetailUseCase(id);
+        const client = await RenderClientUseCases.renderClientDetail(id);
         res.render("client/detail", { client });
     } catch (error) {
         console.error("Erro ao buscar detalhes do cliente:", error);
@@ -220,7 +203,7 @@ const renderDetailView = async (req, res) => {
 const deleteClient = async (req, res) => {
     try {    
         const { id } = req.params;
-        const deleteClientUseCase = await clientUseCase.DeleteClientUseCase(id);
+        const deleteClientUseCases = await ClientUseCases.DeleteClientUseCases(id);
         res.redirect('/client/clients');
     } catch (error) {
         console.error(error);
@@ -245,8 +228,8 @@ const renderSettingsView = async (req, res) => {
 const renderEditView = async (req, res) => {
     try {
         const { id } = req.query;
-        const data = await clientUseCase.RenderEditViewUseCase(id);
-        res.render("client/edit", { client: data.client, addresses: data.addresses, phoneNumbers: data.phoneNumbers });
+        const data = await RenderClientUseCases.renderEditView(id);
+        res.render("user/edit", { client: data.client, addresses: data.addresses, phoneNumbers: data.phoneNumbers });
     } catch (error) {
         res.status(500).render('status/error', {
             message: error.message || "Erro ao renderizar a tela"
@@ -257,7 +240,7 @@ const renderEditView = async (req, res) => {
 const renderCardEdit = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const creditCards = await clientUseCase.RenderCardEditUseCase(userId);
+        const creditCards = await RenderClientUseCases.renderCardEdit(userId);
         res.render('user/editCreditCards', { creditCards });
     } catch (error) {
         res.status(500).render('status/error', {
@@ -269,7 +252,7 @@ const renderCardEdit = async (req, res) => {
 const updateCreditCardsController = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const updateCreditCardsUseCase = await clientUseCase.UpdateCreditCardsUseCase(userId, req.body);
+        const updateCreditCardsUseCase = await ClientUseCases.updateCreditCards(userId, req.body);
         res.redirect('/user');
     } catch (error) {
         res.status(500).render('status/error', {
@@ -281,7 +264,7 @@ const updateCreditCardsController = async (req, res) => {
 const renderClientProfile = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const { client, addresses, cards } = await clientUseCase.RenderClientProfileUseCase(userId);
+        const { client, addresses, cards } = await RenderClientUseCases.renderClientProfile(userId);
         res.render("user/profile", { client, addresses, cards });
     } catch (error) {
         res.status(500).render('status/error', {
@@ -292,7 +275,7 @@ const renderClientProfile = async (req, res) => {
 
 const renderCreateview = async (req, res) => {
     try {
-        const data = await clientUseCase.RenderCreateViewUseCase(req,res);
+        const data = await ClientUseCases.renderCreateViewUseCase(req,res);
         res.render("client/create", data);
     } catch (error) {
         res.status(500).render('status/error', {
@@ -304,7 +287,7 @@ const renderCreateview = async (req, res) => {
 const createClient = async (req, res) => {
     try {
         const clientData = ClientBuilderService.buildFromRequest(req.body);
-        const newClient = await clientUseCase.CreateClientUseCase(clientData);
+        const newClient = await ClientUseCases.CreateClientUseCases(clientData);
         res.redirect(`/client/clientDetail?id=${newClient.id}`);
     } catch (error) {
         res.status(500).render('status/error', {
@@ -313,4 +296,4 @@ const createClient = async (req, res) => {
     }
 };
 
-module.exports = { registerClient, viewReturns, updateOrderStatus, getClientOrders, renderOrderDetails, returnOrderDetails,  registerReturn , renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, validatePassword, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+module.exports = { registerClient, viewReturns, updateOrderStatus, getClientOrders, renderOrderDetails, returnOrderDetails,  registerReturn , renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};

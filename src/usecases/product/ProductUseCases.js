@@ -1,127 +1,162 @@
-const productRepository = new (require('../../repositories/productRepository'))();
-const productDetailRepository = new (require('../../repositories/productDetailRepository'))();
-const stockRepository = new (require('../../repositories/stockRepository'))();
-const {Product, ProductDetail, Stock} = require('../../entities/Product');
+const ProductRepository = require('../../repositories/productRepository');
+const ProductDetailRepository = require('../../repositories/productDetailRepository');
+const StockRepository = require('../../repositories/stockRepository');
+const { Product, ProductDetail, Stock } = require('../../entities/Product');
 
+class ProductUseCases {
+  constructor() {
+    this.productRepository = new ProductRepository();
+    this.productDetailRepository = new ProductDetailRepository();
+    this.stockRepository = new StockRepository();
+  }
 
-const createProductUseCase = async ({
-    name, description, price,
-    manufacturer, warranty_period,
-    weight, dimensions, color, material, qtd
-}) => {
+  async createProduct({
+    name,
+    description,
+    price,
+    manufacturer,
+    warranty_period,
+    weight,
+    dimensions,
+    color,
+    material,
+    qtd,
+  }) {
     const productEntity = new Product({ name, description, price });
     const productDetailEntity = new ProductDetail({
-        manufacturer,
-        warranty_period,
-        weight,
-        dimensions,
-        color,
-        material
+      manufacturer,
+      warranty_period,
+      weight,
+      dimensions,
+      color,
+      material,
     });
     const stockEntity = new Stock(qtd);
 
-    const newProduct = await productRepository.createProduct(
-        productEntity.name,
-        productEntity.description,
-        productEntity.price
+    const newProduct = await this.productRepository.createProduct(
+      productEntity.name,
+      productEntity.description,
+      productEntity.price
     );
 
-    const productDetails = await productDetailRepository.addProductDetails(
-        newProduct.id,
-        productDetailEntity.manufacturer,
-        productDetailEntity.warranty_period,
-        productDetailEntity.weight,
-        productDetailEntity.dimensions,
-        productDetailEntity.color,
-        productDetailEntity.material
+    const productDetails = await this.productDetailRepository.addProductDetails(
+      newProduct.id,
+      productDetailEntity.manufacturer,
+      productDetailEntity.warranty_period,
+      productDetailEntity.weight,
+      productDetailEntity.dimensions,
+      productDetailEntity.color,
+      productDetailEntity.material
     );
 
-    await stockRepository.createStock(newProduct.id, stockEntity.quantity);
+    await this.stockRepository.createStock(newProduct.id, stockEntity.quantity);
 
     return { newProduct, productDetails };
-};
+  }
 
-
-const addProductDetailsUseCase = async (product) => {
+  async addProductDetails(product) {
     const { product_id, manufacturer, warranty_period, weight, dimensions, color, material } = product;
 
     if (!product_id) {
-        throw new Error("Product ID is required.");
+      throw new Error("Product ID is required.");
     }
 
     const productDetailEntity = new ProductDetail({
-        manufacturer,
-        warranty_period,
-        weight,
-        dimensions,
-        color,
-        material
+      manufacturer,
+      warranty_period,
+      weight,
+      dimensions,
+      color,
+      material,
     });
 
-    const productDetail = await productDetailRepository.addProductDetails(
-        product_id,
-        productDetailEntity.manufacturer,
-        productDetailEntity.warranty_period,
-        productDetailEntity.weight,
-        productDetailEntity.dimensions,
-        productDetailEntity.color,
-        productDetailEntity.material
+    const productDetail = await this.productDetailRepository.addProductDetails(
+      product_id,
+      productDetailEntity.manufacturer,
+      productDetailEntity.warranty_period,
+      productDetailEntity.weight,
+      productDetailEntity.dimensions,
+      productDetailEntity.color,
+      productDetailEntity.material
     );
 
     return productDetail;
-};
+  }
 
+async deleteProductDetailsUseCase(id) {
+    if (!id) {
+      return null;
+    }
+    const productDetail = await this.productDetailRepository.deleteProductDetails(id);
+    return productDetail;
+  }
 
-const updateProductDetailsUseCase = async (product) => {
+  async getProductDetailsUseCase(product_id) {
+    if (!product_id) {
+      return null;
+    }
+    const productDetails = await this.productDetailRepository.getProductDetails(product_id);
+    return productDetails;
+  }
+
+  async getProductsUseCase() {
+    const products = await this.productRepository.getProducts();
+    return products;
+  }
+
+  async deleteProductUseCase(id) {
+    if (!id) {
+      return null;
+    }
+    const product = await this.productRepository.deleteProduct(id);
+    return product;
+  }
+
+  async updateProductDetails(product) {
     const {
-        id, // ID do produto
-        name,
-        description,
-        price,
-        manufacturer,
-        warranty_period,
-        weight,
-        dimensions,
-        color,
-        material
+      id, // product_id
+      name,
+      description,
+      price,
+      manufacturer,
+      warranty_period,
+      weight,
+      dimensions,
+      color,
+      material,
     } = product;
 
     if (!id) {
-        throw new Error("Product ID is required.");
+      throw new Error("Product ID is required.");
     }
 
-    // Atualiza a entidade principal
-    await productRepository.updateProduct(id, {
-        name,
-        description,
-        price,
+    await this.productRepository.updateProduct(id, {
+      name,
+      description,
+      price,
     });
 
-    // Atualiza os detalhes
     const productDetailEntity = new ProductDetail({
-        manufacturer,
-        warranty_period,
-        weight,
-        dimensions,
-        color,
-        material
+      manufacturer,
+      warranty_period,
+      weight,
+      dimensions,
+      color,
+      material,
     });
 
-    const updatedDetails = await productDetailRepository.updateProductDetails(
-        id, // Aqui continua sendo o product_id
-        productDetailEntity.manufacturer,
-        productDetailEntity.warranty_period,
-        productDetailEntity.weight,
-        productDetailEntity.dimensions,
-        productDetailEntity.color,
-        productDetailEntity.material
+    const updatedDetails = await this.productDetailRepository.updateProductDetails(
+      id,
+      productDetailEntity.manufacturer,
+      productDetailEntity.warranty_period,
+      productDetailEntity.weight,
+      productDetailEntity.dimensions,
+      productDetailEntity.color,
+      productDetailEntity.material
     );
 
     return { success: true, updatedDetails };
-};
+  }
+}
 
-module.exports = {
-  createProductUseCase,
-  addProductDetailsUseCase,
-  updateProductDetailsUseCase
-};
+module.exports = ProductUseCases;

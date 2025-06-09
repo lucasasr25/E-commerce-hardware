@@ -1,87 +1,90 @@
-const clientRepository = new (require('../../repositories/clientRepository'))();
-const cartRepository = new (require('../../repositories/cartRepository'))();
-const orderRepository = new (require('../../repositories/orderRepository'))();
-const couponRepository = new (require('../../repositories/couponRepository'))();
-const stockRepository = new (require('../../repositories/stockRepository'))();
-const creditCardRepository = new (require('../../repositories/creditCardRepository'))();
+const ClientRepository = require('../../repositories/clientRepository');
+const CartRepository = require('../../repositories/cartRepository');
+const OrderRepository = require('../../repositories/orderRepository');
+const CouponRepository = require('../../repositories/couponRepository');
+const StockRepository = require('../../repositories/stockRepository');
+const CreditCardRepository = require('../../repositories/creditCardRepository');
 
+const { Order } = require('../../entities/Order');
 
-const {Order} = require('../../entities/Order');
+class CheckoutUseCases {
+  constructor() {
+    this.clientRepository = new ClientRepository();
+    this.cartRepository = new CartRepository();
+    this.orderRepository = new OrderRepository();
+    this.couponRepository = new CouponRepository();
+    this.stockRepository = new StockRepository();
+    this.creditCardRepository = new CreditCardRepository();
+  }
 
-
-
-const getCheckoutData = async (userId) => {
-    const cliente = await clientRepository.getClientById(userId);
+  async getCheckoutData(userId) {
+    const cliente = await this.clientRepository.getClientById(userId);
     if (!cliente) {
-        throw new Error("Cliente não encontrado");
+      throw new Error("Cliente não encontrado");
     }
 
-    const cartoes = await creditCardRepository.getCreditCardsByUserId(userId);
+    const cartoes = await this.creditCardRepository.getCreditCardsByUserId(userId);
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default) || {};
     const telefone = cliente.phone_numbers?.[0] || "";
-    const items = await cartRepository.getCartItems(userId);
-    const total = await cartRepository.getCartTotal(userId);
+    const items = await this.cartRepository.getCartItems(userId);
+    const total = await this.cartRepository.getCartTotal(userId);
 
     return {
-        nome: cliente.name,
-        email: cliente.email,
-        apelido: enderecoFavorito.nick,
-        endereco: `${enderecoFavorito.street || ''}, ${enderecoFavorito.number || ''}.....`,
-        cidade: enderecoFavorito.city || '',
-        cep: enderecoFavorito.zipcode || '',
-        telefone,
-        cartoes,
-        enderecos: cliente.addresses || [],
-        items,
-        total
+      nome: cliente.name,
+      email: cliente.email,
+      apelido: enderecoFavorito.nick,
+      endereco: `${enderecoFavorito.street || ''}, ${enderecoFavorito.number || ''}.....`,
+      cidade: enderecoFavorito.city || '',
+      cep: enderecoFavorito.zipcode || '',
+      telefone,
+      cartoes,
+      enderecos: cliente.addresses || [],
+      items,
+      total,
     };
-};
+  }
 
-const createOrderFromCart = async (userId, promotionalCupomCode, pagamentosCartao) => {
+  async createOrderFromCart(userId, promotionalCupomCode, pagamentosCartao) {
     if (!userId) throw new Error("Usuário não autenticado");
 
-    const cliente = await clientRepository.getClientById(userId);
+    const cliente = await this.clientRepository.getClientById(userId);
     if (!cliente) throw new Error("Cliente não encontrado");
 
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default);
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
-    const items = await cartRepository.getCartItems(userId);
+    const items = await this.cartRepository.getCartItems(userId);
     const promotionalCoupon = promotionalCupomCode
-        ? await couponRepository.getCoupon(promotionalCupomCode)
-        : null;
+      ? await this.couponRepository.getCoupon(promotionalCupomCode)
+      : null;
 
-    // Criação da entidade com validações internas
     const order = new Order({
-        cliente,
-        endereco: enderecoFavorito,
-        items,
-        promotionalCoupon,
-        pagamentosCartao
+      cliente,
+      endereco: enderecoFavorito,
+      items,
+      promotionalCoupon,
+      pagamentosCartao,
     });
 
-    // Persiste no repositório
-    const orderId = await orderRepository.createOrderWithCards(
-        order.cliente.id,
-        null,
-        order.getOrderData().couponId,
-        order.getOrderData().enderecoId,
-        order.getOrderData().status,
-        order.subtotal,
-        order.total,
-        order.getOrderData().items,
-        order.getOrderData().cartoes
+    const orderId = await this.orderRepository.createOrderWithCards(
+      order.cliente.id,
+      null,
+      order.getOrderData().couponId,
+      order.getOrderData().enderecoId,
+      order.getOrderData().status,
+      order.subtotal,
+      order.total,
+      order.getOrderData().items,
+      order.getOrderData().cartoes
     );
 
-    // Baixa no estoque
     for (const item of items) {
-        await stockRepository.removeStock(item.product_id, item.quantity);
+      await this.stockRepository.removeStock(item.product_id, item.quantity);
     }
 
-    await cartRepository.clearCart(userId);
-};
+    await this.cartRepository.clearCart(userId);
+    return orderId;
+  }
+}
 
-module.exports = {
-    getCheckoutData,
-    createOrderFromCart
-};
+module.exports = CheckoutUseCases;

@@ -1,8 +1,21 @@
 const pool = require("../../config/db");
 
 class IGenericRepository {
-  async create(entity) {
-    throw new Error('Method create() must be implemented.');
+
+  constructor(module = null) {
+    if (!module) {
+      module = null;
+    }
+    else{ this.module = module;}
+  }
+
+  async create(data, entity) {
+    const keys = Object.keys(data);
+    const values = Object.values(data);
+    const columns = keys.join(', ');
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
+    const query = `INSERT INTO ${entity} (${columns}) VALUES (${placeholders});`;
+    await pool.query(query, values);
   }
 
   async update(id, entity) {

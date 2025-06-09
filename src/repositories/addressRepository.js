@@ -2,7 +2,7 @@ const pool = require("../config/db");
 const IGenericRepository = require('./interfaces/IGenericRepository');
 
 class AddressRepository extends IGenericRepository {
-    
+
     async getClientAddresses (clientId) {
         const result = await pool.query(`SELECT * FROM addresses WHERE user_id = $1`, [clientId]);
         return result.rows;

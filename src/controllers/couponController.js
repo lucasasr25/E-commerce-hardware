@@ -1,13 +1,9 @@
-const {
-    getAllCoupons,
-    createNewCoupon,
-    removeCoupon,
-    validateCoupon
-} = require('../usecases/coupon/couponUseCases');
+const CouponUseCases = new (require('../usecases/coupon/CouponUseCases'))();
+
 
 const renderCouponsPage = async (req, res) => {
     try {
-        const coupons = await getAllCoupons();
+        const coupons = await CouponUseCases.getAllCoupons();
         res.render('settings/coupons', { coupons });
     } catch (error) {
         console.error('Erro ao obter cupons:', error);
@@ -21,7 +17,7 @@ const checkCoupoun = async (req, res) => {
     const { code } = req.body;
 
     try {
-        const coupon = await validateCoupon(code);
+        const coupon = await CouponUseCases.validateCoupon(code);
         if (coupon) {
             res.status(200).send({
                 message: "Cupom aplicado com sucesso!",
@@ -39,7 +35,7 @@ const checkCoupoun = async (req, res) => {
 const createCoupon = async (req, res) => {
     const { code, discountPercentage, expirationDate } = req.body;
     try {
-        await createNewCoupon(code, discountPercentage, expirationDate);
+        await CouponUseCases.createNewCoupon(code, discountPercentage, expirationDate);
         res.redirect('/settings/coupons');
     } catch (error) {
         console.error('Erro ao criar cupom:', error);
@@ -52,7 +48,7 @@ const createCoupon = async (req, res) => {
 const deleteCoupon = async (req, res) => {
     const { id } = req.params;
     try {
-        await removeCoupon(id);
+        await CouponUseCases.removeCoupon(id);
         res.redirect('/settings/coupons');
     } catch (error) {
         console.error('Erro ao deletar cupom:', error);

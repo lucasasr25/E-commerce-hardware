@@ -1,9 +1,25 @@
-const orderStatusUseCases = require("../usecases/settings/orderStatusUseCases");
-const paymentStatusUseCases = require("../usecases/settings/paymentStatusUseCases");
-const returnStatusUseCases = require("../usecases/settings/returnStatusUseCases");
+const orderStatusUseCases = new (require("../usecases/settings/OrderStatusUseCases"))();
+const paymentStatusUseCases = new (require("../usecases/settings/paymentStatusUseCases"))();
+const returnStatusUseCases = new (require("../usecases/settings/returnStatusUseCases"))();
+
 const viewExchanges = require("../usecases/settings/viewExchanges");
 const updateExchangeStatusUseCase = require("../usecases/settings/UpdateExchangeStatusUseCase");
+const suppliersUseCases = require("../usecases/settings/suppliersUseCases");
 
+
+
+
+const productSupplier = async (req, res) => {
+    try {
+        const orderStatusList = await suppliersUseCases.getAllOrderStatus();
+        res.render("settings/orderStatus", { orderStatusList });
+    } catch (error) {
+        console.error("Erro ao carregar configurações de pedido:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
+    }
+}
 
 
 const changeOrder = async (req, res) => {
@@ -22,7 +38,6 @@ const changeOrder = async (req, res) => {
 const updateExchangeStatus = async (req, res) => {
     try {
         const { exchangeID, statusId } = req.body; 
-        console.log(req.body);
         await updateExchangeStatusUseCase.execute(exchangeID, statusId);
 
         res.redirect('/settings/returns');
@@ -169,5 +184,6 @@ module.exports = {
     deleteReturnStatus,
     deletePaymentStatus,
     viewReturns,
-    updateExchangeStatus
+    updateExchangeStatus,
+    productSupplier
 };
