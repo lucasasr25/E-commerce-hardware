@@ -21,9 +21,11 @@ class ProductDetailRepository extends IGenericRepository {
 
   async updateProductDetails(id, manufacturer, warranty_period, weight, dimensions, color, material) {
     const result = await pool.query(
-      "UPDATE product_details SET manufacturer = $2, warranty_period = $3, weight = $4, dimensions = $5, color = $6, material = $7 WHERE id = $1 RETURNING *",
+      "UPDATE product_details SET manufacturer = $2, warranty_period = $3, weight = $4, dimensions = $5, color = $6, material = $7 WHERE product_id = $1 RETURNING *",
       [id, manufacturer, warranty_period, weight, dimensions, color, material]
     );
+    console.log(id)
+    console.log(result)
     return result.rows[0];
   }
 

@@ -21,10 +21,35 @@
             <textarea id="description" name="description"></textarea>
         </div>
         <div>
-            <label for="price">Preço:</label>
+            <label for="price">Valor de custo:</label>
             <input type="number" id="price" name="price" required step="0.01">
         </div>
 
+        <div>
+            <label for="price">Quantidade:</label>
+            <input type="number" id="qtd" name="qtd" required step="0.01">
+        </div>
+
+        <div>   
+            <label for="price">Fornecedor:</label>
+            <select id="supplier_id" name="supplier_id" class="form-control" required style="height: 50px;">
+                    <option value="">Selecione um Fornecedor</option>
+                    <% supplierList.forEach(supplier => { %>
+                        <option value="<%= supplier.id %>"><%= supplier.name %></option>
+                    <% }) %>
+                </select>
+        </div>
+
+        <div>
+          <label for="category_id">Categoria do Produto</label>
+                <select id="category_id" name="category_id" class="form-control" required style="height: 50px;">
+                    <option value="">Selecione uma categoria</option>
+                    <% productCategoryList.forEach(category => { %>
+                        <option value="<%= category.id %>"><%= category.name %></option>
+                    <% }) %>
+                </select>
+        </div>
+       
         <!-- Detalhes do Produto -->
         <div>
             <label for="manufacturer">Fabricante:</label>
@@ -41,10 +66,6 @@
         <div>
             <label for="dimensions">Dimensões (cm):</label>
             <input type="text" id="dimensions" name="dimensions">
-        </div>
-        <div>
-            <label for="qtd">Quantidade Un:</label>
-            <input type="text" id="qtd" name="qtd">
         </div>
         <div>
             <label for="color">Cor:</label>

@@ -23,11 +23,24 @@
         </select>
       </div>
 
+
       <!-- Label para mostrar a quantidade atual -->
       <div class="mb-3">
         <label for="current_quantity" class="form-label">Quantidade Atual no Estoque</label>
         <label id="current_quantity" class="form-control" style="font-weight: bold;">0</label> <!-- Valor inicial 0 -->
       </div>
+
+
+        <div class="mb-3">
+            <label for="price">Fornecedor:</label>
+            <select id="product_supplier_id" name="product_supplier_id" class="form-select" required style="height: 20px;">
+                    <option value="">Selecione um Fornecedor</option>
+                    <% supplierList.forEach(supplier => { %>
+                        <option value="<%= supplier.id %>"><%= supplier.name %></option>
+                    <% }) %>
+                </select>
+        </div>
+
 
       <!-- Campo para registrar a nova quantidade -->
       <div class="mb-3">
@@ -35,11 +48,48 @@
         <input type="number" name="quantity" id="quantity" class="form-control" min="1" required>
       </div>
 
+      <div class="mb-3">
+        <label for="quantity" class="form-label">Valor de custo</label>
+        <input type="number" name="price" id="price" class="form-control" min="1" required>
+      </div>
+
       <button type="submit" class="btn btn-primary">Registrar Entrada</button>
     </form>
 
     <a href="/" class="btn btn-secondary mt-3">Voltar</a>
   </div>
+
+
+  <hr class="my-5">
+<h3>Histórico de Entradas no Estoque</h3>
+<table class="table table-bordered table-striped mt-3">
+  <thead class="table-dark">
+    <tr>
+      <th>Data</th>
+      <th>Produto</th>
+      <th>Fornecedor</th>
+      <th>Quantidade</th>
+      <th>Valor de Custo (R$)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (stockEntries && stockEntries.length > 0) { %>
+      <% stockEntries.forEach(entry => { %>
+        <tr>
+          <td><%= entry.date %></td>
+          <td><%= entry.product_id %></td>
+          <td><%= entry.product_supplier_id %></td>
+          <td><%= entry.quantity %></td>
+          <td><%= entry.price %></td>
+        </tr>
+      <% }) %>
+    <% } else { %>
+      <tr>
+        <td colspan="5" class="text-center">Nenhuma entrada registrada.</td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
 
   <script>
     document.getElementById('product_id').addEventListener('change', function () {

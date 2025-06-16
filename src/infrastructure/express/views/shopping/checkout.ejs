@@ -128,7 +128,7 @@
 
             <div class="col-md-4">
                 <div class="shadow p-3 bg-white rounded">
-                    <div class="mb-3">
+                    <div class="mb-3" id = "checkout-box">
                         <h5>Taxas e Frete</h5>
                         <p><strong>Subtotal:</strong> R$ <%= total.replace('.', ',') %></p>
                         <p><strong>Frete:</strong> R$ 50,00</p>
@@ -240,14 +240,16 @@ document.getElementById('aplicarCupom').addEventListener('click', async () => {
         const result = await response.json();
 
         if (response.ok) {
+            console.log(result)
             const desconto = totalOriginal * (result.discountPercentage / 100);
             const totalComDesconto = totalOriginal - desconto + 50;
             globalTotal = document.querySelector("span[id='globalTotal']");
             globalTotal.textContent = `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
-            document.querySelector('.order-summary .ibox-content').innerHTML = `
+            document.querySelector('#checkout-box').innerHTML = `
+                <h5>Taxas e Frete</h5>
                 <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
-                <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${desconto.toFixed(2).replace('.', ',')}</span></p>
                 <p><strong>Frete:</strong> R$ 50,00</p>
+                <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${desconto.toFixed(2).replace('.', ',')}</span></p>
                 <hr>
                 <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
             `;

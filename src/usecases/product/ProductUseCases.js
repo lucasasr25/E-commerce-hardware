@@ -1,29 +1,33 @@
 const ProductRepository = require('../../repositories/productRepository');
 const ProductDetailRepository = require('../../repositories/productDetailRepository');
-const StockRepository = require('../../repositories/stockRepository');
 const { Product, ProductDetail, Stock } = require('../../entities/Product');
+const manualStockEntryUseCase = require('../../usecases/stock/manualStockEntryUseCase');
 
 class ProductUseCases {
   constructor() {
-    this.productRepository = new ProductRepository();
-    this.productDetailRepository = new ProductDetailRepository();
-    this.stockRepository = new StockRepository();
+    this.productRepository = new ProductRepository('products');
+    this.productDetailRepository = new ProductDetailRepository('product_details');
   }
-
   async createProduct({
     name,
     description,
     price,
+    supplier_id,
     manufacturer,
     warranty_period,
     weight,
     dimensions,
     color,
     material,
+    category_id,
     qtd,
   }) {
-    const productEntity = new Product({ name, description, price });
+    const productEntity = new Product({ name, description, category_id });
+
+
+    const newProduct = await this.productRepository.create(productEntity.toDTO());
     const productDetailEntity = new ProductDetail({
+      product_id: newProduct,
       manufacturer,
       warranty_period,
       weight,
@@ -31,30 +35,14 @@ class ProductUseCases {
       color,
       material,
     });
-    const stockEntity = new Stock(qtd);
-
-    const newProduct = await this.productRepository.createProduct(
-      productEntity.name,
-      productEntity.description,
-      productEntity.price
-    );
-
-    const productDetails = await this.productDetailRepository.addProductDetails(
-      newProduct.id,
-      productDetailEntity.manufacturer,
-      productDetailEntity.warranty_period,
-      productDetailEntity.weight,
-      productDetailEntity.dimensions,
-      productDetailEntity.color,
-      productDetailEntity.material
-    );
-
-    await this.stockRepository.createStock(newProduct.id, stockEntity.quantity);
-
+    const productDetails = await this.productDetailRepository.create(productDetailEntity.toDTO());
+    const stockEntity = new Stock(qtd, newProduct, price, supplier_id);
+    manualStockEntryUseCase(stockEntity.toDTO())
     return { newProduct, productDetails };
   }
 
-  async addProductDetails(product) {
+
+   async addProductDetails(product) {
     const { product_id, manufacturer, warranty_period, weight, dimensions, color, material } = product;
 
     if (!product_id) {
@@ -83,6 +71,7 @@ class ProductUseCases {
     return productDetail;
   }
 
+
 async deleteProductDetailsUseCase(id) {
     if (!id) {
       return null;
@@ -95,13 +84,34 @@ async deleteProductDetailsUseCase(id) {
     if (!product_id) {
       return null;
     }
+
     const productDetails = await this.productDetailRepository.getProductDetails(product_id);
-    return productDetails;
+
+    if (!productDetails) {
+      return null;
+    }
+
+    const finalPrice = productDetails.price * (1 + (productDetails.profit_margin/100));
+
+    return {
+      ...productDetails,
+      final_price: parseFloat(finalPrice.toFixed(2))  // adiciona campo calculado
+    };
   }
+
 
   async getProductsUseCase() {
     const products = await this.productRepository.getProducts();
-    return products;
+
+    const updatedProducts = products.map(product => {
+      const finalPrice = product.price * (1 + (product.profit_margin/100));
+      return {
+        ...product,
+        final_price: parseFloat(finalPrice.toFixed(2))
+      };
+    });
+
+    return updatedProducts;
   }
 
   async deleteProductUseCase(id) {
@@ -114,10 +124,9 @@ async deleteProductDetailsUseCase(id) {
 
   async updateProductDetails(product) {
     const {
-      id, // product_id
+      id,
       name,
       description,
-      price,
       manufacturer,
       warranty_period,
       weight,
@@ -133,10 +142,10 @@ async deleteProductDetailsUseCase(id) {
     await this.productRepository.updateProduct(id, {
       name,
       description,
-      price,
     });
 
     const productDetailEntity = new ProductDetail({
+      id,
       manufacturer,
       warranty_period,
       weight,

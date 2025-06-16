@@ -15,14 +15,14 @@ class CouponUseCases {
     if (!couponData) {
       return null;
     }
-
     try {
-      const coupon = new Coupon(couponData);
-
-      if (!coupon.isValid()) {
-        return null;
-      }
-
+      const coupon = new Coupon({
+        id: couponData.id,
+        code: couponData.code,
+        discountPercentage: couponData.discount_percentage,
+        expirationDate: couponData.expiration_date
+      });
+      coupon.validate();
       return coupon;
     } catch (error) {
       return null;

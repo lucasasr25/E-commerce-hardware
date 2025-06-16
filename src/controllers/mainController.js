@@ -1,8 +1,8 @@
-const productRepository = new (require("../repositories/productRepository"))();
+const ProductUseCases = new (require('../usecases/product/ProductUseCases'))();
 
 const mainView = async (req, res) => {
     try {
-        const products = await productRepository.getProducts();
+        const products = await ProductUseCases.getProductsUseCase();
 
         res.render('index', {
             title: 'Lucas Store',

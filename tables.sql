@@ -22,8 +22,7 @@ CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     category_id INTEGER REFERENCES product_category(id) ON DELETE CASCADE,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
+    description TEXT
 );
 
 -- product_category
@@ -98,6 +97,7 @@ CREATE TABLE stock (
     id SERIAL PRIMARY KEY,
     product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
     product_supplier_id INTEGER REFERENCES product_supplier(id),
+    price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     quantity INTEGER NOT NULL DEFAULT 0,
 );
 
@@ -106,7 +106,7 @@ CREATE TABLE price_book (
     id SERIAL PRIMARY KEY,
     category_id INTEGER REFERENCES product_category(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
-    discount_percentage DECIMAL(5, 2) DEFAULT 0.00
+    profit_margin DECIMAL(5, 2) DEFAULT 0.00
 );
 
 CREATE TABLE product_supplier (
@@ -168,6 +168,7 @@ CREATE TABLE cart_items (
     id SERIAL PRIMARY KEY,
     cart_id INTEGER REFERENCES customer_carts(id) ON DELETE CASCADE,
     product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    price DECIMAL(10, 2) NOT NULL,
     quantity INTEGER NOT NULL,
 );
 
@@ -245,7 +246,7 @@ CREATE TABLE ecommerce_entity (
 );
 
 
--- INSERT INTO modules (name) 
+-- INSERT INTO modules (code) 
 -- VALUES 
 -- ('users'),
 -- ('customer_ranking'),
@@ -270,3 +271,5 @@ CREATE TABLE ecommerce_entity (
 -- ('transaction_logs'),
 -- ('payment_cards'),
 -- ('payment_pix');
+-- ('product_category')
+-- ('product_supplier')

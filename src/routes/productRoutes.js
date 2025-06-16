@@ -21,5 +21,7 @@ router.get("/view", productController.renderProductsView); // Página de listage
 router.get("/product-detail", productController.renderProductDetailView); // Página de detalhes de um produto
 router.get("/create", productController.renderCreateProductView); // Página de criação de produto
 router.get("/edit", productController.renderEditProductView); // Página de edição de produto
+router.post("/delete/:id", productController.deleteProduct); // Página de edição de produto
+
 
 module.exports = router;

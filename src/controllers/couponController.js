@@ -21,7 +21,7 @@ const checkCoupoun = async (req, res) => {
         if (coupon) {
             res.status(200).send({
                 message: "Cupom aplicado com sucesso!",
-                discountPercentage: coupon.discount_percentage
+                discountPercentage: coupon.discountPercentage
             });
         } else {
             res.status(400).send({ message: "Cupom não encontrado" });

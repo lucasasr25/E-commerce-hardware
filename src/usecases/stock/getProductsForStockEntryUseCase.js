@@ -1,9 +1,12 @@
-const stockRepository = new (require('../../repositories/stockRepository'))();
+const stockRepository = new (require('../../repositories/stockRepository'))('stock');
 
-// Obtém todos os produtos com as quantidades no estoque
 const getProductsForStockEntryUseCase = async () => {
     const products = await stockRepository.getAllProductsWithStock();
     return products;
 };
 
-module.exports = getProductsForStockEntryUseCase;
+const getAllStocks = async () => {
+    return await stockRepository.getAll()
+}
+
+module.exports = {getProductsForStockEntryUseCase, getAllStocks};

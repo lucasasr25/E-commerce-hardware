@@ -5,8 +5,89 @@ const returnStatusUseCases = new (require("../usecases/settings/returnStatusUseC
 const viewExchanges = require("../usecases/settings/viewExchanges");
 const updateExchangeStatusUseCase = require("../usecases/settings/UpdateExchangeStatusUseCase");
 const suppliersUseCases = require("../usecases/settings/suppliersUseCases");
+const productSettingsUseCases = require("../usecases/settings/productCategoryUseCases");
+const pricebookUseCases = require("../usecases/settings/priceBookUseCases")
+
+const pricebook = async (req, res) => {
+    try {
+        const priceBookList = await pricebookUseCases.getAllPriceBook();
+        const productCategoryList = await productSettingsUseCases.getAllProductCategory();
+        res.render("settings/pricebook", { priceBookList, productCategoryList });
+    } catch (error) {
+        console.error("Erro ao carregar configurações de pedido:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
+    }
+};
+
+const createPricebook = async(req, res) =>{
+    try {
+        const pricebookData = req.body;
+        await pricebookUseCases.createPriceBook(pricebookData);
+        res.redirect("/settings/pricebook");
+    } catch (error) {
+        console.error("Erro ao criar status:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar status:"
+        });
+    }
+};
+
+const deletePricebook = async(req, res) =>{
+    try {
+        const { id } = req.body;
+        await pricebookUseCases.deletePriceBook(id);
+        res.redirect("/settings/pricebook");
+    } catch (error) {
+        console.error("Erro ao deletar status:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar status:"
+        });
+    }
+}
 
 
+
+
+
+const productCategories = async (req, res) => {
+    try {
+        const productCategoryList = await productSettingsUseCases.getAllProductCategory();
+        res.render("settings/productCategory", { productCategoryList });
+    } catch (error) {
+        console.error("Erro ao carregar configurações de pedido:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o pedido."
+        });
+    }
+};
+
+const createProductCategories = async(req, res) =>{
+    try {
+        const supplierData = req.body;
+        await productSettingsUseCases.createProductCategory(supplierData);
+        res.redirect("/settings/product-category");
+    } catch (error) {
+        console.error("Erro ao criar status:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar status:"
+        });
+    }
+};
+
+const deleteProductCategories = async(req, res) =>{
+    try {
+        const { id } = req.body;
+        await productSettingsUseCases.deleteProductCategory(id);
+        res.redirect("/settings/product-category");
+    } catch (error) {
+        console.error("Erro ao deletar status:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar status:"
+        });
+    }
+}
 
 
 const productSupplier = async (req, res) => {
@@ -19,8 +100,33 @@ const productSupplier = async (req, res) => {
             message: error.message || "Erro ao processar o pedido."
         });
     }
-}
+};
 
+const createProductSupplier= async(req, res) =>{
+    try {
+        const supplierData = req.body;
+        await suppliersUseCases.createProductSupplier(supplierData);
+        res.redirect("/settings/suppliers");
+    } catch (error) {
+        console.error("Erro ao criar status:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao criar status:"
+        });
+    }
+};
+
+const deleteProductSupplier= async(req, res) =>{
+    try {
+        const { id } = req.body;
+        await suppliersUseCases.deleteProductSupplier(id);
+        res.redirect("/settings/suppliers");
+    } catch (error) {
+        console.error("Erro ao deletar status:", error);
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao deletar status:"
+        });
+    }
+}
 
 const changeOrder = async (req, res) => {
     try {
@@ -184,6 +290,14 @@ module.exports = {
     deleteReturnStatus,
     deletePaymentStatus,
     viewReturns,
+    createProductSupplier,
+    deleteProductSupplier,
     updateExchangeStatus,
-    productSupplier
+    productSupplier,
+    productCategories,
+    createProductCategories,
+    deleteProductCategories,
+    pricebook,
+    deletePricebook,
+    createPricebook
 };

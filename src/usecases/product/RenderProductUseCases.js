@@ -14,6 +14,7 @@ class RenderProductUseCases {
 
     const product = await this.productRepository.getProductById(id);
     const productDetails = await this.productDetailRepository.getProductDetails(id);
+    console.log(productDetails)
     return { product, productDetails };
   }
 
@@ -24,7 +25,19 @@ class RenderProductUseCases {
 
     const product = await this.productRepository.getProductById(id);
     const productDetails = await this.productDetailRepository.getProductDetails(id);
-    return { product, productDetails };
+    if (!productDetails) {
+      return { product, productDetails: null };
+    }
+
+    const finalPrice = product.price * (1 + (product.profit_margin/100));
+
+    return {
+      product:{
+        ...product,
+        final_price: parseFloat(finalPrice.toFixed(2))
+      },
+      productDetails
+    };
   }
 
   async renderProductsViewUseCase(req, res) {

@@ -1,14 +1,18 @@
 const manualStockEntryUseCase = require("../usecases/stock/manualStockEntryUseCase");
 const decreaseStockOnSaleUseCase = require("../usecases/stock/decreaseStockOnSaleUseCase");
 const reenterStockOnReturnUseCase = require("../usecases/stock/reenterStockOnReturnUseCase");
-const showEntryFormUseCase = require("../usecases/stock/getProductsForStockEntryUseCase");
+const {getProductsForStockEntryUseCase, getAllStocks} = require("../usecases/stock/getProductsForStockEntryUseCase");
+const suppliersUseCases = require('../usecases/settings/suppliersUseCases');
+
 
 // GET – Renderiza a view da entrada
 const showEntryForm = async (req, res) => {
     try {
-        const products = await showEntryFormUseCase();  // Obtém os produtos com a quantidade de estoque
+        const supplierList = await suppliersUseCases.getAllSuppliers() || [];
+        const products = await getProductsForStockEntryUseCase();  // Obtém os produtos com a quantidade de estoque
+        const stockEntries = await getAllStocks();
         const success = req.query.success;  // Variável de sucesso para mostrar a mensagem
-        res.render("settings/entryForm", { products, success });
+        res.render("settings/entryForm", { products, success, supplierList, stockEntries});
     } catch (error) {
         console.error(error);
         res.status(500).send("Erro ao carregar formulário de entrada.");
@@ -19,8 +23,8 @@ const showEntryForm = async (req, res) => {
 // POST – Faz a entrada de estoque
 const manualEntry = async (req, res) => {
     try {
-        const { product_id, quantity } = req.body;
-        await manualStockEntryUseCase({ product_id, quantity });
+        const { product_id, quantity, price, product_supplier_id} = req.body;
+        await manualStockEntryUseCase({ product_id, quantity, price, product_supplier_id});
         res.redirect("/settings/entry?success=1");
     } catch (error) {
         res.status(400).send("Erro ao realizar entrada no estoque.");

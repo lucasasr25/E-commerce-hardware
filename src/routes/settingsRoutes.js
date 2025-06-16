@@ -15,10 +15,16 @@ router.post("/order-status/delete", settingsController.deleteOrderStatus);
 
 
 router.get("/suppliers", settingsController.productSupplier);
-router.post("/order-status/create", settingsController.createOrderStatus);
-router.post("/order-status/delete", settingsController.deleteOrderStatus);
+router.post("/product-supplier/create", settingsController.createProductSupplier);
+router.post("/product-supplier/delete", settingsController.deleteProductSupplier);
 
+router.get("/pricebook", settingsController.pricebook);
+router.post("/pricebook/create", settingsController.createPricebook);
+router.post("/pricebook/delete", settingsController.deletePricebook);
 
+router.get("/product-category", settingsController.productCategories);
+router.post("/product-category/create", settingsController.createProductCategories);
+router.post("/product-category/delete", settingsController.deleteProductCategories);
 
 router.get("/payment-status", settingsController.changePaymentStatus);
 router.post("/payment-status/create", settingsController.createPaymentStatus);

@@ -1,5 +1,9 @@
 const ProductUseCases = new (require('../usecases/product/ProductUseCases'))();
 const RenderProductUseCases = new (require('../usecases/product/RenderProductUseCases'))();
+const suppliersUseCases = require('../usecases/settings/suppliersUseCases');
+const productCategoryUseCases = require('../usecases/settings/productCategoryUseCases');
+
+
 
 const createProduct = async (req, res) => {
     try {
@@ -7,21 +11,20 @@ const createProduct = async (req, res) => {
             name, description, price,
             manufacturer, warranty_period,
             weight, dimensions, color, material,
-            qtd 
+            qtd, category_id, supplier_id 
         } = req.body;
 
         const { newProduct, productDetails } = await ProductUseCases.createProduct({
             name, description, price,
             manufacturer, warranty_period,
             weight, dimensions, color, material,
-            qtd 
+            qtd, category_id, supplier_id
         });
 
-        res.status(201).json({
-            message: "Product and details created successfully",
-            product: newProduct,
-            productDetails: productDetails
-        });
+        // await manualStockEntryUseCase({ newProduct.id, qtd, price, product_supplier_id});
+
+
+        res.redirect("/product/view?forceReload=true"); 
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
@@ -68,7 +71,7 @@ const updateProductDetails = async (req, res) => {
         await ProductUseCases.updateProductDetails(productData);
 
         // Redireciona para a listagem ou visualização do produto
-        res.redirect("/product/view"); 
+        res.redirect("/product/view?forceReload=true"); 
     } catch (error) {
         console.error(error);
 
@@ -88,13 +91,9 @@ const deleteProduct = async (req, res) => {
     }
 
     try {
-        const result = await ProductUseCases.deleteProduct(id);
+        const result = await ProductUseCases.deleteProductUseCase(id);
 
-        if (!result) {
-            return res.status(404).json({ message: "Product not found" });
-        }
-
-        res.status(200).json({ message: "Product deleted successfully" });
+        res.redirect("/product/view"); 
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
@@ -143,7 +142,7 @@ const renderProductDetailView = async (req, res) => {
 
     try {
         const { product, productDetails } = await RenderProductUseCases.renderProductDetailViewUseCase(id);
-
+        console.log(product)
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
@@ -156,8 +155,18 @@ const renderProductDetailView = async (req, res) => {
     }
 };
 
-const renderCreateProductView = (req, res) => {
-    res.render("products/createProduct");
+const renderCreateProductView = async (req, res) => {
+    try {
+        const supplierList = await suppliersUseCases.getAllSuppliers() || [];
+        const productCategoryList = await productCategoryUseCases.getAllProductCategory() || [];
+
+        res.render("products/createProduct", { supplierList, productCategoryList});
+    } catch (error) {
+        console.error("Erro ao carregar fornecedores:", error);
+        res.status(500).render("status/error", {
+            message: "Erro ao carregar fornecedores."
+        });
+    }
 };
 
 const renderEditProductView = async (req, res) => {
@@ -169,13 +178,15 @@ const renderEditProductView = async (req, res) => {
 
     try {
         const { product, productDetails } = await RenderProductUseCases.renderEditProductViewUseCase(id);
+        const supplierList = await suppliersUseCases.getAllSuppliers() || [];
+        const productCategoryList = await productCategoryUseCases.getAllProductCategory() || [];
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
 
-        res.render("products/editProduct", { product, productDetails});
+        res.render("products/editProduct", { product, productDetails, supplierList, productCategoryList});
     } catch (error) {
         console.error(error);
         res.status(500).render('status/error', {
