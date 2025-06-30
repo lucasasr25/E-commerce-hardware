@@ -6,7 +6,19 @@ class Order {
 
         this.cliente = cliente;
         this.endereco = endereco;
-        this.items = items;
+
+        // Calcula o preço final dos itens com base na margem de lucro
+        this.items = items.map(item => {
+            const basePrice = parseFloat(item.base_price);
+            const margin = parseFloat(item.profit_margin) / 100;
+            const finalPrice = basePrice + (basePrice * margin);
+
+            return {
+                ...item,
+                price: finalPrice
+            };
+        });
+
         this.promotionalCoupon = promotionalCoupon;
         this.pagamentosCartao = this.formatarCartoes(pagamentosCartao);
 
@@ -71,4 +83,3 @@ class Order {
 module.exports = {
     Order
 };
-

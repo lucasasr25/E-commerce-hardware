@@ -4,6 +4,7 @@ const OrderRepository = require('../../repositories/orderRepository');
 const CouponRepository = require('../../repositories/couponRepository');
 const StockRepository = require('../../repositories/stockRepository');
 const CreditCardRepository = require('../../repositories/creditCardRepository');
+const Cart = require("../../entities/Cart");
 
 const { Order } = require('../../entities/Order');
 
@@ -26,8 +27,9 @@ class CheckoutUseCases {
     const cartoes = await this.creditCardRepository.getCreditCardsByUserId(userId);
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default) || {};
     const telefone = cliente.phone_numbers?.[0] || "";
-    const items = await this.cartRepository.getCartItems(userId);
-    const total = await this.cartRepository.getCartTotal(userId);
+
+    const dbItems = await this.cartRepository.getCartItems(userId);
+    const cart = new Cart(userId, dbItems);
 
     return {
       nome: cliente.name,
@@ -39,8 +41,8 @@ class CheckoutUseCases {
       telefone,
       cartoes,
       enderecos: cliente.addresses || [],
-      items,
-      total,
+      items: cart.items,
+      total: cart.getTotal().toString(),
     };
   }
 
@@ -77,11 +79,7 @@ class CheckoutUseCases {
       order.getOrderData().items,
       order.getOrderData().cartoes
     );
-
-    for (const item of items) {
-      await this.stockRepository.removeStock(item.product_id, item.quantity);
-    }
-
+    
     await this.cartRepository.clearCart(userId);
     return orderId;
   }

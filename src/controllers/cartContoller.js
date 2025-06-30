@@ -85,6 +85,7 @@ const updateCartItemQuantity = async (req, res) => {
 const renderCartView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
+        console.log("estou aqui");
         const { items, total } = await CartUseCases.renderCartView(userId);
         res.render("shopping/cart", { items, total });
     } catch (error) {

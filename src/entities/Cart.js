@@ -7,20 +7,20 @@ class Cart {
 
         this.items = itemsFromDb.map(dbItem => {
             const product = new Product({
-                id: dbItem.product_id,
+                id: Number(dbItem.product_id),
                 name: dbItem.name,
-                price: parseFloat(dbItem.price),
+                price: Number(dbItem.base_price) + (Number(dbItem.base_price) * (Number(dbItem.profit_margin) / 100)),
                 description: '' 
             });
-
             return {
-                productId: product.id,
+                productId: Number(product.id),
                 name: product.name,
-                price: product.price,
-                quantity: dbItem.quantity
+                price: Number(dbItem.base_price) + (Number(dbItem.base_price) * (Number(dbItem.profit_margin) / 100)) || 0, 
+                quantity: Number(dbItem.quantity) || 0
             };
         });
     }
+
 
     addItem(product) {
         if (!(product instanceof Product)) {

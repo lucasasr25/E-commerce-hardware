@@ -123,29 +123,61 @@ class CartRepository extends IGenericRepository {
     }
   }
 
-  async getCartItems(userId) {
-    const result = await pool.query(
-      `SELECT ci.id, ci.product_id, p.price, p.name, ci.quantity
-       FROM cart_items ci
-       INNER JOIN customer_carts c ON ci.cart_id = c.id
-       INNER JOIN products p ON ci.product_id = p.id
-       WHERE c.user_id = $1`,
-      [userId]
-    );
-    return result.rows;
-  }
+async getCartItems(userId) {
+  const result = await pool.query(
+    `SELECT 
+        ci.id, 
+        ci.product_id, 
+        p.name, 
+        s.price AS base_price,
+        pb.profit_margin,
+        ci.quantity
+     FROM cart_items ci
+     INNER JOIN customer_carts c ON ci.cart_id = c.id
+     INNER JOIN products p ON ci.product_id = p.id
+     INNER JOIN product_category pc ON p.category_id = pc.id
+     INNER JOIN price_book pb ON pb.category_id = pc.id
+     INNER JOIN LATERAL (
+         SELECT price
+         FROM stock
+         WHERE product_id = p.id
+         ORDER BY price DESC
+         LIMIT 1
+     ) s ON true
+     WHERE c.user_id = $1`,
+    [userId]
+  );
+
+  return result.rows;
+}
+
 
   async getCartTotal(userId) {
     const result = await pool.query(
-      `SELECT COALESCE(SUM(p.price * ci.quantity), 0) AS total
-       FROM cart_items ci
-       INNER JOIN customer_carts c ON ci.cart_id = c.id
-       INNER JOIN products p ON ci.product_id = p.id
-       WHERE c.user_id = $1`,
+      `SELECT 
+          s.price AS base_price,
+          pb.profit_margin,
+          ci.quantity
+      FROM cart_items ci
+      INNER JOIN customer_carts c ON ci.cart_id = c.id
+      INNER JOIN products p ON ci.product_id = p.id
+      INNER JOIN product_category pc ON p.category_id = pc.id
+      INNER JOIN price_book pb ON pb.category_id = pc.id
+      INNER JOIN LATERAL (
+          SELECT price
+          FROM stock
+          WHERE product_id = p.id
+          ORDER BY price DESC
+          LIMIT 1
+      ) s ON true
+      WHERE c.user_id = $1`,
       [userId]
     );
-    return result.rows[0].total;
+
+    return result.rows;
   }
+
+
 
   async removeItemFromCart(userId, productId) {
     const client = await pool.connect();
