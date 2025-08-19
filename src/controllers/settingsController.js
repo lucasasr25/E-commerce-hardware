@@ -1,6 +1,6 @@
 const orderStatusUseCases = new (require("../usecases/settings/OrderStatusUseCases"))();
-const paymentStatusUseCases = new (require("../usecases/settings/paymentStatusUseCases"))();
-const returnStatusUseCases = new (require("../usecases/settings/returnStatusUseCases"))();
+const paymentStatusUseCases = new (require("../usecases/settings/PaymentStatusUseCases"))();
+const returnStatusUseCases = new (require("../usecases/settings/ReturnStatusUseCases"))();
 
 const viewExchanges = require("../usecases/settings/viewExchanges");
 const updateExchangeStatusUseCase = require("../usecases/settings/UpdateExchangeStatusUseCase");
