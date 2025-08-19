@@ -1,4 +1,4 @@
-const CartUseCases = new (require('../usecases/cart/CartUseCases'))();
+const CartUseCases = new (require('../usecases/cart/CartUseCases.js'))();
 
 const addItemToCart = async (req, res) => {
     try {

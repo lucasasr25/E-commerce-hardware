@@ -1,2 +1,0 @@
-curl -X POST http://localhost:3000/api/clients -H "Content-Type: application/json" -d "{\"name\": \"John Doe\", \"email\": \"john@example.com\", \"password\": \"StrongPass!123\", \"confirmPassword\": \"StrongPass!123\", \"addresses\": [{\"type\": \"entrega\", \"street\": \"123 Main St\", \"city\": \"New York\", \"state\": \"NY\", \"zip_code\": \"10001\"}]}"
-curl -X GET http://localhost:3000/api/clients -H "Content-Type: application/json"
