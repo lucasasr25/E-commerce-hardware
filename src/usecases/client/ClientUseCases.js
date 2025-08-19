@@ -5,7 +5,7 @@ const CreditCardRepository = require("../../repositories/creditCardRepository");
 const OrderRepository = require("../../repositories/orderRepository");
 const OrderStatusRepository = require("../../repositories/orderStatusRepository");
 const ReturnRepository = require("../../repositories/returnRepository");
-const tradeCoupon = require("../coupon/tradeCouponUseCase.js");
+const tradeCoupon = require("../coupon/TradeCouponUseCase.js");
 
 const { Client, CreditCard } = require("../../entities/Client");
 const bcrypt = require("bcrypt");
