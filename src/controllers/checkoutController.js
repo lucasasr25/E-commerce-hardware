@@ -1,6 +1,5 @@
 const CheckoutUseCases = new (require('../usecases/checkout/CheckoutUseCases'))();
 
-
 const renderCheckoutView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
