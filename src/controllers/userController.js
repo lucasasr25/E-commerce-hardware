@@ -275,7 +275,7 @@ const renderClientProfile = async (req, res) => {
 
 const renderCreateview = async (req, res) => {
     try {
-        const data = await ClientUseCases.renderCreateViewUseCase(req,res);
+        const data = await ClientUseCases.renderCreateView(req,res);
         res.render("client/create", data);
     } catch (error) {
         res.status(500).render('status/error', {
