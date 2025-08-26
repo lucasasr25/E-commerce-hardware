@@ -102,45 +102,46 @@
             phoneSection.appendChild(newPhoneInput);
         }
 
-        // Função para adicionar novos endereços
         function addAddress() {
             const addressSection = document.getElementById('addressSection');
+            const index = document.querySelectorAll('#addressSection select').length; 
             const newAddressDiv = document.createElement('div');
 
             newAddressDiv.innerHTML = `
-                <label for="adr_type">Tipo de Endereço:</label>
-                <select name="adr_type[]" id="adr_type_<%= index %>" required>
-                    <option value="entrega" <%= address.adr_type === 'entrega' ? 'selected' : '' %>>Endereço de Entrega</option>
-                    <option value="cobranca" <%= address.adr_type === 'cobranca' ? 'selected' : '' %>>Endereço de Cobrança</option>
+                <label for="adr_type_${index}">Tipo de Endereço:</label>
+                <select name="adr_type[]" id="adr_type_${index}" required>
+                    <option value="entrega">Endereço de Entrega</option>
+                    <option value="cobranca">Endereço de Cobrança</option>
                 </select><br>
 
-                <label for="street">Rua:</label>
+                <label for="street_${index}">Rua:</label>
                 <input type="text" name="street[]" required><br>
 
-                <label for="number">Número:</label>
+                <label for="number_${index}">Número:</label>
                 <input type="text" name="number[]"><br>
 
-                <label for="complement">Complemento:</label>
+                <label for="complement_${index}">Complemento:</label>
                 <input type="text" name="complement[]"><br>
 
-                <label for="neighborhood">Bairro:</label>
+                <label for="neighborhood_${index}">Bairro:</label>
                 <input type="text" name="neighborhood[]" required><br>
 
-                <label for="city">Cidade:</label>
+                <label for="city_${index}">Cidade:</label>
                 <input type="text" name="city[]" required><br>
 
-                <label for="state">Estado:</label>
+                <label for="state_${index}">Estado:</label>
                 <input type="text" name="state[]" required><br>
 
-                <label for="country">País:</label>
+                <label for="country_${index}">País:</label>
                 <input type="text" name="country[]" required><br>
 
-                <label for="zipcode">CEP:</label>
+                <label for="zipcode_${index}">CEP:</label>
                 <input type="text" name="zipcode[]" required><br>
                 <hr>
             `;
             addressSection.appendChild(newAddressDiv);
         }
+
 
         function addCreditCard() {
             const section = document.getElementById('creditCardSection');
@@ -187,11 +188,12 @@
             <legend>Endereço do Cliente</legend>
             <div id="addressSection">
                 <div>
-                    <select name="adr_type[]" id="adr_type_<%= index %>" required>
-                        <option value="entrega" <%= address.adr_type === 'entrega' ? 'selected' : '' %>>Endereço de Entrega</option>
-                        <option value="cobranca" <%= address.adr_type === 'cobranca' ? 'selected' : '' %>>Endereço de Cobrança</option>
+                    <label for="adr_type_0">Tipo de Endereço:</label>
+                    <select name="adr_type[]" id="adr_type_0" required>
+                        <option value="entrega">Endereço de Entrega</option>
+                        <option value="cobranca">Endereço de Cobrança</option>
                     </select><br>
-            
+
                     <label for="nick">Apelido:</label>
                     <input type="text" name="nick[]" required><br>
 
@@ -221,6 +223,7 @@
                 </div>
             </div>
             <button type="button" onclick="addAddress()">Adicionar Novo Endereço</button>
+
         </fieldset>
 
         <fieldset>
