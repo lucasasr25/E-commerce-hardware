@@ -51,7 +51,7 @@ class ClientRepository extends IGenericRepository {
                     name = COALESCE($1, name), 
                     email = COALESCE($2, email), 
                     password = COALESCE($3, password), 
-                    active = COALESCE($4, active)
+                    active = $4,
                  WHERE id = $5`,
                 [name, email, password, active, id]
             );
