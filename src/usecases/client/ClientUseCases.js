@@ -117,9 +117,19 @@ class ClientUseCases {
 
   async updateClient(clientData) {
     const clientEntity = new Client(clientData);
-    try {
-      const updatedClient = await this.clientRepository.updateClient(clientEntity);
+    const id = clientEntity.id;
+    const name = clientEntity.name;
+    const email = clientEntity.email;
+    const password = clientEntity.password;
+    const active = clientEntity.active;
+    const phoneNumbers = clientEntity.getPhoneNumbers();
+    const addresses = clientEntity.getAddressesDTO();
 
+
+    try {
+    const updatedClient = await this.clientRepository.updateClient(
+            id, name, email, password, active, phoneNumbers, addresses
+        );
       await this.phoneRepository.deletePhonesByUserId(clientEntity.id);
       for (const phone of clientEntity.getPhoneNumbers()) {
         await this.phoneRepository.createPhone(clientEntity.id, phone);
