@@ -156,7 +156,7 @@ const updateClient = async (req, res) => {
         if (!updatedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
-        res.redirect(`/user`);
+        res.redirect(`https://e-commerce-hardware.vercel.app/client/clients`);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
