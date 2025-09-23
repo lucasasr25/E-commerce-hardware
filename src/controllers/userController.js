@@ -152,7 +152,7 @@ const registerReturn = async (req, res) => {
 const updateClient = async (req, res) => {
     try {
         const clientData = ClientBuilderService.buildFromRequest(req.body);
-        const updatedClient = await ClientUseCases.updateClientUseCases(clientData);
+        const updatedClient = await ClientUseCases.updateClient(clientData);
         if (!updatedClient) {
             return res.status(404).json({ message: "Client not found" });
         }
