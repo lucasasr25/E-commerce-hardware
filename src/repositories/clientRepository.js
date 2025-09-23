@@ -42,6 +42,7 @@ class ClientRepository extends IGenericRepository {
     // Atualizar cliente
     async updateClient(id, name, email, password, active, phoneNumbers, addresses) {
         const client = await pool.connect();
+        console.log([name, email, password, active, id])
         try {
             await client.query("BEGIN");
 
