@@ -23,6 +23,7 @@ class CheckoutUseCases {
     if (!cliente) {
       throw new Error("Cliente não encontrado");
     }
+    console.error("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
     const cartoes = await this.creditCardRepository.getCreditCardsByUserId(userId);
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default) || {};
