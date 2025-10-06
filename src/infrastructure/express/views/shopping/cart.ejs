@@ -172,45 +172,6 @@ async function saveCart() {
     }
 }
 
-
-  // --- Função para remover item ---
-  async function removeItem(productId, rowElement) {
-    if (!confirm('Tem certeza que deseja remover este item do carrinho?')) return;
-
-    try {
-      const response = await fetch('/cart/remove', {
-        method: 'POST', // ou 'DELETE' se preferir
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Remove o item da tabela visualmente
-        rowElement.remove();
-        updateCartTotal();
-      } else {
-        alert('Erro ao remover item: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Erro ao remover item:', error);
-      alert('Erro inesperado ao tentar remover o item.');
-    }
-  }
-
-  // --- Evento de clique nos botões "Remover item" ---
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.remove-item').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const productId = link.dataset.itemId;
-        const row = link.closest('tr');
-        removeItem(productId, row);
-      });
-    });
-  });
-
 // Função para pegar os itens atualizados da página
 function getItemsFromPage() {
     const items = [];
