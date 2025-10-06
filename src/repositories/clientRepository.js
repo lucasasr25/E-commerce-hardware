@@ -69,12 +69,12 @@ class ClientRepository extends IGenericRepository {
 
 
                 const addrPromises = addresses.map(addr => {
-                    const isDefaultStr = addr.is_default ? 'true' : 'false';
+                    const isDefaultStr = "TESTE"
                     console.log(isDefaultStr);
                     return client.query(
-                        `INSERT INTO addresses (user_id, street, number, complement, neighborhood, city, state, country, zipcode, adr_type, is_default)
+                        `INSERT INTO addresses (is_default, user_id, street, number, complement, neighborhood, city, state, country, zipcode, adr_type)
                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-                        [id, addr.street, addr.number, addr.complement, addr.neighborhood, addr.city, addr.state, addr.country, addr.zipcode, addr.adr_type, isDefaultStr]
+                        [isDefaultStr, id, addr.street, addr.number, addr.complement, addr.neighborhood, addr.city, addr.state, addr.country, addr.zipcode, addr.adr_type]
                     );
                 });
 
