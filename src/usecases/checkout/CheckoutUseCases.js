@@ -38,8 +38,7 @@ class CheckoutUseCases {
       "":"",
       "":""
     });
-
-
+    
     return {
       nome: cliente.name,
       email: cliente.email,

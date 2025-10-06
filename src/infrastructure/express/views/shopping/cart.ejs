@@ -76,7 +76,7 @@
                             </div>
                           </div>
                         <div class="ibox-content">
-                            <button onclick="window.location.href='/cart/checkout'" class="btn btn-primary pull-right">
+                            <button onclick="newCheckout()" class="btn btn-primary pull-right">
                                 <i class="fa fa-shopping-cart"></i> Finalizar compra
                             </button>
                             
@@ -84,7 +84,7 @@
                                 <i class="fa fa-shopping-cart"></i> Salvar Carrinho
                             </button>
                             
-                            <button onclick="window.location.href='/main'" class="btn btn-white"><i class="fa fa-arrow-left"></i> Continuar comprando</button>
+                            <button onclick="" class="btn btn-white"><i class="fa fa-arrow-left"></i> Continuar comprando</button>
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,9 @@
                             <hr>
                             <div class="m-t-sm">
                                 <div class="btn-group">
-                                    <a href="/cart/checkout" class="btn btn-primary btn-sm"><i class="fa fa-shopping-cart"></i> Finalizar compra</a>
+                                <button onclick="newCheckout()" class="btn btn-primary pull-right">
+                                    <i class="fa fa-shopping-cart"></i> Finalizar compra
+                                </button>
                                     <a href="/main" class="btn btn-white btn-sm"> Cancelar</a>
                                 </div>
                             </div>
@@ -111,6 +113,16 @@
     </div>
     <%- include('../partials/chatbot') %>
     <script>
+      async function newCheckout() {
+        try {
+            await saveCart();  // Ensure saveCart() is an async function that returns a promise.
+            window.location.href = '/cart/checkout';
+        } catch (error) {
+            console.error("Checkout failed:", error);
+            alert("There was an issue processing your checkout. Please try again.");
+        }
+      }
+
         function updateItemTotal(input) {
           const quantity = parseInt(input.value) || 0;
           const price = parseFloat(input.dataset.price);
