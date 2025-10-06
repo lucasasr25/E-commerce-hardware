@@ -8,6 +8,10 @@ class Order {
         this.endereco = endereco;
 
         // Calcula o preço final dos itens com base na margem de lucro
+        if(this.items.length == 0){
+            
+            throw new Error(`Carrinho Vazio`);
+        }
         this.items = items.map(item => {
             const basePrice = parseFloat(item.base_price);
             const margin = parseFloat(item.profit_margin) / 100;
