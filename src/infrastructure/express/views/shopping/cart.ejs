@@ -141,7 +141,7 @@
           }
         }
 
-async function saveCart() {
+async function saveCart(transfer = true) {
     try {
         const items = getItemsFromPage(); 
         if (!items) {
@@ -161,8 +161,9 @@ async function saveCart() {
         const result = await response.json();
 
         if (response.ok) {
-            console.log("Salvo")
-            window.location.href = '/main'; // Or the URL you want to redirect to
+            if(transfer){
+              window.location.href = '/main'; // Or the URL you want to redirect to
+            }
         } else {
             alert('Erro ao salvar carrinho: ' + result.message);
         }
@@ -183,6 +184,7 @@ async function saveCart() {
       if (result) {
         rowElement.remove();
         updateCartTotal();
+        saveCart(false)
       } else {
         alert('Erro ao remover item: ' + result.message);
       }
