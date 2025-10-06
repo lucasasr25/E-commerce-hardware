@@ -56,6 +56,8 @@ class CheckoutUseCases {
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
     const items = await this.cartRepository.getCartItems(userId);
+      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    console.log(items);
     const promotionalCoupon = promotionalCupomCode
       ? await this.couponRepository.getCoupon(promotionalCupomCode)
       : null;
