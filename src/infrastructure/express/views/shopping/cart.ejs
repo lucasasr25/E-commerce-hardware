@@ -182,6 +182,7 @@ async function saveCart(transfer = true) {
       const result = true;
 
       if (result) {
+        console.log(rowElement);
         rowElement.querySelector('.quantity-input').value = 0;
         rowElement.remove();
         updateCartTotal();
