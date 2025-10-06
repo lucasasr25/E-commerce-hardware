@@ -22,6 +22,8 @@ class CreditCardRepository extends IGenericRepository {
 
     // Insere ou atualiza cartão (upsert)
     async updateCreditCard(userId, cardNumber, holderName, expirationDate, isDefault) {
+
+        console.log(isDefault);
         await pool.query(
             `INSERT INTO credit_cards (user_id, card_number, holder_name, expiration_date, is_default)
             VALUES ($1, $2, $3, $4, $5)
@@ -37,7 +39,7 @@ class CreditCardRepository extends IGenericRepository {
     // Retorna cartões do usuário
     async getCreditCardsByUserId(userId) {
         const result = await pool.query(
-            `SELECT id, card_number, holder_name, expiration_date 
+            `SELECT id, card_number, holder_name, expiration_date, is_default
              FROM credit_cards 
              WHERE user_id = $1`,
             [userId]

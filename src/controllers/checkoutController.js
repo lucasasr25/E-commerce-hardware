@@ -16,9 +16,9 @@ const renderCheckoutView = async (req, res) => {
 const checkout = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const { promotionalCupomCode, pagamentos_cartao } = req.body;
+        const { promotionalCupomCode, pagamentos_cartao, cupons_troca  } = req.body;
 
-        await CheckoutUseCases.createOrderFromCart(userId, promotionalCupomCode, pagamentos_cartao);
+        await CheckoutUseCases.createOrderFromCart(userId, promotionalCupomCode, cupons_troca, pagamentos_cartao);
 
         res.render('status/success', {
             message: "Pedido realizado com sucesso!"

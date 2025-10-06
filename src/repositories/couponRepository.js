@@ -36,6 +36,15 @@ class CouponRepository extends IGenericRepository {
         return result.rows[0];
     }
 
+    // Obter cupom por código
+    async getTradeCoupon(code) {
+        const result = await pool.query(
+            'SELECT * FROM trade_coupons WHERE code = $1',
+            [code]
+        );
+        return result.rows[0];
+    }
+
     // Criar cupom de troca (trade coupon)
     async createTradeCoupon(coupon) {
         const result = await pool.query(

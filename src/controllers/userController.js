@@ -227,7 +227,7 @@ const renderSettingsView = async (req, res) => {
 
 const renderEditView = async (req, res) => {
     try {
-        const { id } = req.query;
+        const id = req.session.user?.id;
         const data = await RenderClientUseCases.renderEditView(id);
         res.render("user/edit", { client: data.client, addresses: data.addresses, phoneNumbers: data.phoneNumbers });
     } catch (error) {
@@ -241,6 +241,7 @@ const renderCardEdit = async (req, res) => {
     try {
         const userId = req.session.user?.id;
         const creditCards = await RenderClientUseCases.renderCardEdit(userId);
+        console.log(creditCards);
         res.render('user/editCreditCards', { creditCards });
     } catch (error) {
         res.status(500).render('status/error', {
@@ -253,7 +254,7 @@ const updateCreditCardsController = async (req, res) => {
     try {
         const userId = req.session.user?.id;
         const updateCreditCardsUseCase = await ClientUseCases.updateCreditCards(userId, req.body);
-        res.redirect('/user');
+        return res.status(200).json({ message: 'Cartão de crédito atualizado com sucesso!' });
     } catch (error) {
         res.status(500).render('status/error', {
             message: error.message || 'Erro ao adicionar cartões de crédito.'

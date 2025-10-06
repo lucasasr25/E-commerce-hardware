@@ -1,15 +1,11 @@
 class Order {
-    constructor({ cliente, endereco, items, promotionalCoupon, pagamentosCartao }) {
+    constructor({ cliente, endereco, items, promotionalCoupon, tradeCoupons, pagamentosCartao }) {
         if (!cliente) throw new Error("Cliente é obrigatório");
         if (!endereco) throw new Error("Endereço padrão é obrigatório");
         if (!items?.length) throw new Error("Carrinho está vazio");
 
         this.cliente = cliente;
         this.endereco = endereco;
-
-        if (!items || items.length === 0) {
-            throw new Error("Carrinho Vazio");
-        }
 
         this.items = items.map(item => {
             const basePrice = parseFloat(item.base_price);
@@ -23,12 +19,14 @@ class Order {
         });
 
         this.promotionalCoupon = promotionalCoupon;
+        this.tradeCoupons = tradeCoupons || []; // array de cupons de troca
         this.pagamentosCartao = this.formatarCartoes(pagamentosCartao);
 
         this.subtotal = this.calcularSubtotal();
-        this.valorCupom = this.calcularDesconto();
+        this.valorCupom = this.calcularDesconto(); // cupom promocional
+        this.valorCupomTroca = this.calcularDescontoTroca(); // soma cupons de troca
         this.frete = 50;
-        this.total = this.subtotal - this.valorCupom + this.frete;
+        this.total = this.subtotal - this.valorCupom - this.valorCupomTroca + this.frete;
 
         this.validarPagamento();
     }
@@ -49,6 +47,11 @@ class Order {
         return this.subtotal * (this.promotionalCoupon.discount_percentage / 100);
     }
 
+    calcularDescontoTroca() {
+        if (!this.tradeCoupons.length) return 0;
+        return this.tradeCoupons.reduce((acc, c) => acc + parseFloat(c.value), 0);
+    }
+
     validarPagamento() {
         const totalCartoes = this.pagamentosCartao.reduce((acc, c) => acc + c.valor, 0);
         const diff = Math.abs(totalCartoes - this.total);
@@ -59,7 +62,7 @@ class Order {
 
         for (const [index, c] of this.pagamentosCartao.entries()) {
             if (isNaN(c.valor)) throw new Error(`Valor inválido no cartão ${index + 1}`);
-            if (c.valor < 10 && this.valorCupom <= 0) {
+            if (c.valor < 10 && (this.valorCupom + this.valorCupomTroca) <= 0) {
                 throw new Error(`Cartão ${index + 1} deve ter valor mínimo de R$10 ou parte do pagamento deve ser com cupom`);
             }
         }
@@ -69,6 +72,7 @@ class Order {
         return {
             userId: this.cliente.id,
             couponId: this.promotionalCoupon?.id || null,
+            tradeCoupons: this.tradeCoupons.map(c => c.code), // cupons de troca
             enderecoId: this.endereco.id,
             status: 2,
             subtotal: this.subtotal,
@@ -83,6 +87,4 @@ class Order {
     }
 }
 
-module.exports = {
-    Order
-};
+module.exports = { Order };

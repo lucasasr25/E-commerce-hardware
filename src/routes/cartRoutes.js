@@ -10,6 +10,7 @@ router.get("/view", cartController.renderCartView);
 router.post("/update", cartController.updateCartItemQuantity);
 router.get("/getPreview", cartController.getCartItemsUser);
 router.post("/aplicar-cupom", couponController.checkCoupoun);
+router.post("/aplicar-cupom-troca", couponController.checkExchangeCoupoun);
 router.get("/checkout", checkoutController.renderCheckoutView);
 router.post("/checkout", checkoutController.checkout);
 router.post("/remove/:product_id", cartController.removeItemFromCart);

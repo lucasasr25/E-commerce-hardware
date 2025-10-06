@@ -5,7 +5,7 @@ const CreditCardRepository = require("../../repositories/creditCardRepository");
 const OrderRepository = require("../../repositories/orderRepository");
 const OrderStatusRepository = require("../../repositories/orderStatusRepository");
 const ReturnRepository = require("../../repositories/returnRepository");
-const tradeCoupon = require("../coupon/TradeCouponUseCase.js");
+const TradeCouponUseCase = require("../coupon/TradeCouponUseCase.js");
 
 const { Client, CreditCard } = require("../../entities/Client");
 const bcrypt = require("bcrypt");
@@ -19,6 +19,7 @@ class ClientUseCases {
     this.orderRepository = new OrderRepository();
     this.orderStatusRepository = new OrderStatusRepository();
     this.returnRepository = new ReturnRepository();
+    this.tradeCoupon = new TradeCouponUseCase();
   }
 
   async createClient(clientData) {
@@ -94,7 +95,7 @@ class ClientUseCases {
       }
 
       const value = parseFloat(order_item.price);
-      const createdCoupon = await tradeCoupon.createNewCoupon(user_id, value);
+      const createdCoupon = await this.tradeCoupon.createNewCoupon(user_id, value);
       const result = await this.returnRepository.createReturn({
         user_id,
         order_id,
@@ -115,7 +116,7 @@ class ClientUseCases {
     return results;
   }
 
-  async updateClient(clientData) {
+async updateClient(clientData) {
     const clientEntity = new Client(clientData);
     const id = clientEntity.id;
     const name = clientEntity.name;
@@ -125,36 +126,44 @@ class ClientUseCases {
     const phoneNumbers = clientEntity.getPhoneNumbers();
     const addresses = clientEntity.getAddressesDTO();
 
-
     try {
-    const updatedClient = await this.clientRepository.updateClient(
+        // Atualiza tudo de uma vez, inclusive endereços
+        const updatedClient = await this.clientRepository.updateClient(
             id, name, email, password, active, phoneNumbers, addresses
         );
-      await this.phoneRepository.deletePhonesByUserId(clientEntity.id);
-      for (const phone of clientEntity.getPhoneNumbers()) {
-        await this.phoneRepository.createPhone(clientEntity.id, phone);
-      }
 
-      await this.addressRepository.deleteAddressesByUserId(clientEntity.id);
-      for (const addr of clientEntity.getAddressesDTO()) {
-        await this.addressRepository.createAddress(clientEntity.id, addr);
-      }
+        // Remove estas linhas duplicadas
+        // await this.phoneRepository.deletePhonesByUserId(clientEntity.id);
+        // for (const phone of clientEntity.getPhoneNumbers()) {
+        //   await this.phoneRepository.createPhone(clientEntity.id, phone);
+        // }
+        //
+        // await this.addressRepository.deleteAddressesByUserId(clientEntity.id);
+        // for (const addr of clientEntity.getAddressesDTO()) {
+        //   await this.addressRepository.createAddress(clientEntity.id, addr);
+        // }
 
-      return updatedClient;
+        return updatedClient;
     } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
-      return null;
+        console.error("Erro ao atualizar cliente:", error);
+        return null;
     }
-  }
+}
 
   async updateCreditCards(userId, cardData) {
+
+    const defaultCount = cardData.is_default?.filter(val => val === 'on').length || 0;
+    if (defaultCount > 1) {
+        throw new Error("Apenas um cartão pode ser marcado como padrão.");
+    }
+
+
     const creditCards = cardData.card_number.map((num, i) => new CreditCard({
       card_number: num,
       holder_name: cardData.holder_name[i],
       expiration_date: cardData.expiration_date[i],
       is_default: cardData.is_default[i],
     }));
-
     for (const card of creditCards) {
       await this.creditCardRepository.updateCreditCard(
         userId,

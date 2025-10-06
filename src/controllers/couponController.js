@@ -1,5 +1,5 @@
 const CouponUseCases = new (require('../usecases/coupon/CouponUseCases'))();
-
+const TradeCouponUseCases = new (require('../usecases/coupon/TradeCouponUseCase'))();
 
 const renderCouponsPage = async (req, res) => {
     try {
@@ -58,9 +58,38 @@ const deleteCoupon = async (req, res) => {
     }
 };
 
+
+const checkExchangeCoupoun = async (req, res) => {
+    const { codes } = req.body;
+
+    try {
+        const { appliedCoupons, invalidCoupons } = await TradeCouponUseCases.validateCoupons(codes);
+
+        if (appliedCoupons.length > 0) {
+            res.status(200).send({
+                message: "Cupons processados!",
+                appliedCoupons,
+                invalidCoupons
+            });
+        } else {
+            res.status(400).send({
+                message: "Nenhum cupom válido encontrado",
+                invalidCoupons
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao verificar cupons:', error);
+        res.status(500).send({ message: "Erro ao verificar cupons" });
+    }
+};
+
+module.exports = { checkExchangeCoupoun };
+
+
 module.exports = {
     renderCouponsPage,
     createCoupon,
     deleteCoupon,
-    checkCoupoun
+    checkCoupoun,
+    checkExchangeCoupoun
 };

@@ -50,7 +50,7 @@
                 </div>
 
 
-                    <form action="/cart/checkout" method="POST">
+                    <form action="/cart/checkout" method="POST" id="form-checkout">
                         <div class="mb-4 p-3 border rounded bg-light">
                             <p class="fw-bold text-muted">Endereço Padrão</p>
 
@@ -100,6 +100,8 @@
                                     <% } %>
                                 </div>
                                 <button type="button" class="btn btn-secondary mt-2" id="add-cartao">Adicionar outro cartão</button>
+                                <button type="button" class="btn btn-secondary mt-2" onclick="clearFormAndRedirect()" id="add-cartao">Criar Cartão</button>
+
                             </div>
                             <div id="pagamento-pix-container" class="mt-3" style="display: none;">
                                 <p>Você receberá um QR Code após finalizar o pedido.</p>
@@ -121,6 +123,7 @@
                                 <input type="text" class="input-readonly-new" name="cupons_troca[]" placeholder="Digite o cupom de troca">
                             </div>
                             <button type="button" class="btn btn-primary mb-3" id="add-cupom">Adicionar mais cupom</button>
+                            <button type="button" class="btn btn-success  mb-3" id="aplicarCupomTroca">Aplicar Cupom de Troca</button>
                         </div>
 
                         <div class="d-grid">
@@ -169,7 +172,13 @@
 
 <script>
 
+  function clearFormAndRedirect() {
+    // Limpar o formulário anterior
+    document.getElementById('form-checkout').reset();
 
+    // Substituir a página no histórico para evitar o envio de formulários antigos
+    window.location.replace('/user/card');
+  }
 document.addEventListener('DOMContentLoaded', function () {
     const selectEndereco = document.getElementById('enderecoSelecionado');
     
@@ -220,12 +229,12 @@ document.getElementById('add-cupom').addEventListener('click', function() {
     const newInput = document.createElement('input');
     newInput.type = 'text';
     newInput.classList.add('input-readonly-new');
-    newInput.name = 'cupons_troca[]';  // Nome atualizado aqui também
+    newInput.name = 'cupons_troca[]';  
     newInput.placeholder = 'Digite o cupom de troca';
     container.appendChild(newInput);
 });
 
-const totalOriginal = parseFloat("<%= total %>"); // pega o total sem desconto do backend
+const totalOriginal = parseFloat("<%= total %>"); 
 
 
 
@@ -291,6 +300,69 @@ document.getElementById('aplicarCupom').addEventListener('click', async () => {
         console.error(err);
     }
 });
+
+document.getElementById('aplicarCupomTroca').addEventListener('click', async () => {
+    const inputsCupons = document.getElementsByName('cupons_troca[]'); // pega todos os inputs
+    const mensagem = document.getElementById('cupomMensagemTroca'); // span ou div para mensagens
+    const cupons = Array.from(inputsCupons)
+        .map(input => input.value.trim())
+        .filter(c => c !== ""); // remove inputs vazios
+
+    if (cupons.length === 0) {
+        mensagem.textContent = "Digite pelo menos um cupom de troca.";
+        return;
+    }
+
+    try {
+        const response = await fetch('/cart/aplicar-cupom-troca', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ codes: cupons }) // envia todos os cupons em um array
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log(result);
+
+            // calcula desconto total somando todos os valores retornados
+            let totalDesconto = 0;
+            result.appliedCoupons.forEach(c => {
+                totalDesconto += parseFloat(c.discountPercentage); // valor já em reais
+            });
+
+            const totalComDesconto = totalOriginal - totalDesconto + 50; // mantém a taxa de frete
+            const globalTotal = document.querySelector("span[id='globalTotal']");
+            globalTotal.textContent = `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
+
+            // exibe resumo no checkout
+            let descontoHtml = '';
+            result.appliedCoupons.forEach(c => {
+                descontoHtml += `<p><strong>Desconto cupom (${c.code}):</strong> <span style="color:red">- R$ ${parseFloat(c.discountPercentage).toFixed(2).replace('.', ',')}</span></p>`;
+            });
+
+            document.querySelector('#checkout-box').innerHTML = `
+                <h5>Taxas e Frete</h5>
+                <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
+                <p><strong>Frete:</strong> R$ 50,00</p>
+                ${descontoHtml}
+                <hr>
+                <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
+            `;
+
+            mensagem.textContent = result.message;
+        } else {
+            mensagem.textContent = result.message || "Erro ao aplicar cupons de troca.";
+        }
+    } catch (err) {
+        mensagem.textContent = "Erro na comunicação com o servidor.";
+        console.error(err);
+    }
+});
+
+
 
 let cartaoIndex = 1;
 document.getElementById('add-cartao').addEventListener('click', function () {

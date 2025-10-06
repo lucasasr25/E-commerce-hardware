@@ -53,7 +53,7 @@ class CreditCard {
         this.card_number = card_number;
         this.holder_name = holder_name;
         this.expiration_date = expiration_date;
-        this.is_default = is_default === 'true' || is_default === true;
+        this.is_default = !!is_default; // garante boolean
     }
 
     toDTO() {
