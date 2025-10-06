@@ -42,51 +42,73 @@ class ClientRepository extends IGenericRepository {
     // Atualizar cliente
     async updateClient(id, name, email, password, active, phoneNumbers, addresses) {
         const client = await pool.connect();
-        console.log("aqui");
-        console.log(addresses);
         try {
             await client.query("BEGIN");
 
+            // 1️⃣ Atualiza tabela users
             await client.query(
                 `UPDATE users SET 
                     name = COALESCE($1, name), 
                     email = COALESCE($2, email), 
                     password = COALESCE($3, password), 
                     active = $4
-                 WHERE id = $5`,
+                WHERE id = $5`,
                 [name, email, password, active, id]
             );
 
+            // 2️⃣ Atualiza números de telefone
             if (phoneNumbers?.length) {
                 await client.query(`DELETE FROM contact_numbers WHERE user_id = $1`, [id]);
+
                 const phonePromises = phoneNumbers.map(phone =>
-                    client.query(`INSERT INTO contact_numbers (user_id, phone_number) VALUES ($1, $2)`, [id, phone])
+                    client.query(
+                        `INSERT INTO contact_numbers (user_id, phone_number) VALUES ($1, $2)`,
+                        [id, phone]
+                    )
                 );
+
                 await Promise.all(phonePromises);
             }
+
+            // 3️⃣ Atualiza endereços
             if (addresses?.length) {
                 await client.query(`DELETE FROM addresses WHERE user_id = $1`, [id]);
 
-
                 const addrPromises = addresses.map(addr => {
-                    const isDefaultStr = "TESTE"
-                    console.log(isDefaultStr);
+                    // Garante que is_default seja string
+                    const isDefaultStr = addr.is_default ? 'true' : 'false';
+
                     return client.query(
-                        `INSERT INTO addresses (is_default, user_id, street, number, complement, neighborhood, city, state, country, zipcode, adr_type)
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-                        [isDefaultStr, id, addr.street, addr.number, addr.complement, addr.neighborhood, addr.city, addr.state, addr.country, addr.zipcode, addr.adr_type]
+                        `INSERT INTO addresses (
+                            user_id, street, number, complement, neighborhood, city, state, country, zipcode, adr_type, is_default
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+                        [
+                            id,
+                            addr.street,
+                            addr.number,
+                            addr.complement || '',
+                            addr.neighborhood || '',
+                            addr.city,
+                            addr.state,
+                            addr.country,
+                            addr.zipcode,
+                            addr.adr_type || '',
+                            isDefaultStr
+                        ]
                     );
                 });
 
                 await Promise.all(addrPromises);
             }
 
-
             await client.query("COMMIT");
             return true;
+
         } catch (error) {
             await client.query("ROLLBACK");
+            console.error("Erro ao atualizar cliente:", error);
             throw error;
+
         } finally {
             client.release();
         }
