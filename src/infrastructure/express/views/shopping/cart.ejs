@@ -118,7 +118,6 @@
         
           const itemTotal = quantity * price;
         
-          // Atualiza o valor do item
           const itemTotalElement = document.getElementById('item-total-' + itemId);
           if (itemTotalElement) {
             itemTotalElement.innerText = 'R$ ' + itemTotal.toFixed(2).replace('.', ',');
@@ -136,19 +135,15 @@
             total += quantity * price;
           });
         
-          // Atualiza o resumo do carrinho
           const cartTotalElement = document.querySelector('.ibox-content h2.font-bold');
           if (cartTotalElement) {
             cartTotalElement.innerText = 'R$ ' + total.toFixed(2).replace('.', ',');
           }
         }
 
-// Função para enviar os dados atualizados do carrinho ao servidor
 async function saveCart() {
     try {
-        const items = getItemsFromPage();  // Esta função precisa pegar os itens com suas quantidades atualizadas na página
-
-        // Caso os itens estejam vazios ou o usuário não tenha sido identificado
+        const items = getItemsFromPage(); 
         if (!items) {
             alert('Erro: carrinho vazio.');
             return;
@@ -176,6 +171,45 @@ async function saveCart() {
         alert('Erro inesperado ao salvar o carrinho.');
     }
 }
+
+
+  // --- Função para remover item ---
+  async function removeItem(productId, rowElement) {
+    if (!confirm('Tem certeza que deseja remover este item do carrinho?')) return;
+
+    try {
+      const response = await fetch('/cart/remove', {
+        method: 'POST', // ou 'DELETE' se preferir
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Remove o item da tabela visualmente
+        rowElement.remove();
+        updateCartTotal();
+      } else {
+        alert('Erro ao remover item: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Erro ao remover item:', error);
+      alert('Erro inesperado ao tentar remover o item.');
+    }
+  }
+
+  // --- Evento de clique nos botões "Remover item" ---
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.remove-item').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const productId = link.dataset.itemId;
+        const row = link.closest('tr');
+        removeItem(productId, row);
+      });
+    });
+  });
 
 // Função para pegar os itens atualizados da página
 function getItemsFromPage() {
