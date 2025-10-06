@@ -44,11 +44,11 @@
                                           <dt>Especificações</dt>
                                           <dd>Especificações do produto.</dd>
                                         </dl>
-                                        <div class="m-t-sm">
-                                          <a href="#" class="text-muted" class = "remove-item">
-                                            <i class="fa fa-trash"></i> Remover item
-                                          </a>
-                                        </div>
+                                      <div class="m-t-sm">
+                                        <button type="button" class="btn btn-danger btn-sm remove-item" data-item-id="<%= item.productId %>">
+                                          <i class="fa fa-trash"></i> Remover item
+                                        </button>
+                                      </div>
                                       </td>
                           
                                       <td>
@@ -193,19 +193,17 @@ async function saveCart() {
     }
   }
 
-  // --- Evento de clique nos botões "Remover item" ---
 // --- Evento de clique nos botões "Remover item" ---
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.remove-item').forEach(link => {
-    link.addEventListener('click', (e) => {
+  document.querySelectorAll('.remove-item').forEach(button => {
+    button.addEventListener('click', (e) => {
       e.preventDefault();
-      const productId = link.dataset.itemId;  // Pega o ID do item
-      const row = link.closest('tr');         // Pega a linha mais próxima
-      removeItem(productId, row);             // Função de remoção
+      const productId = button.dataset.itemId;  // Pega o ID do item
+      const row = button.closest('tr');         // Pega a linha mais próxima
+      removeItem(productId, row);               // Função de remoção
     });
   });
 });
-
 
 // Função para pegar os itens atualizados da página
 function getItemsFromPage() {
