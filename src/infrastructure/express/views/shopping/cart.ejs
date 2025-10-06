@@ -182,11 +182,17 @@ async function saveCart(transfer = true) {
       const result = true;
 
       if (result) {
-        console.log(rowElement);
         rowElement.querySelector('.quantity-input').value = 0;
         rowElement.remove();
         updateCartTotal();
-        saveCart(false)
+        await fetch('/cart/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ productId, quantity: 0 }]
+          })
+        });
+
       } else {
         alert('Erro ao remover item: ' + result.message);
       }
