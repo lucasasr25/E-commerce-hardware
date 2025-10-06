@@ -167,6 +167,7 @@ async function saveCart() {
 
         if (response.ok) {
             console.log("Salvo")
+            window.location.href = '/main'; // Or the URL you want to redirect to
         } else {
             alert('Erro ao salvar carrinho: ' + result.message);
         }
