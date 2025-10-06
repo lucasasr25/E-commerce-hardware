@@ -178,13 +178,7 @@ async function saveCart() {
     if (!confirm('Tem certeza que deseja remover este item do carrinho?')) return;
 
     try {
-      const response = await fetch('/cart/remove', {
-        method: 'POST', // ou 'DELETE' se preferir
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId }),
-      });
-
-      const result = await response.json();
+      const result = true;
 
       if (response.ok) {
         // Remove o item da tabela visualmente
