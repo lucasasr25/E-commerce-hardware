@@ -19,12 +19,11 @@ class CheckoutUseCases {
   }
 
   async getCheckoutData(userId) {
-    console.log("VVVVVVVVBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     const cliente = await this.clientRepository.getClientById(userId);
     if (!cliente) {
       throw new Error("Cliente não encontrado");
     }
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
     const cartoes = await this.creditCardRepository.getCreditCardsByUserId(userId);
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default) || {};
     const telefone = cliente.phone_numbers?.[0] || "";
@@ -32,8 +31,6 @@ class CheckoutUseCases {
     const dbItems = await this.cartRepository.getCartItems(userId);
     const cart = new Cart(userId, dbItems);
     var items = cart.items;
-    console.log(items);
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     const order = new Order({
       cliente,
       endereco: enderecoFavorito,
@@ -67,6 +64,7 @@ class CheckoutUseCases {
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
     const items = await this.cartRepository.getCartItems(userId);
+    console.log(items);
     const promotionalCoupon = promotionalCupomCode
       ? await this.couponRepository.getCoupon(promotionalCupomCode)
       : null;
