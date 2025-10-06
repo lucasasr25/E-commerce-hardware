@@ -180,8 +180,7 @@ async function saveCart() {
     try {
       const result = true;
 
-      if (response.ok) {
-        // Remove o item da tabela visualmente
+      if (result) {
         rowElement.remove();
         updateCartTotal();
       } else {
