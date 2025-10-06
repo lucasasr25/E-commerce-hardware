@@ -23,7 +23,6 @@ class CheckoutUseCases {
     if (!cliente) {
       throw new Error("Cliente não encontrado");
     }
-    console.error("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
     const cartoes = await this.creditCardRepository.getCreditCardsByUserId(userId);
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default) || {};
@@ -41,7 +40,7 @@ class CheckoutUseCases {
       "":"",
       "":""
     });
-
+    console.log(cliente.addresses);
     return {
       nome: cliente.name,
       email: cliente.email,
@@ -65,7 +64,6 @@ class CheckoutUseCases {
 
     const enderecoFavorito = cliente.addresses?.find(e => e.is_default);
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
-    console.error("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     const items = await this.cartRepository.getCartItems(userId);
     console.error(items);
     const promotionalCoupon = promotionalCupomCode

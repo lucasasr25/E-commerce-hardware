@@ -42,7 +42,8 @@ class ClientRepository extends IGenericRepository {
     // Atualizar cliente
     async updateClient(id, name, email, password, active, phoneNumbers, addresses) {
         const client = await pool.connect();
-        console.log([name, email, password, active, id])
+        console.log("aqui");
+        console.log(addresses);
         try {
             await client.query("BEGIN");
 
@@ -63,18 +64,23 @@ class ClientRepository extends IGenericRepository {
                 );
                 await Promise.all(phonePromises);
             }
-
             if (addresses?.length) {
                 await client.query(`DELETE FROM addresses WHERE user_id = $1`, [id]);
-                const addrPromises = addresses.map(addr =>
-                    client.query(
-                        `INSERT INTO addresses (user_id, street, number, complement, neighborhood, city, state, country, zipcode, adr_type)
-                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-                        [id, addr.street, addr.number, addr.complement, addr.neighborhood, addr.city, addr.state, addr.country, addr.zipcode, addr.adr_type]
-                    )
-                );
+
+
+                const addrPromises = addresses.map(addr => {
+                    const isDefaultStr = addr.is_default ? 'true' : 'false';
+                    console.log(isDefaultStr);
+                    return client.query(
+                        `INSERT INTO addresses (user_id, street, number, complement, neighborhood, city, state, country, zipcode, adr_type, is_default)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+                        [id, addr.street, addr.number, addr.complement, addr.neighborhood, addr.city, addr.state, addr.country, addr.zipcode, addr.adr_type, isDefaultStr]
+                    );
+                });
+
                 await Promise.all(addrPromises);
             }
+
 
             await client.query("COMMIT");
             return true;

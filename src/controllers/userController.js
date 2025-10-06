@@ -1,4 +1,4 @@
-const { validationResult } = require("express-validator");
+const { validationResult, body } = require("express-validator");
 const ClientBuilderService = require('../services/ClientBuilderService');
 const ClientUseCases = new (require('../usecases/client/ClientUseCases'))();
 const RenderClientUseCases = new (require('../usecases/client/RenderClientUseCases'))();

@@ -87,6 +87,11 @@ class Client {
         this.addresses = addresses.map(addr => new Address(addr));
         this.phoneNumbers = phoneNumbers;
         this.creditCards = creditCards.map(card => new CreditCard(card));
+
+        const defaultAddresses = addresses.filter(addr => addr.is_default);
+        if (defaultAddresses.length > 1) {
+            throw new Error('Não pode haver mais de um endereço como "default"');
+        }
     }
 
     toDTO() {

@@ -23,28 +23,32 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="enderecoSelecionado" class="form-label">Selecione o Endereço de Entrega</label>
-                        <select class="form-select" id="enderecoSelecionado" name="enderecoSelecionado">
-                            <% if (enderecos && enderecos.length > 0) { %>
-                                <% enderecos.forEach(end => { %>
-                                    <option value="<%= end.id %>"
-                                        data-nick="<%= end.nick %>"
-                                        data-street="<%= end.street %>"
-                                        data-number="<%= end.number %>"
-                                        data-city="<%= end.city %>"
-                                        data-zipcode="<%= end.zipcode %>">
-                                        <%= end.nick %> - <%= end.street %>, <%= end.number %>, <%= end.city %> - CEP <%= end.zipcode %>
-                                    </option>
-                                <% }) %>
-                            <% } else { %>
-                                <option disabled selected>Nenhum endereço cadastrado</option>
-                            <% } %>
-                        </select>
-                        <button type="button" class="btn btn-success mt-3" onclick="window.location.href='/user'">
-                            Criar novo endereço
-                        </button>
-                    </div>
+                <div class="mb-3">
+                    <label for="enderecoSelecionado" class="form-label">Selecione o Endereço de Entrega</label>
+                    <select class="form-select" id="enderecoSelecionado" name="enderecoSelecionado">
+                        <% if (enderecos && enderecos.length > 0) { %>
+                            <% enderecos.forEach(end => { %>
+                                <option 
+                                    value="<%= end.id %>"
+                                    data-nick="<%= end.nick %>"
+                                    data-street="<%= end.street %>"
+                                    data-number="<%= end.number %>"
+                                    data-city="<%= end.city %>"
+                                    data-zipcode="<%= end.zipcode %>"
+                                    <%= end.id === endereco.id ? 'selected' : '' %>
+                                >
+                                    <%= end.nick %> - <%= end.street %>, <%= end.number %>, <%= end.city %> - CEP <%= end.zipcode %>
+                                </option>
+                            <% }) %>
+                        <% } else { %>
+                            <option disabled selected>Nenhum endereço cadastrado</option>
+                        <% } %>
+                    </select>
+                    <button type="button" class="btn btn-success mt-3" onclick="window.location.href='/user'">
+                        Criar novo endereço
+                    </button>
+                </div>
+
 
                     <form action="/cart/checkout" method="POST">
                         <div class="mb-4 p-3 border rounded bg-light">
@@ -167,25 +171,48 @@
 
 
 document.addEventListener('DOMContentLoaded', function () {
-            const selectEndereco = document.getElementById('enderecoSelecionado');
+    const selectEndereco = document.getElementById('enderecoSelecionado');
+    
+    // Preenche os campos com o endereço selecionado ao carregar a página
+    const selected = selectEndereco.options[selectEndereco.selectedIndex];
 
-            selectEndereco.addEventListener('change', function () {
-                const selected = selectEndereco.options[selectEndereco.selectedIndex];
+    const nick = selected.getAttribute('data-nick') || '';
+    const street = selected.getAttribute('data-street') || '';
+    const number = selected.getAttribute('data-number') || '';
+    const city = selected.getAttribute('data-city') || '';
+    const zipcode = selected.getAttribute('data-zipcode') || '';
 
-                const nick = selected.getAttribute('data-nick') || '';
-                const street = selected.getAttribute('data-street') || '';
-                const number = selected.getAttribute('data-number') || '';
-                const city = selected.getAttribute('data-city') || '';
-                const zipcode = selected.getAttribute('data-zipcode') || '';
+    document.getElementById('endereco').value = `${street}, ${number}`;
+    document.getElementById('cidade').value = city;
+    document.getElementById('cep').value = zipcode;
 
-                document.getElementById('endereco').value = `${street}, ${number}`;
-                document.getElementById('cidade').value = city;
-                document.getElementById('cep').value = zipcode;
+    // Atualiza o texto do apelido no label
+    const labelEndereco = document.querySelector("label[for='endereco']");
+    if (labelEndereco) {
+        labelEndereco.innerText = `Endereço Padrão (Nome: '${nick}')`;
+    }
 
-                // Se quiser mudar o texto do apelido também:
-                document.querySelector("label[for='endereco']").innerText = `Endereço Selecionado (Nome: '${nick}')`;
-            });
-        });
+    // Adiciona o evento para quando o usuário alterar a seleção
+    selectEndereco.addEventListener('change', function () {
+        const selected = selectEndereco.options[selectEndereco.selectedIndex];
+
+        const nick = selected.getAttribute('data-nick') || '';
+        const street = selected.getAttribute('data-street') || '';
+        const number = selected.getAttribute('data-number') || '';
+        const city = selected.getAttribute('data-city') || '';
+        const zipcode = selected.getAttribute('data-zipcode') || '';
+
+        document.getElementById('endereco').value = `${street}, ${number}`;
+        document.getElementById('cidade').value = city;
+        document.getElementById('cep').value = zipcode;
+
+        // Atualiza o texto do apelido no label
+        const labelEndereco = document.querySelector("label[for='endereco']");
+        if (labelEndereco) {
+            labelEndereco.innerText = `Endereço Padrão (Nome: '${nick}')`;
+        }
+    });
+});
 
         
 document.getElementById('add-cupom').addEventListener('click', function() {

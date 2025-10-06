@@ -15,7 +15,8 @@ class ClientBuilderService {
                 city: rawData.city?.[i] || '',
                 state: rawData.state?.[i] || '',
                 country: rawData.country?.[i] || '',
-                zipcode: rawData.zipcode?.[i] || ''
+                zipcode: rawData.zipcode?.[i] || '',
+                is_default: rawData.is_default?.[i] === 'true' || false // Adicionando o campo is_default
             });
         }
         const creditCards = [];
@@ -42,6 +43,5 @@ class ClientBuilderService {
         return new Client(clientData);
     }
 }
-
 
 module.exports = ClientBuilderService;
