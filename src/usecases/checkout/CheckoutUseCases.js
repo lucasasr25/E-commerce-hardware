@@ -48,6 +48,7 @@ class CheckoutUseCases {
 
   async createOrderFromCart(userId, promotionalCupomCode, pagamentosCartao) {
     if (!userId) throw new Error("Usuário não autenticado");
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
     const cliente = await this.clientRepository.getClientById(userId);
     if (!cliente) throw new Error("Cliente não encontrado");
@@ -56,7 +57,7 @@ class CheckoutUseCases {
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
     const items = await this.cartRepository.getCartItems(userId);
-      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     console.log(items);
     const promotionalCoupon = promotionalCupomCode
       ? await this.couponRepository.getCoupon(promotionalCupomCode)
