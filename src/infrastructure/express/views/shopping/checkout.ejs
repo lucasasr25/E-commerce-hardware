@@ -171,60 +171,44 @@
 </body>
 
 <script>
+  let totalOriginal = parseFloat("<%= total %>");
+  let totalDescontoPromocional = 0;
+  let totalDescontoTroca = 0;
+  let totalComDesconto = totalOriginal + 50; // considerando o frete fixo de R$50
 
   function clearFormAndRedirect() {
-    // Limpar o formulário anterior
     document.getElementById('form-checkout').reset();
-
-    // Substituir a página no histórico para evitar o envio de formulários antigos
-    window.location.replace('/user/card');
+    window.location.replace('/user/card?type=SalesOrder');
   }
-document.addEventListener('DOMContentLoaded', function () {
+
+  document.addEventListener('DOMContentLoaded', function () {
     const selectEndereco = document.getElementById('enderecoSelecionado');
-    
-    // Preenche os campos com o endereço selecionado ao carregar a página
-    const selected = selectEndereco.options[selectEndereco.selectedIndex];
 
-    const nick = selected.getAttribute('data-nick') || '';
-    const street = selected.getAttribute('data-street') || '';
-    const number = selected.getAttribute('data-number') || '';
-    const city = selected.getAttribute('data-city') || '';
-    const zipcode = selected.getAttribute('data-zipcode') || '';
+    const preencherEndereco = (selected) => {
+      const nick = selected.getAttribute('data-nick') || '';
+      const street = selected.getAttribute('data-street') || '';
+      const number = selected.getAttribute('data-number') || '';
+      const city = selected.getAttribute('data-city') || '';
+      const zipcode = selected.getAttribute('data-zipcode') || '';
 
-    document.getElementById('endereco').value = `${street}, ${number}`;
-    document.getElementById('cidade').value = city;
-    document.getElementById('cep').value = zipcode;
+      document.getElementById('endereco').value = `${street}, ${number}`;
+      document.getElementById('cidade').value = city;
+      document.getElementById('cep').value = zipcode;
 
-    // Atualiza o texto do apelido no label
-    const labelEndereco = document.querySelector("label[for='endereco']");
-    if (labelEndereco) {
+      const labelEndereco = document.querySelector("label[for='endereco']");
+      if (labelEndereco) {
         labelEndereco.innerText = `Endereço Padrão (Nome: '${nick}')`;
-    }
+      }
+    };
 
-    // Adiciona o evento para quando o usuário alterar a seleção
+    preencherEndereco(selectEndereco.options[selectEndereco.selectedIndex]);
+
     selectEndereco.addEventListener('change', function () {
-        const selected = selectEndereco.options[selectEndereco.selectedIndex];
-
-        const nick = selected.getAttribute('data-nick') || '';
-        const street = selected.getAttribute('data-street') || '';
-        const number = selected.getAttribute('data-number') || '';
-        const city = selected.getAttribute('data-city') || '';
-        const zipcode = selected.getAttribute('data-zipcode') || '';
-
-        document.getElementById('endereco').value = `${street}, ${number}`;
-        document.getElementById('cidade').value = city;
-        document.getElementById('cep').value = zipcode;
-
-        // Atualiza o texto do apelido no label
-        const labelEndereco = document.querySelector("label[for='endereco']");
-        if (labelEndereco) {
-            labelEndereco.innerText = `Endereço Padrão (Nome: '${nick}')`;
-        }
+      preencherEndereco(selectEndereco.options[selectEndereco.selectedIndex]);
     });
-});
+  });
 
-        
-document.getElementById('add-cupom').addEventListener('click', function() {
+  document.getElementById('add-cupom').addEventListener('click', function() {
     const container = document.getElementById('cupom-container');
     const newInput = document.createElement('input');
     newInput.type = 'text';
@@ -232,221 +216,205 @@ document.getElementById('add-cupom').addEventListener('click', function() {
     newInput.name = 'cupons_troca[]';  
     newInput.placeholder = 'Digite o cupom de troca';
     container.appendChild(newInput);
-});
+  });
 
-const totalOriginal = parseFloat("<%= total %>"); 
-
-
-
-const radios = document.querySelectorAll('input[name="metodo_pagamento"]');
-const containers = {
+  const radios = document.querySelectorAll('input[name="metodo_pagamento"]');
+  const containers = {
     cartao: document.getElementById('pagamento-cartao-container'),
     pix: document.getElementById('pagamento-pix-container')
-};
+  };
 
-radios.forEach(radio => {
+  radios.forEach(radio => {
     radio.addEventListener('change', () => {
-        Object.entries(containers).forEach(([key, el]) => {
-            el.style.display = radio.value === key ? 'block' : 'none';
-        });
+      Object.entries(containers).forEach(([key, el]) => {
+        el.style.display = radio.value === key ? 'block' : 'none';
+      });
     });
-});
+  });
 
-
-
-
-document.getElementById('aplicarCupom').addEventListener('click', async () => {
+  // Aplicar cupom promocional
+  document.getElementById('aplicarCupom').addEventListener('click', async () => {
     const cupom = document.getElementById('cupomPromocional').value.trim();
     const mensagem = document.getElementById('cupomMensagem');
 
     if (!cupom) {
-        mensagem.textContent = "Digite um cupom primeiro.";
-        return;
+      mensagem.textContent = "Digite um cupom primeiro.";
+      return;
     }
 
     try {
-        const response = await fetch('/cart/aplicar-cupom', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code: cupom })
-        });
+      const response = await fetch('/cart/aplicar-cupom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: cupom })
+      });
 
-        const result = await response.json();
+      const result = await response.json();
 
-        if (response.ok) {
-            console.log(result)
-            const desconto = totalOriginal * (result.discountPercentage / 100);
-            const totalComDesconto = totalOriginal - desconto + 50;
-            globalTotal = document.querySelector("span[id='globalTotal']");
-            globalTotal.textContent = `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
-            document.querySelector('#checkout-box').innerHTML = `
-                <h5>Taxas e Frete</h5>
-                <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
-                <p><strong>Frete:</strong> R$ 50,00</p>
-                <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${desconto.toFixed(2).replace('.', ',')}</span></p>
-                <hr>
-                <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
-            `;
+      if (response.ok) {
+        console.log(result);
+        totalDescontoPromocional = totalOriginal * (result.discountPercentage / 100);
+        totalComDesconto = totalOriginal - totalDescontoPromocional - totalDescontoTroca + 50;
 
+        document.querySelector("span[id='globalTotal']").textContent =
+          `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
+        
+        document.querySelector('#checkout-box').innerHTML = `
+          <h5>Taxas e Frete</h5>
+          <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
+          <p><strong>Frete:</strong> R$ 50,00</p>
+          <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${totalDescontoPromocional.toFixed(2).replace('.', ',')}</span></p>
+          <hr>
+          <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
+        `;
+        
+        // Atualiza input oculto para envio
+        const inputValorCupons = document.querySelector('input[name="valor_cupons"]');
+        if(inputValorCupons) inputValorCupons.value = (totalDescontoPromocional + totalDescontoTroca).toFixed(2);
 
-            mensagem.textContent = result.message;
-        } else {
-            mensagem.textContent = result.message || "Erro ao aplicar cupom.";
-        }
+        mensagem.textContent = result.message;
+      } else {
+        mensagem.textContent = result.message || "Erro ao aplicar cupom.";
+      }
     } catch (err) {
-        mensagem.textContent = "Erro na comunicação com o servidor.";
-        console.error(err);
+      mensagem.textContent = "Erro na comunicação com o servidor.";
+      console.error(err);
     }
-});
+  });
 
-document.getElementById('aplicarCupomTroca').addEventListener('click', async () => {
-    const inputsCupons = document.getElementsByName('cupons_troca[]'); // pega todos os inputs
-    const mensagem = document.getElementById('cupomMensagemTroca'); // span ou div para mensagens
+  // Aplicar cupons de troca
+  document.getElementById('aplicarCupomTroca').addEventListener('click', async () => {
+    const inputsCupons = document.getElementsByName('cupons_troca[]');
+    const mensagem = document.getElementById('cupomMensagemTroca');
     const cupons = Array.from(inputsCupons)
-        .map(input => input.value.trim())
-        .filter(c => c !== ""); // remove inputs vazios
+      .map(input => input.value.trim())
+      .filter(c => c !== "");
 
     if (cupons.length === 0) {
-        mensagem.textContent = "Digite pelo menos um cupom de troca.";
-        return;
+      mensagem.textContent = "Digite pelo menos um cupom de troca.";
+      return;
     }
 
     try {
-        const response = await fetch('/cart/aplicar-cupom-troca', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ codes: cupons }) // envia todos os cupons em um array
+      const response = await fetch('/cart/aplicar-cupom-troca', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codes: cupons })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log(result);
+
+        totalDescontoTroca = 0;
+        result.appliedCoupons.forEach(c => {
+          totalDescontoTroca += parseFloat(c.discountPercentage);
         });
 
-        const result = await response.json();
+        totalComDesconto = totalOriginal - totalDescontoPromocional - totalDescontoTroca + 50;
 
-        if (response.ok) {
-            console.log(result);
+        document.querySelector("span[id='globalTotal']").textContent =
+          `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
 
-            // calcula desconto total somando todos os valores retornados
-            let totalDesconto = 0;
-            result.appliedCoupons.forEach(c => {
-                totalDesconto += parseFloat(c.discountPercentage); // valor já em reais
-            });
+        let descontoHtml = '';
+        result.appliedCoupons.forEach(c => {
+          descontoHtml += `<p><strong>Desconto cupom (${c.code}):</strong> <span style="color:red">- R$ ${parseFloat(c.discountPercentage).toFixed(2).replace('.', ',')}</span></p>`;
+        });
 
-            const totalComDesconto = totalOriginal - totalDesconto + 50; // mantém a taxa de frete
-            const globalTotal = document.querySelector("span[id='globalTotal']");
-            globalTotal.textContent = `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
+        document.querySelector('#checkout-box').innerHTML = `
+          <h5>Taxas e Frete</h5>
+          <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
+          <p><strong>Frete:</strong> R$ 50,00</p>
+          ${descontoHtml}
+          <hr>
+          <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
+        `;
 
-            // exibe resumo no checkout
-            let descontoHtml = '';
-            result.appliedCoupons.forEach(c => {
-                descontoHtml += `<p><strong>Desconto cupom (${c.code}):</strong> <span style="color:red">- R$ ${parseFloat(c.discountPercentage).toFixed(2).replace('.', ',')}</span></p>`;
-            });
+        const inputValorCupons = document.querySelector('input[name="valor_cupons"]');
+        if(inputValorCupons) inputValorCupons.value = (totalDescontoPromocional + totalDescontoTroca).toFixed(2);
 
-            document.querySelector('#checkout-box').innerHTML = `
-                <h5>Taxas e Frete</h5>
-                <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
-                <p><strong>Frete:</strong> R$ 50,00</p>
-                ${descontoHtml}
-                <hr>
-                <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
-            `;
-
-            mensagem.textContent = result.message;
-        } else {
-            mensagem.textContent = result.message || "Erro ao aplicar cupons de troca.";
-        }
+        mensagem.textContent = result.message;
+      } else {
+        mensagem.textContent = result.message || "Erro ao aplicar cupons de troca.";
+      }
     } catch (err) {
-        mensagem.textContent = "Erro na comunicação com o servidor.";
-        console.error(err);
+      mensagem.textContent = "Erro na comunicação com o servidor.";
+      console.error(err);
     }
-});
+  });
 
+  // Gerenciar cartões
+  let cartaoIndex = 1;
+  document.getElementById('add-cartao').addEventListener('click', function () {
+    if (cartaoIndex < <%= cartoes.length %>) {
+      const container = document.getElementById('cartoes-container');
 
+      const selectHtml = `<select class="" name="pagamentos_cartao[${cartaoIndex}][id]">
+        <% cartoes.forEach(cartao => { %>
+          <option value="<%= cartao.id %>">
+            <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
+          </option>
+        <% }) %>
+      </select>`;
 
-let cartaoIndex = 1;
-document.getElementById('add-cartao').addEventListener('click', function () {
-// Verifica se o número de cartões adicionados é menor que o número de cartões no array
-if (cartaoIndex < <%= cartoes.length %>) {
-        const container = document.getElementById('cartoes-container');
-        
-        // Cria o HTML do cartão
-        const selectHtml = `<select class="" name="pagamentos_cartao[${cartaoIndex}][id]">
-            <% cartoes.forEach(cartao => { %>
-                <option value="<%= cartao.id %>">
-                    <%= cartao.holder_name %> - **** **** **** <%= cartao.card_number.slice(-4) %> (expira <%= cartao.expiration_date %>)
-                </option>
-            <% }) %>
-        </select>`;
+      const inputHtml = `<input height=38px type="number" min="0.01" step="0.01" class="" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
 
-        const inputHtml = `<input height = 38px type="number" min="0.01" step="0.01" class="" name="pagamentos_cartao[${cartaoIndex}][valor]" placeholder="Valor (R$)" id="cartao-${cartaoIndex}">`;
+      const removeButtonHtml = `<button type="button" class="btn btn-danger btn-sm" style="height: 38px;" onclick="removeCartao(this)">X</button>`;
 
-        // Botão de remover
-        const removeButtonHtml = `<button type="button" class="btn btn-danger btn-sm" style="height: 38px;" onclick="removeCartao(this)">X</button>`;
+      const div = document.createElement('div');
+      div.className = 'input-group mb-2';
+      div.innerHTML = selectHtml + inputHtml + removeButtonHtml;
 
-        const div = document.createElement('div');
-        div.className = 'input-group mb-2';
-        div.innerHTML = selectHtml + inputHtml + removeButtonHtml;
-
-        container.appendChild(div);
-
-        cartaoIndex++;
+      container.appendChild(div);
+      cartaoIndex++;
     }
-});
+  });
 
-// Função para remover o cartão
-function removeCartao(button) {
+  function removeCartao(button) {
     const cartaoDiv = button.closest('.input-group');
     cartaoDiv.remove();
-    cartaoIndex += -1;
-}
-    
-document.querySelector('form').addEventListener('submit', function (e) {
+    cartaoIndex -= 1;
+  }
+
+  // Validação do formulário
+  document.querySelector('form').addEventListener('submit', function (e) {
     const inputsValores = document.querySelectorAll('input[name^="pagamentos_cartao"][name$="[valor]"]');
-    const inputValorCupons = document.querySelector('input[name="valor_cupons"]'); // campo oculto ou visível com o valor dos cupons
+    const inputValorCupons = document.querySelector('input[name="valor_cupons"]');
     let totalCartao = 0;
     let erro = false;
     let mensagensErro = [];
 
-    // Valor dos cupons (se não houver, assume 0)
-    let valorCupons = 0;
-    if (inputValorCupons && inputValorCupons.value.trim() !== '') {
-        valorCupons = parseFloat(inputValorCupons.value.replace(',', '.')) || 0;
-    }
+    let valorCupons = inputValorCupons && inputValorCupons.value.trim() !== ''
+      ? parseFloat(inputValorCupons.value.replace(',', '.')) || 0
+      : 0;
 
     inputsValores.forEach((input, index) => {
-        const valor = parseFloat(input.value.replace(',', '.'));
-
-        if (isNaN(valor)) {
-            erro = true;
-            mensagensErro.push(`O valor do cartão ${index + 1} não pode estar vazio.`);
-        } else {
-            totalCartao += valor;
-
-            if (valor < 10 && valorCupons <= 0) {
-                erro = true;
-                mensagensErro.push(`O valor do cartão ${index + 1} deve ser no mínimo R$ 10,00 ou parte da compra deve ser paga com cupons.`);
-            }
+      const valor = parseFloat(input.value.replace(',', '.'));
+      if (isNaN(valor)) {
+        erro = true;
+        mensagensErro.push(`O valor do cartão ${index + 1} não pode estar vazio.`);
+      } else {
+        totalCartao += valor;
+        if (valor < 10 && valorCupons <= 0) {
+          erro = true;
+          mensagensErro.push(`O valor do cartão ${index + 1} deve ser no mínimo R$ 10,00 ou parte da compra deve ser paga com cupons.`);
         }
+      }
     });
-
-    // Total da compra
-    const totalCompraTexto = document.getElementById('globalTotal').innerText.replace('R$', '').replace(',', '.');
-    const totalCompra = parseFloat(totalCompraTexto);
 
     const totalSomado = totalCartao + valorCupons;
 
-    if (Math.abs(totalSomado - totalCompra) > 0.01) {
-        erro = true;
-        mensagensErro.push(
-            `A soma dos cartões (R$ ${totalCartao.toFixed(2).replace('.', ',')}) e dos cupons (R$ ${valorCupons.toFixed(2).replace('.', ',')}) deve ser igual ao total da compra (R$ ${totalCompra.toFixed(2).replace('.', ',')}).`
-        );
+    if (Math.abs(totalSomado - totalComDesconto) > 0.01) {
+      erro = true;
+      mensagensErro.push(
+        `A soma dos cartões (R$ ${totalCartao.toFixed(2).replace('.', ',')}) e dos cupons (R$ ${valorCupons.toFixed(2).replace('.', ',')}) deve ser igual ao total da compra (R$ ${totalComDesconto.toFixed(2).replace('.', ',')}).`
+      );
     }
 
     if (erro) {
-        e.preventDefault();
-        alert(mensagensErro.join('\n'));
+      e.preventDefault();
+      alert(mensagensErro.join('\n'));
     }
-});
-
+  });
 </script>

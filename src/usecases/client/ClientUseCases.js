@@ -77,7 +77,7 @@ class ClientUseCases {
     }
 
     const order_items = await this.orderRepository.getItemsByOrderId(order_id);
-    const approvedID = await this.orderStatusRepository.getStatusID("APROVADO");
+    const approvedID = await this.orderStatusRepository.getStatusID("EM ABERTO");
     if (!approvedID) {
       throw new Error("Status de troca não encontrado.");
     }
@@ -162,14 +162,17 @@ async updateClient(clientData) {
       card_number: num,
       holder_name: cardData.holder_name[i],
       expiration_date: cardData.expiration_date[i],
+      flag: cardData.flag[i],
       is_default: cardData.is_default[i],
     }));
     for (const card of creditCards) {
+      // console.log(card);
       await this.creditCardRepository.updateCreditCard(
         userId,
         card.card_number,
         card.holder_name,
         card.expiration_date,
+        card.flag,
         card.is_default
       );
     }

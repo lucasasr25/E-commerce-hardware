@@ -241,8 +241,9 @@ const renderCardEdit = async (req, res) => {
     try {
         const userId = req.session.user?.id;
         const creditCards = await RenderClientUseCases.renderCardEdit(userId);
-        console.log(creditCards);
-        res.render('user/editCreditCards', { creditCards });
+        const type = req.query.type; 
+
+        res.render('user/editCreditCards', { creditCards, type });
     } catch (error) {
         res.status(500).render('status/error', {
             message: error.message || "Erro ao renderizar a tela"
@@ -250,17 +251,25 @@ const renderCardEdit = async (req, res) => {
     }
 };
 
+
 const updateCreditCardsController = async (req, res) => {
-    try {
-        const userId = req.session.user?.id;
-        const updateCreditCardsUseCase = await ClientUseCases.updateCreditCards(userId, req.body);
-        return res.status(200).json({ message: 'Cartão de crédito atualizado com sucesso!' });
-    } catch (error) {
-        res.status(500).render('status/error', {
-            message: error.message || 'Erro ao adicionar cartões de crédito.'
-        });
-    }
+  try {
+    const userId = req.session.user?.id;
+    const { type } = req.body; // Pegando o parâmetro enviado pelo formulário
+
+    await ClientUseCases.updateCreditCards(userId, req.body);
+
+    const redirectUrl = type === "SalesOrder" ? "/cart/checkout" : "/user";
+
+    res.redirect(redirectUrl);
+
+  } catch (error) {
+    res.status(500).render("status/error", {
+      message: error.message || "Erro ao adicionar cartões de crédito."
+    });
+  }
 };
+
 
 const renderClientProfile = async (req, res) => {
     try {

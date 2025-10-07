@@ -100,7 +100,7 @@ class OrderRepository extends IGenericRepository {
             const paymentResult = await client.query(`
                 INSERT INTO payments (order_id, payment_type, status_id)
                 VALUES ($1, $2, $3) RETURNING id;
-            `, [orderId, 'credit_card', statusId]);
+            `, [orderId, 'credit_card', 2]);
 
             const paymentId = paymentResult.rows[0].id;
 

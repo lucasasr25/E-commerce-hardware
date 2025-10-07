@@ -150,6 +150,7 @@
 <body>
     <h1>Gerenciar Cartões de Crédito</h1>
     <form action="/user/cardUpdate" method="POST">
+        <input type="hidden" name="type" value="<%= type %>">
         <fieldset>
             <legend>Cartões de Crédito</legend>
             <div id="creditCardSection">
@@ -165,6 +166,11 @@
                             <label for="expiration_date_<%= index %>">Data de Validade:</label>
                             <input type="text" name="expiration_date[]" id="expiration_date_<%= index %>" value="<%= card.expiration_date %>" placeholder="MM/AA" required><br>
 
+
+                            <label for="flag<%= index %>">Operadora:</label>
+                            <input type="text" name="flag[]" id="flag<%= index %>" value="<%= card.flag %>"  required><br>
+
+
                             <label for="is_default_<%= index %>">Cartão Padrão:</label>
                             <input type="checkbox" name="is_default[]" id="is_default_<%= index %>" <%= card.is_default ? 'checked' : '' %>><br>
                         </div>
@@ -177,7 +183,7 @@
             </div>
         </fieldset>
 
-        <button type="submit" class="submit-btn" onclick="window.history.back();">Salvar</button>
+        <button type="submit" class="submit-btn" >Salvar</button>
     </form>
 
     <!-- Botão Voltar -->
@@ -206,6 +212,9 @@
 
                 <label for="expiration_date_new">Data de Validade:</label>
                 <input type="text" name="expiration_date[]" id="expiration_date_new" placeholder="MM/AA" required><br>
+
+                <label for="flag_new">Operadora</label>
+                <input type="text" name="flag[]" id="flag_new" placeholder="Visa" required><br>
 
                 <label for="is_default_new">Cartão Padrão:</label>
                 <input type="checkbox" name="is_default[]"><br>

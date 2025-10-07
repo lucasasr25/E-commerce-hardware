@@ -48,12 +48,14 @@ class CreditCard {
         card_number = '',
         holder_name = '',
         expiration_date = '',
+        flag = '',
         is_default = false
     }) {
         this.card_number = card_number;
         this.holder_name = holder_name;
         this.expiration_date = expiration_date;
-        this.is_default = !!is_default; // garante boolean
+        this.flag = flag
+        this.is_default = !!is_default; 
     }
 
     toDTO() {
@@ -61,6 +63,7 @@ class CreditCard {
             card_number: this.card_number,
             holder_name: this.holder_name,
             expiration_date: this.expiration_date,
+            flag: this.flag,
             is_default: this.is_default
         };
     }

@@ -74,7 +74,7 @@ class Order {
             couponId: this.promotionalCoupon?.id || null,
             tradeCoupons: this.tradeCoupons.map(c => c.code), // cupons de troca
             enderecoId: this.endereco.id,
-            status: 2,
+            status: 15,
             subtotal: this.subtotal,
             total: this.total,
             items: this.items.map(item => ({

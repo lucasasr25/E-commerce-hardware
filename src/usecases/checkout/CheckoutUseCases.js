@@ -31,8 +31,7 @@ class CheckoutUseCases {
     const dbItems = await this.cartRepository.getCartItems(userId);
     const cart = new Cart(userId, dbItems);
     var items = cart.items;
-    console.error(dbItems);
-    console.error(items);
+
     const order = new Order({
       cliente,
       endereco: enderecoFavorito,
