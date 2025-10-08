@@ -16,7 +16,7 @@ class ClientBuilderService {
                 state: rawData.state?.[i] || '',
                 country: rawData.country?.[i] || '',
                 zipcode: rawData.zipcode?.[i] || '',
-                is_default: rawData.is_default?.[i] === 'true' || false // Adicionando o campo is_default
+                is_default: rawData.is_default?.[i] === 'true' || false 
             });
         }
         const creditCards = [];

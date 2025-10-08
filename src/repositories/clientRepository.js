@@ -25,7 +25,6 @@ class ClientRepository extends IGenericRepository {
         }
     }
 
-    // Obter cliente por ID
     async getClientById(id) {
         const result = await pool.query(
             `SELECT 
@@ -39,13 +38,11 @@ class ClientRepository extends IGenericRepository {
         return result.rowCount ? result.rows[0] : null;
     }
 
-    // Atualizar cliente
     async updateClient(id, name, email, password, active, phoneNumbers, addresses) {
         const client = await pool.connect();
         try {
             await client.query("BEGIN");
 
-            // 1️⃣ Atualiza tabela users
             await client.query(
                 `UPDATE users SET 
                     name = COALESCE($1, name), 
@@ -56,7 +53,6 @@ class ClientRepository extends IGenericRepository {
                 [name, email, password, active, id]
             );
 
-            // 2️⃣ Atualiza números de telefone
             if (phoneNumbers?.length) {
                 await client.query(`DELETE FROM contact_numbers WHERE user_id = $1`, [id]);
 
@@ -70,12 +66,10 @@ class ClientRepository extends IGenericRepository {
                 await Promise.all(phonePromises);
             }
 
-            // 3️⃣ Atualiza endereços
             if (addresses?.length) {
                 await client.query(`DELETE FROM addresses WHERE user_id = $1`, [id]);
 
                 const addrPromises = addresses.map(addr => {
-                    // Garante que is_default seja string
                     const isDefaultStr = addr.is_default ? 'true' : 'false';
 
                     return client.query(

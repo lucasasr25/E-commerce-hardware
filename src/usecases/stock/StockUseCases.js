@@ -5,12 +5,10 @@ class StockUseCases {
     this.stockRepository = stockRepository;
   }
 
-  // Obter todos os produtos com quantidade no estoque
   async getProductsForStockEntry() {
     return await this.stockRepository.getAllProductsWithStock();
   }
 
-  // Obter todos os registros de estoque
   async getAllStocks() {
     return await this.stockRepository.getAll();
   }
@@ -25,21 +23,19 @@ class StockUseCases {
         }
 
         for (let product of products) {
-            let { product_id, quantity } = product;  // Use 'let' here to allow reassignment
+            let { product_id, quantity } = product;  
 
             if (!product_id || quantity == null || quantity <= 0) {
                 throw new Error("Produto e quantidade válidos são obrigatórios");
             }
 
-            // Decrease quantity by multiplying by -1
             quantity = -1 * quantity;
 
-            // Assuming 'create' method will handle negative quantities correctly for stock decrease
             await this.stockRepository.create({ product_id, quantity });
         }
     }
-  // Reentrar o estoque em caso de devolução
-  async reenterStockOnReturn({ product_id, quantity }) {
+
+    async reenterStockOnReturn({ product_id, quantity }) {
     if (!product_id || quantity == null || quantity <= 0) {
       throw new Error("Produto e quantidade válidos são obrigatórios");
     }

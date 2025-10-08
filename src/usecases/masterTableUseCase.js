@@ -2,7 +2,6 @@ const masterTableRepository = require("../repositories/masterTableRepository");
 
 class MasterTableUseCase {
   /**
-   * Orquestra a criação do registro na tabela ecommerce_entity.
    * @param {Object} params 
    * @param {number} params.moduleId
    * @param {number} params.entityRegisterId

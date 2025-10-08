@@ -10,7 +10,6 @@ class OrderRepository extends IGenericRepository {
         return result.rows[0];
     }
 
-    // Deleta um status de pedido pelo id
     async deleteOrderStatus(id) {
         const result = await pool.query(
             "DELETE FROM order_status WHERE id = $1 RETURNING *",
@@ -19,13 +18,11 @@ class OrderRepository extends IGenericRepository {
         return result.rows[0];
     }
 
-    // Busca todos os status de pedido
     async getAllOrderStatus() {
         const result = await pool.query("SELECT * FROM order_status ORDER BY id ASC");
         return result.rows;
     }
 
-    // Cria um pedido com seus itens dentro de uma transação
     async createOrder(userId, tradeCouponId, promotionalCouponId, addressId, statusId, subTotal, totalPrice, items) {
         const client = await pool.connect();
         try {
@@ -57,7 +54,6 @@ class OrderRepository extends IGenericRepository {
         }
     }
 
-    // Busca pedido por ID
     async getOrderById(id) {
         const result = await pool.query(`
             SELECT * FROM orders WHERE id = $1
@@ -65,7 +61,6 @@ class OrderRepository extends IGenericRepository {
         return result.rows[0];
     }
 
-    // Busca itens de um pedido pelo ID do pedido
     async getItemsByOrderId(id) {
         const result = await pool.query(`
             SELECT p.*, pd.*, order_items.*
@@ -77,7 +72,6 @@ class OrderRepository extends IGenericRepository {
         return result.rows;
     }
 
-    // Cria pedido com itens e cartões em uma transação
     async createOrderWithCards(userId, tradeCouponId, promotionalCouponId, addressId, statusId, subTotal, totalPrice, items, cartoes) {
         const client = await pool.connect();
         try {
@@ -143,7 +137,6 @@ class OrderRepository extends IGenericRepository {
         }
     }
 
-    // Busca todos pedidos de um usuário com itens
     async getAllOrders(userId) {
         const result = await pool.query(`
             SELECT o.id, o.created_at, o.status_id, o.sub_total, o.total_price, os.status_name
@@ -169,7 +162,6 @@ class OrderRepository extends IGenericRepository {
         return orders;
     }
 
-    // Busca pedidos por clientId com endereço formatado
     async getOrdersByClientId(clientId) {
         const query = `
             SELECT o.*, 
@@ -185,7 +177,6 @@ class OrderRepository extends IGenericRepository {
         return rows;
     }
 
-    // Atualiza o status de um pedido
     async updateOrderStatus(orderId, statusId) {
         const query = `UPDATE orders SET status_id = $1 WHERE id = $2`;
         await pool.query(query, [statusId, orderId]);

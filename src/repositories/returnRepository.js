@@ -16,7 +16,7 @@ class ReturnRepository extends IGenericRepository {
       product_id,
       quantity,
       trade_coupon_id,
-      2 // status inicial
+      2
     ];
 
     const { rows } = await pool.query(query, values);
