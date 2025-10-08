@@ -4,12 +4,15 @@ const OrderRepository = require('../../repositories/orderRepository');
 const CouponRepository = require('../../repositories/couponRepository');
 const StockRepository = require('../../repositories/stockRepository');
 const CreditCardRepository = require('../../repositories/creditCardRepository');
+const StockUseCases = require("../stock/StockUseCases");
+
 const Cart = require("../../entities/Cart");
 
 const { Order } = require('../../entities/Order');
 
 class CheckoutUseCases {
   constructor() {
+    this.stockUseCases = new StockUseCases();
     this.clientRepository = new ClientRepository();
     this.cartRepository = new CartRepository();
     this.orderRepository = new OrderRepository();
@@ -31,7 +34,6 @@ class CheckoutUseCases {
     const dbItems = await this.cartRepository.getCartItems(userId);
     const cart = new Cart(userId, dbItems);
     var items = cart.items;
-
     const order = new Order({
       cliente,
       endereco: enderecoFavorito,
@@ -64,6 +66,9 @@ async createOrderFromCart(userId, promotionalCupomCode, tradeCouponCodes = [], p
     if (!enderecoFavorito) throw new Error("Endereço padrão não encontrado");
 
     const items = await this.cartRepository.getCartItems(userId);
+
+
+    await this.stockUseCases.decreaseStockOnSale(items);
 
     const promotionalCoupon = promotionalCupomCode
         ? await this.couponRepository.getCoupon(promotionalCupomCode)

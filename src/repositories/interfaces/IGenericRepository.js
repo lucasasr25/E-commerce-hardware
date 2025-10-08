@@ -12,6 +12,7 @@ class IGenericRepository {
   }
 
   async create(data) {
+    console.log(this.module);
     const client = await pool.connect();
     const keys = Object.keys(data);
     const values = Object.values(data);
