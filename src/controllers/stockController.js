@@ -1,6 +1,6 @@
 const StockUseCasesClass = require("../usecases/stock/StockUseCases");
 const StockRepository = require("../repositories/stockRepository");
-const suppliersUseCases = require('../usecases/settings/suppliersUseCases');
+const suppliersUseCases = require('../usecases/settings/SuppliersUseCases');
 
 const stockRepository = new StockRepository("stock");
 
