@@ -7,7 +7,7 @@ const RenderProductUseCasesClass = require("../usecases/product/RenderProductUse
 const StockUseCases = require("../usecases/stock/StockUseCases");
 
 const suppliersUseCases = require("../usecases/settings/SuppliersUseCases");
-const productCategoryUseCases = require("../usecases/settings/productCategoryUseCases");
+const productCategoryUseCases = require("../usecases/settings/ProductCategoryUseCases");
 
 const repositories = {
   productRepository: new ProductRepository("products"),
