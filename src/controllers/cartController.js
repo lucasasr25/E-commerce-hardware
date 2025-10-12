@@ -1,5 +1,5 @@
-const CartRepository = require("../../repositories/cartRepository");
-const ProductRepository = require("../../repositories/productRepository");
+const CartRepository = require("../repositories/cartRepository");
+const ProductRepository = require("../repositories/productRepository");
 const CartUseCasesClass = require("../usecases/cart/CartUseCases");
 
 const cartRepository = new CartRepository();

@@ -1,18 +1,19 @@
-const CheckoutUseCasesClass = require('../../usecases/checkout/CheckoutUseCases');
-const ClientRepository = require('../../repositories/clientRepository');
-const CartRepository = require('../../repositories/cartRepository');
-const OrderRepository = require('../../repositories/orderRepository');
-const CouponRepository = require('../../repositories/couponRepository');
-const StockRepository = require('../../repositories/stockRepository');
-const CreditCardRepository = require('../../repositories/creditCardRepository');
-const StockUseCasesClass = require('../stock/StockUseCases');
+const CheckoutUseCasesClass = require('../usecases/checkout/CheckoutUseCases');
+const ClientRepository = require('../repositories/clientRepository');
+const CartRepository = require('../repositories/cartRepository');
+const OrderRepository = require('../repositories/orderRepository');
+const CouponRepository = require('../repositories/couponRepository');
+const StockRepository = require('../repositories/stockRepository');
+const CreditCardRepository = require('../repositories/creditCardRepository');
+const StockUseCasesClass = require('../usecases/stock/StockUseCases');
 
-const stockUseCases = new StockUseCasesClass(new StockRepository());
+const stockRepository = new StockRepository();
+const stockUseCases = new StockUseCasesClass({ stockRepository });
+
 const clientRepository = new ClientRepository();
 const cartRepository = new CartRepository();
 const orderRepository = new OrderRepository();
 const couponRepository = new CouponRepository();
-const stockRepository = new StockRepository();
 const creditCardRepository = new CreditCardRepository();
 
 const checkoutUseCases = new CheckoutUseCasesClass({
@@ -21,10 +22,9 @@ const checkoutUseCases = new CheckoutUseCasesClass({
     cartRepository,
     orderRepository,
     couponRepository,
-    stockRepository,
+    stockRepository, 
     creditCardRepository
 });
-
 const renderCheckoutView = async (req, res) => {
     try {
         const userId = req.session.user?.id;

@@ -1,9 +1,10 @@
-const OrderRepository = require("../../repositories/orderRepository");
-const PaymentStatusRepository = require("../../repositories/paymentRepository");
-const ReturnStatusRepository = require("../../repositories/returnStatusRepository");
-const ProductSupplierRepository = require("../../repositories/productSupplierRepository");
-const ProductCategoryRepository = require("../../repositories/productCategoryRepository");
-const PriceBookRepository = require("../../repositories/priceBookRepository");
+const OrderRepository = require("../repositories/orderRepository");
+const PaymentStatusRepository = require("../repositories/paymentRepository");
+const ReturnStatusRepository = require("../repositories/returnStatusRepository");
+const ProductSupplierRepository = require("../repositories/productSupplierRepository");
+const ProductCategoryRepository = require("../repositories/productCategoryRepository");
+const PriceBookRepository = require("../repositories/priceBookRepository");
+const ReturnRepository = require("../repositories/returnRepository");
 
 const OrderStatusUseCases = require("../usecases/settings/OrderStatusUseCases");
 const PaymentStatusUseCases = require("../usecases/settings/PaymentStatusUseCases");

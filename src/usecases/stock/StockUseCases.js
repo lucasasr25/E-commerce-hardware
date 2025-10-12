@@ -1,7 +1,6 @@
-const stockRepository = new (require('../../repositories/stockRepository'))();
-
 class StockUseCases {
-  constructor() {
+  constructor({ stockRepository }) {
+    if (!stockRepository) throw new Error("StockRepository é obrigatório");
     this.stockRepository = stockRepository;
   }
 
@@ -14,33 +13,29 @@ class StockUseCases {
   }
 
   async manualStockEntry(product_id, quantity, price, product_supplier_id) {
-    return await this.stockRepository.create({product_id, quantity, price, product_supplier_id});
+    return await this.stockRepository.create({ product_id, quantity, price, product_supplier_id });
   }
 
-    async decreaseStockOnSale(products) {
-        if (!Array.isArray(products) || products.length === 0) {
-            throw new Error("Produtos inválidos");
-        }
-
-        for (let product of products) {
-            let { product_id, quantity } = product;  
-
-            if (!product_id || quantity == null || quantity <= 0) {
-                throw new Error("Produto e quantidade válidos são obrigatórios");
-            }
-
-            quantity = -1 * quantity;
-
-            await this.stockRepository.create({ product_id, quantity });
-        }
+  async decreaseStockOnSale(products) {
+    if (!Array.isArray(products) || products.length === 0) {
+      throw new Error("Produtos inválidos");
     }
 
-    async reenterStockOnReturn({ product_id, quantity }) {
+    for (let { product_id, quantity } of products) {
+      if (!product_id || quantity == null || quantity <= 0) {
+        throw new Error("Produto e quantidade válidos são obrigatórios");
+      }
+
+      await this.stockRepository.create({ product_id, quantity: -quantity });
+    }
+  }
+
+  async reenterStockOnReturn({ product_id, quantity }) {
     if (!product_id || quantity == null || quantity <= 0) {
       throw new Error("Produto e quantidade válidos são obrigatórios");
     }
 
-    return await this.stockRepository.create(product_id, quantity);
+    return await this.stockRepository.create({ product_id, quantity });
   }
 }
 

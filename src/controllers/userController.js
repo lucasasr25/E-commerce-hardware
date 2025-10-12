@@ -1,16 +1,17 @@
 const { validationResult, body } = require("express-validator");
 const ClientBuilderService = require("../services/ClientBuilderService");
 
-const ClientRepository = require("../../repositories/clientRepository");
-const AddressRepository = require("../../repositories/addressRepository");
-const PhoneRepository = require("../../repositories/phoneRepository");
-const CreditCardRepository = require("../../repositories/creditCardRepository");
-const OrderRepository = require("../../repositories/orderRepository");
-const OrderStatusRepository = require("../../repositories/orderStatusRepository");
-const ReturnRepository = require("../../repositories/returnRepository");
-const PaymentRepository = require("../../repositories/paymentRepository");
+const ClientRepository = require("../repositories/clientRepository");
+const AddressRepository = require("../repositories/addressRepository");
+const PhoneRepository = require("../repositories/phoneRepository");
+const CreditCardRepository = require("../repositories/creditCardRepository");
+const OrderRepository = require("../repositories/orderRepository");
+const OrderStatusRepository = require("../repositories/orderStatusRepository");
+const ReturnRepository = require("../repositories/returnRepository");
+const PaymentRepository = require("../repositories/paymentRepository");
+const CouponRepository = require("../repositories/couponRepository");
 
-const TradeCouponUseCase = require("../coupon/TradeCouponUseCase");
+const TradeCouponUseCase = require("../usecases/coupon/TradeCouponUseCase");
 const ClientUseCasesClass = require("../usecases/client/ClientUseCases");
 const RenderClientUseCasesClass = require("../usecases/client/RenderClientUseCases");
 
@@ -23,11 +24,12 @@ const repositories = {
   orderStatusRepository: new OrderStatusRepository(),
   returnRepository: new ReturnRepository(),
   paymentRepository: new PaymentRepository(),
+  couponRepository: new CouponRepository()
 };
 
 const ClientUseCases = new ClientUseCasesClass({
   ...repositories,
-  tradeCouponUseCases: new TradeCouponUseCase(),
+    tradeCouponUseCases: new TradeCouponUseCase({ couponRepository: repositories.couponRepository }),
 });
 
 const RenderClientUseCases = new RenderClientUseCasesClass({

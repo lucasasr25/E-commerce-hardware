@@ -1,9 +1,10 @@
-const ProductRepository = require("../../repositories/productRepository");
-const ProductDetailRepository = require("../../repositories/productDetailRepository");
+const ProductRepository = require("../repositories/productRepository");
+const ProductDetailRepository = require("../repositories/productDetailRepository");
+const StockRepository = require("../repositories/stockRepository");
 
 const ProductUseCasesClass = require("../usecases/product/ProductUseCases");
 const RenderProductUseCasesClass = require("../usecases/product/RenderProductUseCases");
-const ManualStockEntryUseCase = require("../../usecases/stock/manualStockEntryUseCase");
+const StockUseCases = require("../usecases/stock/StockUseCases");
 
 const suppliersUseCases = require("../usecases/settings/suppliersUseCases");
 const productCategoryUseCases = require("../usecases/settings/productCategoryUseCases");
@@ -11,12 +12,16 @@ const productCategoryUseCases = require("../usecases/settings/productCategoryUse
 const repositories = {
   productRepository: new ProductRepository("products"),
   productDetailRepository: new ProductDetailRepository("product_details"),
+  stockRepository: new StockRepository("stock")
 };
+
+
+const stockUseCases = new StockUseCases({ stockRepository: repositories.stockRepository });
 
 const ProductUseCases = new ProductUseCasesClass({
   productRepository: repositories.productRepository,
   productDetailRepository: repositories.productDetailRepository,
-  manualStockEntryUseCase: new ManualStockEntryUseCase(),
+  stockUseCases
 });
 
 const RenderProductUseCases = new RenderProductUseCasesClass({
@@ -39,9 +44,6 @@ const createProduct = async (req, res) => {
             weight, dimensions, color, material,
             qtd, category_id, supplier_id
         });
-
-        // await manualStockEntryUseCase({ newProduct.id, qtd, price, product_supplier_id});
-
 
         res.redirect("/product/view?forceReload=true"); 
     } catch (error) {

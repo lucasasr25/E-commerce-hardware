@@ -1,10 +1,14 @@
 const { Product, ProductDetail, Stock } = require("../../entities/Product");
 
 class ProductUseCases {
-  constructor({ productRepository, productDetailRepository, manualStockEntryUseCase }) {
+  constructor({ productRepository, productDetailRepository, stockUseCases }) {
+    if (!productRepository || !productDetailRepository || !stockUseCases) {
+      throw new Error("Dependências obrigatórias não fornecidas");
+    }
+
     this.productRepository = productRepository;
     this.productDetailRepository = productDetailRepository;
-    this.manualStockEntryUseCase = manualStockEntryUseCase;
+    this.stockUseCases = stockUseCases;
   }
 
   async createProduct({
@@ -22,9 +26,8 @@ class ProductUseCases {
     qtd,
   }) {
     const productEntity = new Product({ name, description, category_id });
-
-
     const newProduct = await this.productRepository.create(productEntity.toDTO());
+
     const productDetailEntity = new ProductDetail({
       product_id: newProduct,
       manufacturer,
@@ -35,11 +38,17 @@ class ProductUseCases {
       material,
     });
     const productDetails = await this.productDetailRepository.create(productDetailEntity.toDTO());
+
     const stockEntity = new Stock(qtd, newProduct, price, supplier_id);
-    manualStockEntryUseCase(stockEntity.toDTO())
+    await this.stockUseCases.manualStockEntry(
+      stockEntity.product_id,
+      stockEntity.quantity,
+      stockEntity.price,
+      stockEntity.product_supplier_id
+    );
+
     return { newProduct, productDetails };
   }
-
 
    async addProductDetails(product) {
     const { product_id, manufacturer, warranty_period, weight, dimensions, color, material } = product;

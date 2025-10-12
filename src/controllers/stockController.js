@@ -1,8 +1,12 @@
-const StockUseCases = require("../usecases/stock/StockUseCases");
+const StockUseCasesClass = require("../usecases/stock/StockUseCases");
+const StockRepository = require("../repositories/stockRepository");
 const suppliersUseCases = require('../usecases/settings/suppliersUseCases');
 
-// Instanciando a classe StockUseCases
-const stockUseCases = new StockUseCases();
+// Cria a instância do repositório
+const stockRepository = new StockRepository("stock");
+
+// Injeta no StockUseCases de forma consistente
+const stockUseCases = new StockUseCasesClass({ stockRepository });
 
 // GET – Renderiza a view da entrada
 const showEntryForm = async (req, res) => {

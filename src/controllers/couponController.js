@@ -1,4 +1,4 @@
-const CouponRepository = require("../../repositories/couponRepository");
+const CouponRepository = require("../repositories/couponRepository");
 const CouponUseCasesClass = require("../usecases/coupon/CouponUseCases");
 const TradeCouponUseCaseClass = require("../usecases/coupon/TradeCouponUseCase");
 
