@@ -1,8 +1,6 @@
-const OrderRepository = require("../../repositories/orderRepository");
-
 class OrderStatusUseCases {
-  constructor() {
-    this.orderRepository = new OrderRepository();
+  constructor({ orderRepository }) {
+    this.orderRepository = orderRepository;
   }
 
   async getAllOrderStatus() {

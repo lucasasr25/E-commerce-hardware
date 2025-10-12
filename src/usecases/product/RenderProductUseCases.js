@@ -1,12 +1,8 @@
-const ProductRepository = require('../../repositories/productRepository');
-const ProductDetailRepository = require('../../repositories/productDetailRepository');
-
 class RenderProductUseCases {
-  constructor() {
-    this.productRepository = new ProductRepository();
-    this.productDetailRepository = new ProductDetailRepository();
+  constructor({ productRepository, productDetailRepository }) {
+    this.productRepository = productRepository;
+    this.productDetailRepository = productDetailRepository;
   }
-
   async renderEditProductViewUseCase(id) {
     if (!id) {
       return null;

@@ -1,9 +1,34 @@
-const CheckoutUseCases = new (require('../usecases/checkout/CheckoutUseCases'))();
+const CheckoutUseCasesClass = require('../../usecases/checkout/CheckoutUseCases');
+const ClientRepository = require('../../repositories/clientRepository');
+const CartRepository = require('../../repositories/cartRepository');
+const OrderRepository = require('../../repositories/orderRepository');
+const CouponRepository = require('../../repositories/couponRepository');
+const StockRepository = require('../../repositories/stockRepository');
+const CreditCardRepository = require('../../repositories/creditCardRepository');
+const StockUseCasesClass = require('../stock/StockUseCases');
+
+const stockUseCases = new StockUseCasesClass(new StockRepository());
+const clientRepository = new ClientRepository();
+const cartRepository = new CartRepository();
+const orderRepository = new OrderRepository();
+const couponRepository = new CouponRepository();
+const stockRepository = new StockRepository();
+const creditCardRepository = new CreditCardRepository();
+
+const checkoutUseCases = new CheckoutUseCasesClass({
+    stockUseCases,
+    clientRepository,
+    cartRepository,
+    orderRepository,
+    couponRepository,
+    stockRepository,
+    creditCardRepository
+});
 
 const renderCheckoutView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const checkoutData = await CheckoutUseCases.getCheckoutData(userId);
+        const checkoutData = await checkoutUseCases.getCheckoutData(userId);
         res.render("shopping/checkout", checkoutData);
     } catch (error) {
         console.error("Erro ao renderizar checkout:", error);
@@ -16,9 +41,9 @@ const renderCheckoutView = async (req, res) => {
 const checkout = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const { promotionalCupomCode, pagamentos_cartao, cupons_troca  } = req.body;
+        const { promotionalCupomCode, pagamentos_cartao, cupons_troca } = req.body;
 
-        await CheckoutUseCases.createOrderFromCart(userId, promotionalCupomCode, cupons_troca, pagamentos_cartao);
+        await checkoutUseCases.createOrderFromCart(userId, promotionalCupomCode, cupons_troca, pagamentos_cartao);
 
         res.render('status/success', {
             message: "Pedido realizado com sucesso!"
@@ -30,7 +55,6 @@ const checkout = async (req, res) => {
         });
     }
 };
-
 
 module.exports = {
     renderCheckoutView,

@@ -1,4 +1,10 @@
-const CartUseCases = new (require('../usecases/cart/CartUseCases.js'))();
+const CartRepository = require("../../repositories/cartRepository");
+const ProductRepository = require("../../repositories/productRepository");
+const CartUseCasesClass = require("../usecases/cart/CartUseCases");
+
+const cartRepository = new CartRepository();
+const productRepository = new ProductRepository();
+const cartUseCases = new CartUseCasesClass(cartRepository, productRepository);
 
 const addItemToCart = async (req, res) => {
     try {
@@ -7,7 +13,7 @@ const addItemToCart = async (req, res) => {
 
         if (!userId) return res.status(401).json({ message: "Usuário não autenticado" });
 
-        await CartUseCases.addItemToCart({ userId, productId, quantity });
+        await cartUseCases.addItemToCart({ userId, productId, quantity });
 
         res.redirect("/cart/view");
     } catch (error) {
@@ -18,7 +24,7 @@ const addItemToCart = async (req, res) => {
 const getCartItems = async (req, res) => {
     try {
         const { cart_id } = req.query;
-        const items = await CartUseCases.getCartItems(cart_id);
+        const items = await cartUseCases.getCartItems(cart_id);
         res.json({ items });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -28,7 +34,7 @@ const getCartItems = async (req, res) => {
 const getCartItemsUser = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        const { items, total } = await CartUseCases.getCartItemsUser(userId);
+        const { items, total } = await cartUseCases.getCartItemsUser(userId);
         res.render("partials/cartPreview", { items, total });
     } catch (error) {
         res.status(500).render('status/error', {
@@ -42,7 +48,7 @@ const removeItemFromCart = async (req, res) => {
         const userId = req.session.user?.id;
         const { product_id } = req.params;
 
-        await CartUseCases.removeItemFromCart(userId, product_id);
+        await cartUseCases.removeItemFromCart(userId, product_id);
 
         res.redirect("/cart/view");
     } catch (error) {
@@ -53,7 +59,7 @@ const removeItemFromCart = async (req, res) => {
 const clearCart = async (req, res) => {
     try {
         const { cart_id } = req.params;
-        await CartUseCases.clearCart(cart_id);
+        await cartUseCases.clearCart(cart_id);
         res.status(200).json({ message: "Cart cleared successfully" });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -63,7 +69,7 @@ const clearCart = async (req, res) => {
 const createCart = async (req, res) => {
     try {
         const { user_id } = req.body;
-        const cart = await CartUseCases.createCart(user_id);
+        const cart = await cartUseCases.createCart(user_id);
         res.status(201).json({ message: "Cart created successfully", cart });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -75,7 +81,7 @@ const updateCartItemQuantity = async (req, res) => {
         const userId = req.session.user?.id;
         const { items } = req.body;
 
-        const response = await CartUseCases.updateCartItemQuantity(userId, items);
+        const response = await cartUseCases.updateCartItemQuantity(userId, items);
         res.status(200).json(response);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -85,8 +91,7 @@ const updateCartItemQuantity = async (req, res) => {
 const renderCartView = async (req, res) => {
     try {
         const userId = req.session.user?.id;
-        console.log("estou aqui");
-        const { items, total } = await CartUseCases.renderCartView(userId);
+        const { items, total } = await cartUseCases.renderCartView(userId);
         res.render("shopping/cart", { items, total });
     } catch (error) {
         res.status(500).render('status/error', {
@@ -98,7 +103,7 @@ const renderCartView = async (req, res) => {
 const checkoutCart = async (req, res) => {
     try {
         const { cart_id } = req.body;
-        await CartUseCases.checkoutCart(cart_id);
+        await cartUseCases.checkoutCart(cart_id);
         res.status(200).json({ message: "Checkout completed successfully" });
     } catch (error) {
         res.status(400).json({ message: error.message });

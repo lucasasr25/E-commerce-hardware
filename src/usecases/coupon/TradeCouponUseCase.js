@@ -1,9 +1,8 @@
-const CouponRepository = require('../../repositories/couponRepository');
 const TradeCoupon = require('../../entities/TradeCoupon');
 
 class TradeCouponUseCase {
-  constructor() {
-    this.couponRepository = new CouponRepository();
+  constructor({ couponRepository }) {
+    this.couponRepository = couponRepository;
   }
 
 

@@ -1,5 +1,18 @@
-const CouponUseCases = new (require('../usecases/coupon/CouponUseCases'))();
-const TradeCouponUseCases = new (require('../usecases/coupon/TradeCouponUseCase'))();
+const CouponRepository = require("../../repositories/couponRepository");
+const CouponUseCasesClass = require("../usecases/coupon/CouponUseCases");
+const TradeCouponUseCaseClass = require("../usecases/coupon/TradeCouponUseCase");
+
+const repositories = {
+  couponRepository: new CouponRepository(),
+};
+
+const CouponUseCases = new CouponUseCasesClass({
+  couponRepository: repositories.couponRepository,
+});
+
+const TradeCouponUseCases = new TradeCouponUseCaseClass({
+  couponRepository: repositories.couponRepository,
+});
 
 const renderCouponsPage = async (req, res) => {
     try {

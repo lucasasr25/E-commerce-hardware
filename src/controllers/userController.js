@@ -1,7 +1,43 @@
 const { validationResult, body } = require("express-validator");
-const ClientBuilderService = require('../services/ClientBuilderService');
-const ClientUseCases = new (require('../usecases/client/ClientUseCases'))();
-const RenderClientUseCases = new (require('../usecases/client/RenderClientUseCases'))();
+const ClientBuilderService = require("../services/ClientBuilderService");
+
+const ClientRepository = require("../../repositories/clientRepository");
+const AddressRepository = require("../../repositories/addressRepository");
+const PhoneRepository = require("../../repositories/phoneRepository");
+const CreditCardRepository = require("../../repositories/creditCardRepository");
+const OrderRepository = require("../../repositories/orderRepository");
+const OrderStatusRepository = require("../../repositories/orderStatusRepository");
+const ReturnRepository = require("../../repositories/returnRepository");
+const PaymentRepository = require("../../repositories/paymentRepository");
+
+const TradeCouponUseCase = require("../coupon/TradeCouponUseCase");
+const ClientUseCasesClass = require("../usecases/client/ClientUseCases");
+const RenderClientUseCasesClass = require("../usecases/client/RenderClientUseCases");
+
+const repositories = {
+  clientRepository: new ClientRepository(),
+  addressRepository: new AddressRepository(),
+  phoneRepository: new PhoneRepository(),
+  creditCardRepository: new CreditCardRepository(),
+  orderRepository: new OrderRepository(),
+  orderStatusRepository: new OrderStatusRepository(),
+  returnRepository: new ReturnRepository(),
+  paymentRepository: new PaymentRepository(),
+};
+
+const ClientUseCases = new ClientUseCasesClass({
+  ...repositories,
+  tradeCouponUseCases: new TradeCouponUseCase(),
+});
+
+const RenderClientUseCases = new RenderClientUseCasesClass({
+  orderRepository: repositories.orderRepository,
+  paymentRepository: repositories.paymentRepository,
+  addressRepository: repositories.addressRepository,
+  clientRepository: repositories.clientRepository,
+  returnRepository: repositories.returnRepository,
+  creditCardRepository: repositories.creditCardRepository,
+});
 
 const viewReturns = async (req, res) => {
     try {

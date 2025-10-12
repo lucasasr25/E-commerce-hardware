@@ -1,18 +1,19 @@
-const productRepository = new (require("../../repositories/orderRepository"))('price_book');
+class PriceBookUseCases {
+  constructor({ priceBookRepository }) {
+    this.priceBookRepository = priceBookRepository;
+  }
 
-const getAllPriceBook = async () => {
-    return await productRepository.getAll()
-};
+  async getAllPriceBook() {
+    return await this.priceBookRepository.getAll();
+  }
 
-const createPriceBook = async (data) => {
-    return await productRepository.create(data)
-};
+  async createPriceBook(data) {
+    return await this.priceBookRepository.create(data);
+  }
 
-const deletePriceBook = async (id) => {
-    return await productRepository.deleteUpdateEntity(id);
+  async deletePriceBook(id) {
+    return await this.priceBookRepository.deleteUpdateEntity(id);
+  }
+}
 
-};
-
-module.exports = {
-    getAllPriceBook, createPriceBook, deletePriceBook
-};
+module.exports = PriceBookUseCases;

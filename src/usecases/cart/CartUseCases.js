@@ -1,12 +1,10 @@
 const Cart = require("../../entities/Cart");
 const { Product } = require("../../entities/Product");
-const CartRepository = require("../../repositories/cartRepository");
-const ProductRepository = require("../../repositories/productRepository");
 
 class CartUseCases {
-  constructor() {
-    this.cartRepository = new CartRepository();
-    this.productRepository = new ProductRepository();
+  constructor(cartRepository, productRepository) {
+    this.cartRepository = cartRepository;
+    this.productRepository = productRepository;
   }
 
   async addItemToCart({ userId, productId, quantity = 1 }) {

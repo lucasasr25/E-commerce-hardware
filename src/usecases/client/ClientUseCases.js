@@ -1,25 +1,25 @@
-const ClientRepository = require("../../repositories/clientRepository");
-const AddressRepository = require("../../repositories/addressRepository");
-const PhoneRepository = require("../../repositories/phoneRepository");
-const CreditCardRepository = require("../../repositories/creditCardRepository");
-const OrderRepository = require("../../repositories/orderRepository");
-const OrderStatusRepository = require("../../repositories/orderStatusRepository");
-const ReturnRepository = require("../../repositories/returnRepository");
-const TradeCouponUseCase = require("../coupon/TradeCouponUseCase.js");
-
-const { Client, CreditCard } = require("../../entities/Client");
 const bcrypt = require("bcrypt");
+const { Client, CreditCard } = require("../../entities/Client");
 
 class ClientUseCases {
-  constructor() {
-    this.clientRepository = new ClientRepository();
-    this.addressRepository = new AddressRepository();
-    this.phoneRepository = new PhoneRepository();
-    this.creditCardRepository = new CreditCardRepository();
-    this.orderRepository = new OrderRepository();
-    this.orderStatusRepository = new OrderStatusRepository();
-    this.returnRepository = new ReturnRepository();
-    this.tradeCoupon = new TradeCouponUseCase();
+  constructor({
+    clientRepository,
+    addressRepository,
+    phoneRepository,
+    creditCardRepository,
+    orderRepository,
+    orderStatusRepository,
+    returnRepository,
+    tradeCouponUseCases,
+  }) {
+    this.clientRepository = clientRepository;
+    this.addressRepository = addressRepository;
+    this.phoneRepository = phoneRepository;
+    this.creditCardRepository = creditCardRepository;
+    this.orderRepository = orderRepository;
+    this.orderStatusRepository = orderStatusRepository;
+    this.returnRepository = returnRepository;
+    this.tradeCouponUseCases = tradeCouponUseCases;
   }
 
   async createClient(clientData) {
@@ -95,7 +95,7 @@ class ClientUseCases {
       }
 
       const value = parseFloat(order_item.price);
-      const createdCoupon = await this.tradeCoupon.createNewCoupon(user_id, value);
+      const createdCoupon = await this.tradeCouponUseCases.createNewCoupon(user_id, value);
       const result = await this.returnRepository.createReturn({
         user_id,
         order_id,

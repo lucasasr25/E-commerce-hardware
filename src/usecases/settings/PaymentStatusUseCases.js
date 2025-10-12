@@ -1,8 +1,7 @@
-const PaymentStatusRepository = require("../../repositories/paymentRepository");
-
 class PaymentStatusUseCases {
-  constructor() {
-    this.paymentStatusRepository = new PaymentStatusRepository();
+  
+  constructor({ paymentStatusRepository }) {
+    this.paymentStatusRepository = paymentStatusRepository;
   }
 
   async getAllPaymentStatus() {

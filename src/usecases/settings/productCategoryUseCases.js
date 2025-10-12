@@ -1,18 +1,19 @@
-const productRepository = new (require("../../repositories/orderRepository"))('product_category');
+class ProductCategoryUseCases {
+  constructor({ productCategoryRepository }) {
+    this.productCategoryRepository = productCategoryRepository;
+  }
 
-const getAllProductCategory = async () => {
-    return await productRepository.getAll();
-};
+  async getAllProductCategory() {
+    return await this.productCategoryRepository.getAll();
+  }
 
-const createProductCategory = async (categoryData) => {
-    productRepository.create(categoryData);
-};
+  async createProductCategory(categoryData) {
+    return await this.productCategoryRepository.create(categoryData);
+  }
 
-const deleteProductCategory = async (id) => {
-    return await productRepository.deleteUpdateEntity(id);
+  async deleteProductCategory(id) {
+    return await this.productCategoryRepository.deleteUpdateEntity(id);
+  }
+}
 
-};
-
-module.exports = {
-    getAllProductCategory, createProductCategory, deleteProductCategory
-};
+module.exports = ProductCategoryUseCases;

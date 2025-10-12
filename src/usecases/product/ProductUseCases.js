@@ -1,13 +1,12 @@
-const ProductRepository = require('../../repositories/productRepository');
-const ProductDetailRepository = require('../../repositories/productDetailRepository');
-const { Product, ProductDetail, Stock } = require('../../entities/Product');
-const manualStockEntryUseCase = require('../../usecases/stock/manualStockEntryUseCase');
+const { Product, ProductDetail, Stock } = require("../../entities/Product");
 
 class ProductUseCases {
-  constructor() {
-    this.productRepository = new ProductRepository('products');
-    this.productDetailRepository = new ProductDetailRepository('product_details');
+  constructor({ productRepository, productDetailRepository, manualStockEntryUseCase }) {
+    this.productRepository = productRepository;
+    this.productDetailRepository = productDetailRepository;
+    this.manualStockEntryUseCase = manualStockEntryUseCase;
   }
+
   async createProduct({
     name,
     description,

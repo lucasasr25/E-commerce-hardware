@@ -1,12 +1,48 @@
-const orderStatusUseCases = new (require("../usecases/settings/OrderStatusUseCases"))();
-const paymentStatusUseCases = new (require("../usecases/settings/PaymentStatusUseCases"))();
-const returnStatusUseCases = new (require("../usecases/settings/ReturnStatusUseCases"))();
+const OrderRepository = require("../../repositories/orderRepository");
+const PaymentStatusRepository = require("../../repositories/paymentRepository");
+const ReturnStatusRepository = require("../../repositories/returnStatusRepository");
+const ProductSupplierRepository = require("../../repositories/productSupplierRepository");
+const ProductCategoryRepository = require("../../repositories/productCategoryRepository");
+const PriceBookRepository = require("../../repositories/priceBookRepository");
+
+const OrderStatusUseCases = require("../usecases/settings/OrderStatusUseCases");
+const PaymentStatusUseCases = require("../usecases/settings/PaymentStatusUseCases");
+const ReturnStatusUseCases = require("../usecases/settings/ReturnStatusUseCases");
+const SuppliersUseCases = require("../usecases/settings/SuppliersUseCases");
+const ProductCategoryUseCases = require("../usecases/settings/ProductCategoryUseCases");
+const PriceBookUseCases = require("../usecases/settings/PriceBookUseCases");
+const UpdateExchangeStatusUseCase = require("../usecases/settings/UpdateExchangeStatusUseCase");
 
 const viewExchanges = require("../usecases/settings/viewExchanges");
-const updateExchangeStatusUseCase = require("../usecases/settings/UpdateExchangeStatusUseCase");
-const suppliersUseCases = require("../usecases/settings/suppliersUseCases");
-const productSettingsUseCases = require("../usecases/settings/productCategoryUseCases");
-const pricebookUseCases = require("../usecases/settings/priceBookUseCases")
+
+const orderStatusUseCases = new OrderStatusUseCases({
+  orderRepository: new OrderRepository()
+});
+
+const paymentStatusUseCases = new PaymentStatusUseCases({
+  paymentStatusRepository: new PaymentStatusRepository()
+});
+
+const returnStatusUseCases = new ReturnStatusUseCases({
+  returnStatusRepository: new ReturnStatusRepository()
+});
+
+const suppliersUseCases = new SuppliersUseCases({
+  productSupplierRepository: new ProductSupplierRepository("product_supplier")
+});
+
+const productSettingsUseCases = new ProductCategoryUseCases({
+  productCategoryRepository: new ProductCategoryRepository()
+});
+
+const pricebookUseCases = new PriceBookUseCases({
+  priceBookRepository: new PriceBookRepository()
+});
+
+const updateExchangeStatusUseCase = new UpdateExchangeStatusUseCase({
+    exchangeRepository: new ReturnRepository()
+});
+
 
 const pricebook = async (req, res) => {
     try {

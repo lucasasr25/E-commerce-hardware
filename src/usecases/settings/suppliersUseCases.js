@@ -1,28 +1,29 @@
-const ProductSupplierRepository = new (require("../../repositories/ProductSupplierRepository"))("product_supplier");
 const { Supplier } = require('../../entities/Supplier');
 
-const getAllSuppliers = async () => {
-    return await ProductSupplierRepository.getAll();
-};
+class SuppliersUseCases {
+  constructor({ productSupplierRepository }) {
+    this.productSupplierRepository = productSupplierRepository;
+  }
 
-const createProductSupplier = async (supplierData) => {
-    const productEntity = new Supplier({
-        name: supplierData.name,
-        tax_id: supplierData.tax_id,
-        phone: supplierData.phone,
-        email: supplierData.email,
-        address: supplierData.address
+  async getAllSuppliers() {
+    return await this.productSupplierRepository.getAll();
+  }
+
+  async createProductSupplier(supplierData) {
+    const supplierEntity = new Supplier({
+      name: supplierData.name,
+      tax_id: supplierData.tax_id,
+      phone: supplierData.phone,
+      email: supplierData.email,
+      address: supplierData.address
     });
-    return await ProductSupplierRepository.create(productEntity.toDTO(), 'product_supplier')
-};
 
-const deleteProductSupplier = async (id) => {
-    return await ProductSupplierRepository.deleteUpdateEntity(id);
+    return await this.productSupplierRepository.create(supplierEntity.toDTO(), 'product_supplier');
+  }
 
-};
+  async deleteProductSupplier(id) {
+    return await this.productSupplierRepository.deleteUpdateEntity(id);
+  }
+}
 
-module.exports = {
-getAllSuppliers,
-createProductSupplier,
-deleteProductSupplier
-}; 
+module.exports = SuppliersUseCases;

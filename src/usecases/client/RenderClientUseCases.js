@@ -1,21 +1,19 @@
-const OrderRepository = require("../../repositories/orderRepository");
-const PaymentRepository = require("../../repositories/paymentRepository");
-const AddressRepository = require("../../repositories/addressRepository");
-const ClientRepository = require("../../repositories/clientRepository");
-const ReturnRepository = require("../../repositories/returnRepository");
-const CreditCardRepository = require("../../repositories/creditCardRepository");
-
 class RenderClientUseCases {
-  constructor() {
-    this.orderRepository = new OrderRepository();
-    this.paymentRepository = new PaymentRepository();
-    this.addressRepository = new AddressRepository();
-    this.userRepository = new ClientRepository(); // You had userRepository and clientRepository the same
-    this.clientRepository = new ClientRepository();
-    this.returnRepository = new ReturnRepository();
-    this.creditCardRepository = new CreditCardRepository();
+  constructor({
+    orderRepository,
+    paymentRepository,
+    addressRepository,
+    clientRepository,
+    returnRepository,
+    creditCardRepository,
+  }) {
+    this.orderRepository = orderRepository;
+    this.paymentRepository = paymentRepository;
+    this.addressRepository = addressRepository;
+    this.clientRepository = clientRepository;
+    this.returnRepository = returnRepository;
+    this.creditCardRepository = creditCardRepository;
   }
-
   async renderCardEdit(userId) {
     return await this.creditCardRepository.getCreditCardsByUserId(userId);
   }

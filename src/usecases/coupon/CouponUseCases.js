@@ -1,9 +1,8 @@
-const CouponRepository = require('../../repositories/couponRepository');
-const Coupon = require('../../entities/Coupon');
+const Coupon = require("../../entities/Coupon");
 
 class CouponUseCases {
-  constructor() {
-    this.couponRepository = new CouponRepository();
+  constructor({ couponRepository }) {
+    this.couponRepository = couponRepository;
   }
 
   async getAllCoupons() {

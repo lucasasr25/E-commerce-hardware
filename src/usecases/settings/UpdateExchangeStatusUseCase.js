@@ -1,12 +1,14 @@
-const exchangeRepository = new (require('../../repositories/returnRepository'))();
-
 class UpdateExchangeStatusUseCase {
+    constructor({ exchangeRepository }) {
+        this.exchangeRepository = exchangeRepository;
+    }
+
     async execute(id, newStatus) {
         if (!id || !newStatus) {
             throw new Error("ID e novo status são obrigatórios.");
         }
 
-        const updated = await exchangeRepository.updateStatusById(id, newStatus);
+        const updated = await this.exchangeRepository.updateStatusById(id, newStatus);
         if (!updated) {
             throw new Error("Troca não encontrada ou não foi possível atualizar.");
         }
@@ -15,4 +17,4 @@ class UpdateExchangeStatusUseCase {
     }
 }
 
-module.exports = new UpdateExchangeStatusUseCase();
+module.exports = UpdateExchangeStatusUseCase;

@@ -1,9 +1,28 @@
-const ProductUseCases = new (require('../usecases/product/ProductUseCases'))();
-const RenderProductUseCases = new (require('../usecases/product/RenderProductUseCases'))();
-const suppliersUseCases = require('../usecases/settings/suppliersUseCases');
-const productCategoryUseCases = require('../usecases/settings/productCategoryUseCases');
+const ProductRepository = require("../../repositories/productRepository");
+const ProductDetailRepository = require("../../repositories/productDetailRepository");
 
+const ProductUseCasesClass = require("../usecases/product/ProductUseCases");
+const RenderProductUseCasesClass = require("../usecases/product/RenderProductUseCases");
+const ManualStockEntryUseCase = require("../../usecases/stock/manualStockEntryUseCase");
 
+const suppliersUseCases = require("../usecases/settings/suppliersUseCases");
+const productCategoryUseCases = require("../usecases/settings/productCategoryUseCases");
+
+const repositories = {
+  productRepository: new ProductRepository("products"),
+  productDetailRepository: new ProductDetailRepository("product_details"),
+};
+
+const ProductUseCases = new ProductUseCasesClass({
+  productRepository: repositories.productRepository,
+  productDetailRepository: repositories.productDetailRepository,
+  manualStockEntryUseCase: new ManualStockEntryUseCase(),
+});
+
+const RenderProductUseCases = new RenderProductUseCasesClass({
+  productRepository: repositories.productRepository,
+  productDetailRepository: repositories.productDetailRepository,
+});
 
 const createProduct = async (req, res) => {
     try {
