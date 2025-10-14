@@ -116,7 +116,7 @@
       async function newCheckout() {
         try {
             let myresult = await saveCart();  // Ensure saveCart() is an async function that returns a promise.
-            if(myresult){
+            if(!myresult){
               window.location.href = '/cart/checkout';
             }
         } catch (error) {
