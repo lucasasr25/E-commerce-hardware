@@ -17,7 +17,7 @@
           <option value="">Selecione um produto</option>
           <% stockEntries.forEach(prod => { %>
             <option value="<%= prod.id %>" data-quantity="<%= prod.total_quantity %>">
-              <%= prod.name %> - Quantidade atual: <%= prod.total_quantity %>
+              <%= prod.name %> - Quantidade atual: 
             </option>
           <% }) %>
         </select>
