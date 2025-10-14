@@ -93,7 +93,7 @@ class CartUseCases {
         throw new Error(`Produto com ID ${productId} não encontrado`);
       }
       const quantityDB = Number(productQTD.quantity) || 0;
-      if (quantityDB <= 0) {
+      if (quantityDB <= 0 && quantity != 0) {
         throw new Error("Sem estoque para o produto");
       }
 
