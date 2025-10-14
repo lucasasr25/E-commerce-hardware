@@ -10,18 +10,20 @@
         <div class="alert alert-success">Estoque atualizado com sucesso!</div>
     <% } %>
 
-    <form action="/settings/entry" method="POST">
-      <div class="mb-3">
-        <label for="product_id" class="form-label">Produto</label>
-        <select name="product_id" id="product_id" class="form-select" required>
-          <option value="">Selecione um produto</option>
-          <% stockEntries.forEach(prod => { %>
-            <option value="<%= prod.id %>" data-quantity="<%= prod.total_quantity %>">
-              <%= prod.name %> - Quantidade atual: 
-            </option>
-          <% }) %>
-        </select>
-      </div>
+<form action="/settings/entry" method="POST">
+  <div class="mb-3">
+    <label for="product_id" class="form-label">Produto</label>
+    <select name="product_id" id="product_id" class="form-select" required>
+      <option value="">Selecione um produto</option>
+      <% stockEntries.forEach(prod => { %>
+        <option value="<%= prod.id %>">
+          <%= prod.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+</form>
+
 
 
       <!-- Label para mostrar a quantidade atual -->
