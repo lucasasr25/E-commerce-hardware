@@ -10,20 +10,18 @@
         <div class="alert alert-success">Estoque atualizado com sucesso!</div>
     <% } %>
 
-<form action="/settings/entry" method="POST">
-  <div class="mb-3">
-    <label for="product_id" class="form-label">Produto</label>
-    <select name="product_id" id="product_id" class="form-select" required>
-      <option value="">Selecione um produto</option>
-      <% stockEntries.forEach(prod => { %>
-        <option value="<%= prod.id %>">
-          <%= prod.name %>
-        </option>
-      <% }) %>
-    </select>
-  </div>
-</form>
-
+    <form action="/settings/entry" method="POST">
+      <div class="mb-3">
+        <label for="product_id" class="form-label">Produto</label>
+        <select name="product_id" id="product_id" class="form-select" required>
+          <option value="">Selecione um produto</option>
+          <% products.forEach(prod => { %>
+            <option value="<%= prod.id %>" data-quantity="<%= prod.quantity %>">
+              <%= prod.name %> - Quantidade atual: <%= prod.quantity %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
 
 
       <!-- Label para mostrar a quantidade atual -->
@@ -69,19 +67,17 @@
     <tr>
       <th>Data</th>
       <th>Produto</th>
-      <th>id</th>
       <th>Fornecedor</th>
       <th>Quantidade</th>
       <th>Valor de Custo (R$)</th>
     </tr>
   </thead>
   <tbody>
-    <% if (products && products.length > 0) { %>
-      <% products.forEach(entry => { %>
+    <% if (stockEntries && stockEntries.length > 0) { %>
+      <% stockEntries.forEach(entry => { %>
         <tr>
           <td><%= entry.date %></td>
-          <td><%= entry.name %></td>
-          <td><%= entry.id %></td>
+          <td><%= entry.product_id %></td>
           <td><%= entry.product_supplier_id %></td>
           <td><%= entry.quantity %></td>
           <td><%= entry.price %></td>
@@ -101,31 +97,6 @@
       const quantity = selectedOption.getAttribute('data-quantity');
       document.getElementById('current_quantity').textContent = quantity;  // Atualiza a label com a quantidade
     });
-
-
-    const productSelect = document.getElementById('product_id');
-  const tbody = document.querySelector('table tbody');
-  const allEntries = Array.from(tbody.querySelectorAll('tr')); // Salva todas as linhas da tabela
-
-  productSelect.addEventListener('change', function () {
-    const selectedProductId = this.value;
-
-    // Atualiza a quantidade atual
-    const quantity = this.options[this.selectedIndex].getAttribute('data-quantity');
-    document.getElementById('current_quantity').textContent = quantity;
-
-    // Mostra apenas os produtos selecionados
-    allEntries.forEach(row => {
-      const productIdCell = row.children[2]; // segunda coluna: produto
-      if (!selectedProductId || productIdCell.textContent === selectedProductId) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    });
-  });
-
-  
   </script>
 </body>
 </html>
