@@ -156,8 +156,9 @@ async updateClient(clientData) {
     if (defaultCount > 1) {
         throw new Error("Apenas um cartão pode ser marcado como padrão.");
     }
-
-
+    if(defaultCount < 0){
+      throw new Error("Um cartão deve ser padrão");
+    }
     const creditCards = cardData.card_number.map((num, i) => new CreditCard({
       card_number: num,
       holder_name: cardData.holder_name[i],
@@ -166,7 +167,6 @@ async updateClient(clientData) {
       is_default: cardData.is_default[i],
     }));
     for (const card of creditCards) {
-      // console.log(card);
       await this.creditCardRepository.updateCreditCard(
         userId,
         card.card_number,
@@ -176,6 +176,11 @@ async updateClient(clientData) {
         card.is_default
       );
     }
+  }
+
+
+  async deleteCreditCard(id) {
+    await this.creditCardRepository.delete(id, 'id');
   }
 
   async updateOrderStatus({ orderId, statusId }) {

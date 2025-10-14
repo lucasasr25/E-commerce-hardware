@@ -66,13 +66,13 @@ class IGenericRepository {
   }
 
 
-  async delete(id, module, field) {
+  async delete(id, field) {
     try {
-      if (!module || !field) {
+      if (!id || !field) {
         throw new Error('Module and field names are required for deletion');
       }
 
-      const query = `DELETE FROM ${module} WHERE ${field} = $1`;
+      const query = `DELETE FROM ${this.module} WHERE ${field} = $1`;
       await pool.query(query, [id]);
 
     } catch (error) {

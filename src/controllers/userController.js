@@ -19,7 +19,7 @@ const repositories = {
   clientRepository: new ClientRepository(),
   addressRepository: new AddressRepository(),
   phoneRepository: new PhoneRepository(),
-  creditCardRepository: new CreditCardRepository(),
+  creditCardRepository: new CreditCardRepository('credit_cards'),
   orderRepository: new OrderRepository(),
   orderStatusRepository: new OrderStatusRepository(),
   returnRepository: new ReturnRepository(),
@@ -308,6 +308,18 @@ const updateCreditCardsController = async (req, res) => {
   }
 };
 
+const deleteCreditCardsController = async(req, res) =>{
+    try{
+        const card_id = req.params.id;
+        await ClientUseCases.deleteCreditCard(card_id);
+        res.redirect(req.get('referer') || '/');
+    }catch(error){
+        res.status(500).render("status/error", {
+            message: error.message || "Erro ao adicionar cartões de crédito."
+        });
+    }
+}
+
 
 const renderClientProfile = async (req, res) => {
     try {
@@ -344,4 +356,4 @@ const createClient = async (req, res) => {
     }
 };
 
-module.exports = { registerClient, viewReturns, updateOrderStatus, getClientOrders, renderOrderDetails, returnOrderDetails,  registerReturn , renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};
+module.exports = { registerClient, viewReturns, updateOrderStatus, getClientOrders, deleteCreditCardsController, renderOrderDetails, returnOrderDetails,  registerReturn , renderSettingsView, renderCardEdit, updateCreditCardsController, renderOrders, updateClient, searchClients, renderClientsView, renderClientProfile, renderDetailView, renderEditView, createClient, renderCreateview, deleteClient};

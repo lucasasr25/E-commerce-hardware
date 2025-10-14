@@ -7,6 +7,7 @@ class Order {
         this.cliente = cliente;
         this.endereco = endereco;
 
+        // Calcula o preço com margem
         this.items = items.map(item => {
             const basePrice = parseFloat(item.base_price);
             const margin = parseFloat(item.profit_margin) / 100;
@@ -17,16 +18,25 @@ class Order {
                 price: finalPrice
             };
         });
-
-        this.promotionalCoupon = promotionalCoupon;
-        this.tradeCoupons = tradeCoupons || []; // array de cupons de troca
+        console.log(tradeCoupons)
+        this.promotionalCoupon = promotionalCoupon || null;
+        this.tradeCoupons = tradeCoupons || [];
         this.pagamentosCartao = this.formatarCartoes(pagamentosCartao);
 
         this.subtotal = this.calcularSubtotal();
-        this.valorCupom = this.calcularDesconto(); // cupom promocional
-        this.valorCupomTroca = this.calcularDescontoTroca(); // soma cupons de troca
+
+        // 1️⃣ Aplica primeiro os cupons de troca
+        this.valorCupomTroca = this.calcularDescontoTroca();
+        console.error(this.valorCupomTroca)
+        const subtotalPosTroca = Math.max(this.subtotal - this.valorCupomTroca, 0);
+
+        // 2️⃣ Depois aplica o cupom promocional sobre o restante
+        this.valorCupom = this.calcularDescontoPromocional(subtotalPosTroca);
+
         this.frete = 50;
-        this.total = this.subtotal - this.valorCupom - this.valorCupomTroca + this.frete;
+
+        // 3️⃣ Total final
+        this.total = subtotalPosTroca - this.valorCupom + this.frete;
 
         this.validarPagamento();
     }
@@ -42,14 +52,15 @@ class Order {
         return this.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     }
 
-    calcularDesconto() {
-        if (!this.promotionalCoupon) return 0;
-        return this.subtotal * (this.promotionalCoupon.discount_percentage / 100);
-    }
-
     calcularDescontoTroca() {
         if (!this.tradeCoupons.length) return 0;
         return this.tradeCoupons.reduce((acc, c) => acc + parseFloat(c.value), 0);
+    }
+
+    calcularDescontoPromocional(base) {
+        if (!this.promotionalCoupon) return 0;
+        const desconto = base * (this.promotionalCoupon.discount_percentage / 100);
+        return parseFloat(desconto.toFixed(2));
     }
 
     validarPagamento() {
@@ -72,11 +83,13 @@ class Order {
         return {
             userId: this.cliente.id,
             couponId: this.promotionalCoupon?.id || null,
-            tradeCoupons: this.tradeCoupons.map(c => c.code), // cupons de troca
+            tradeCoupons: this.tradeCoupons.map(c => c.code),
             enderecoId: this.endereco.id,
             status: 15,
             subtotal: this.subtotal,
             total: this.total,
+            valorCupomTroca: this.valorCupomTroca,
+            valorCupomPromocional: this.valorCupom,
             items: this.items.map(item => ({
                 product_id: item.product_id,
                 quantity: item.quantity,

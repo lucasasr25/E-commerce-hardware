@@ -173,6 +173,17 @@
 
                             <label for="is_default_<%= index %>">Cartão Padrão:</label>
                             <input type="checkbox" name="is_default[]" id="is_default_<%= index %>" <%= card.is_default ? 'checked' : '' %>><br>
+                             <form action="/cardDelete/<%= card.id %>" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cartão?');">
+                                <button 
+                                    type="submit" 
+                                    formaction="/user/cardDelete/<%= card.id %>" 
+                                    formmethod="POST" 
+                                    onclick="return confirm('Tem certeza que deseja excluir este cartão?');"
+                                    class="delete-btn"
+                                >
+                                    Excluir Cartão
+                                </button>
+                            </form>
                         </div>
                     <% }) %>
                 <% } else { %>

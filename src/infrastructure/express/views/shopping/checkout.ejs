@@ -232,55 +232,84 @@
     });
   });
 
-  // Aplicar cupom promocional
-  document.getElementById('aplicarCupom').addEventListener('click', async () => {
-    const cupom = document.getElementById('cupomPromocional').value.trim();
-    const mensagem = document.getElementById('cupomMensagem');
+document.getElementById('aplicarCupom').addEventListener('click', async () => {
+  const cupom = document.getElementById('cupomPromocional').value.trim();
+  const mensagem = document.getElementById('cupomMensagem');
 
-    if (!cupom) {
-      mensagem.textContent = "Digite um cupom primeiro.";
-      return;
-    }
+  if (!cupom) {
+    mensagem.textContent = "Digite um cupom primeiro.";
+    return;
+  }
 
-    try {
-      const response = await fetch('/cart/aplicar-cupom', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: cupom })
+  try {
+    const response = await fetch('/cart/aplicar-cupom', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: cupom })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log(result);
+      // Atualiza o total e resumo (mantém igual)
+      const baseDesconto = totalOriginal - totalDescontoTroca;
+      totalDescontoPromocional = baseDesconto * (result.discountPercentage / 100);
+      totalComDesconto = baseDesconto - totalDescontoPromocional + 50;
+
+      document.querySelector("span[id='globalTotal']").textContent =
+        `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
+
+      document.querySelector('#checkout-box').innerHTML = `
+        <h5>Taxas e Frete</h5>
+        <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
+        <p><strong>Frete:</strong> R$ 50,00</p>
+        ${totalDescontoTroca > 0 ? `<p><strong>Desconto cupons de troca:</strong> <span style="color:red">- R$ ${totalDescontoTroca.toFixed(2).replace('.', ',')}</span></p>` : ''}
+        <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${totalDescontoPromocional.toFixed(2).replace('.', ',')}</span></p>
+        <hr>
+        <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
+      `;
+
+      mensagem.textContent = result.message;
+
+      // 🔒 Antes de desativar, cria inputs hidden para manter os cupons de troca no POST
+      const trocaInputs = document.getElementsByName('cupons_troca[]');
+      trocaInputs.forEach(input => {
+        if (input.value.trim() !== "") {
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'cupons_troca[]';
+          hiddenInput.value = input.value.trim();
+          input.closest('form').appendChild(hiddenInput);
+        }
+
+        // desativa o input visível
+        input.disabled = true;
+        input.classList.add('disabled');
       });
 
-      const result = await response.json();
+      const btnAddTroca = document.getElementById('add-cupom');
+      const btnAplicarTroca = document.getElementById('aplicarCupomTroca');
 
-      if (response.ok) {
-        console.log(result);
-        totalDescontoPromocional = totalOriginal * (result.discountPercentage / 100);
-        totalComDesconto = totalOriginal - totalDescontoPromocional - totalDescontoTroca + 50;
-
-        document.querySelector("span[id='globalTotal']").textContent =
-          `R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`;
-        
-        document.querySelector('#checkout-box').innerHTML = `
-          <h5>Taxas e Frete</h5>
-          <p><strong>Subtotal:</strong> R$ ${totalOriginal.toFixed(2).replace('.', ',')}</p>
-          <p><strong>Frete:</strong> R$ 50,00</p>
-          <p><strong>Desconto cupom (${cupom}):</strong> <span style="color:red">- R$ ${totalDescontoPromocional.toFixed(2).replace('.', ',')}</span></p>
-          <hr>
-          <h4><strong>Total:</strong> R$ ${totalComDesconto.toFixed(2).replace('.', ',')}</h4>
-        `;
-        
-        // Atualiza input oculto para envio
-        const inputValorCupons = document.querySelector('input[name="valor_cupons"]');
-        if(inputValorCupons) inputValorCupons.value = (totalDescontoPromocional + totalDescontoTroca).toFixed(2);
-
-        mensagem.textContent = result.message;
-      } else {
-        mensagem.textContent = result.message || "Erro ao aplicar cupom.";
+      if (btnAddTroca) {
+        btnAddTroca.disabled = true;
+        btnAddTroca.classList.add('disabled');
       }
-    } catch (err) {
-      mensagem.textContent = "Erro na comunicação com o servidor.";
-      console.error(err);
+
+      if (btnAplicarTroca) {
+        btnAplicarTroca.disabled = true;
+        btnAplicarTroca.classList.add('disabled');
+      }
+    }else {
+      mensagem.textContent = result.message || "Erro ao aplicar cupom.";
     }
-  });
+  } catch (err) {
+    mensagem.textContent = "Erro na comunicação com o servidor.";
+    console.error(err);
+  }
+});
+
+
 
   // Aplicar cupons de troca
   document.getElementById('aplicarCupomTroca').addEventListener('click', async () => {
