@@ -15,13 +15,13 @@ class CartUseCases {
     const productData = await this.productRepository.getProductById(productId);
 
     const productQTD = await this.stockRepository.getProductByID(productId);
-
+    console.log(productQTD);
     if (!productQTD) {
       throw new Error(`Produto com ID ${productId} não encontrado`);
     }
 
     const quantityDB = Number(productQTD.quantity) || 0;
-    if (quantityDB <= 0) {
+    if (quantityDB <= 0 || quantityDB < quantity) {
       throw new Error("Sem estoque para o produto");
     }
 
@@ -87,12 +87,11 @@ class CartUseCases {
     const cart = new Cart(userId, dbItems);
     for (const { productId, quantity } of products) {
       const productQTD = await this.stockRepository.getProductByID(productId);
-
       if (!productQTD) {
         throw new Error(`Produto com ID ${productId} não encontrado`);
       }
       const quantityDB = Number(productQTD.quantity) || 0;
-      if (quantityDB <= 0 && quantity != 0) {
+      if ((quantityDB <= 0 && quantity != 0) || quantity > quantityDB) {
         throw new Error("Sem estoque para o produto");
       }
 

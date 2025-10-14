@@ -90,9 +90,7 @@ const updateCartItemQuantity = async (req, res) => {
         const response = await cartUseCases.updateCartItemQuantity(userId, items);
         res.status(200).json(response);
     } catch (error) {
-        res.status(500).render('status/error', {
-            message: error.message || "Erro ao processar o carrinho"
-        });
+        res.status(400).json({ message: error.message });
     }
 };
 

@@ -30,22 +30,17 @@ class ProductRepository extends IGenericRepository {
 
   async getProductById(id) {
     const result = await pool.query(`
-      SELECT 
-          p.id, 
-          p.name, 
-          p.description, 
-          SUM(s.quantity) AS total_quantity
-      FROM 
-          products p
-      LEFT JOIN 
-          stock s ON p.id = s.product_id
-      INNER JOIN 
-          ecommerce_entity e ON e.entity_register_id = p.id
-      WHERE 
-          e.deleted = FALSE
-          AND p.id = $1
-      GROUP BY 
-          p.id, p.name, p.description;
+      SELECT DISTINCT ON (products.id) 
+        products.*, 
+        stock.price, 
+        price_book.profit_margin
+      FROM products
+      INNER JOIN stock ON stock.product_id = products.id
+      INNER JOIN price_book ON price_book.category_id = products.category_id
+      INNER JOIN ecommerce_entity ON ecommerce_entity.entity_register_id = products.id
+      WHERE ecommerce_entity.deleted = FALSE 
+        AND ecommerce_entity.module_id = 3 
+        AND products.id = $1
     `, [id]);
 
     return result.rows[0];

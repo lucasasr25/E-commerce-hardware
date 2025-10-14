@@ -115,8 +115,10 @@
     <script>
       async function newCheckout() {
         try {
-            await saveCart();  // Ensure saveCart() is an async function that returns a promise.
-            window.location.href = '/cart/checkout';
+            let myresult = await saveCart();  // Ensure saveCart() is an async function that returns a promise.
+            if(myresult){
+              window.location.href = '/cart/checkout';
+            }
         } catch (error) {
             console.error("Checkout failed:", error);
             alert("There was an issue processing your checkout. Please try again.");
@@ -171,17 +173,19 @@ async function saveCart(transfer = true) {
         });
 
         const result = await response.json();
-
+        
         if (response.ok) {
             if(transfer){
               window.location.href = '/main'; // Or the URL you want to redirect to
             }
         } else {
             alert('Erro ao salvar carrinho: ' + result.message);
+            return false;
         }
     } catch (error) {
         console.error('Erro ao salvar carrinho:', error);
         alert('Erro inesperado ao salvar o carrinho.');
+        return false;
     }
 }
 
