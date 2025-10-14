@@ -1,10 +1,15 @@
 const StockUseCasesClass = require("../usecases/stock/StockUseCases");
 const StockRepository = require("../repositories/stockRepository");
-const suppliersUseCases = require('../usecases/settings/SuppliersUseCases');
+const SuppliersUseCases = require('../usecases/settings/SuppliersUseCases');
+const ProductSupplierRepository = require('../repositories/ProductSupplierRepository');
 
 const stockRepository = new StockRepository("stock");
+const productSupplierRepository = new ProductSupplierRepository("product_supplier");
+
+
 
 const stockUseCases = new StockUseCasesClass({ stockRepository });
+const suppliersUseCases = new SuppliersUseCases({ productSupplierRepository });
 
 const showEntryForm = async (req, res) => {
     try {

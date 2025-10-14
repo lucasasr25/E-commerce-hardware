@@ -25,7 +25,6 @@ const mainView = async (req, res) => {
 
 
         const products = await ProductUseCases.getProductsUseCase();
-
         res.render('index', {
             title: 'Lucas Store',
             products: products
