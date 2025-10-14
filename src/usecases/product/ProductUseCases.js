@@ -112,6 +112,7 @@ async deleteProductDetailsUseCase(id) {
     const products = await this.productRepository.getProducts();
 
     const updatedProducts = products.map(product => {
+      console.log(product);
       const finalPrice = product.price * (1 + (product.profit_margin/100));
       return {
         ...product,

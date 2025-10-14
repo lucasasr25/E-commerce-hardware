@@ -30,7 +30,6 @@ class StockRepository extends IGenericRepository {
     `;
     
     const result = await pool.query(query, [id]);
-    
     if (result.rows.length === 0) {
       throw new Error(`Produto com id ${id} não encontrado`);
     }
@@ -57,6 +56,8 @@ class StockRepository extends IGenericRepository {
       GROUP BY 
           p.id, p.name, p.description, s.price, s.quantity;
     `;
+        console.log(result);
+
     const result = await pool.query(query);
     return result.rows;
   }
@@ -79,6 +80,8 @@ class StockRepository extends IGenericRepository {
       GROUP BY 
           p.id;
     `;
+        console.log(result);
+
     const result = await pool.query(query);
     return result.rows;
 }
