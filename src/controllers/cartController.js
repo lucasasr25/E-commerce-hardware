@@ -19,7 +19,9 @@ const addItemToCart = async (req, res) => {
 
         res.redirect("/cart/view");
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o carrinho"
+        });
     }
 };
 
@@ -74,7 +76,9 @@ const createCart = async (req, res) => {
         const cart = await cartUseCases.createCart(user_id);
         res.status(201).json({ message: "Cart created successfully", cart });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o carrinho"
+        });
     }
 };
 
@@ -86,7 +90,9 @@ const updateCartItemQuantity = async (req, res) => {
         const response = await cartUseCases.updateCartItemQuantity(userId, items);
         res.status(200).json(response);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).render('status/error', {
+            message: error.message || "Erro ao processar o carrinho"
+        });
     }
 };
 
