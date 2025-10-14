@@ -78,7 +78,6 @@ class StockRepository extends IGenericRepository {
       GROUP BY 
           p.id;
     `;
-        console.log(result);
 
     const result = await pool.query(query);
     return result.rows;
