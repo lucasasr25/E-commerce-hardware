@@ -8,7 +8,36 @@ class StockRepository extends IGenericRepository {
     this.module = 'stock';
   }
 
-  
+  async getProductByID(id) {
+    const query = `
+      SELECT 
+          p.id, 
+          p.name, 
+          p.description, 
+          s.price, 
+          s.quantity
+      FROM 
+          products p
+      LEFT JOIN 
+          stock s ON p.id = s.product_id
+      INNER JOIN 
+          ecommerce_entity e ON e.entity_register_id = p.id
+      WHERE 
+          e.deleted = FALSE
+          AND p.id = $1
+      GROUP BY 
+          p.id, p.name, p.description, s.price, s.quantity;
+    `;
+    
+    const result = await pool.query(query, [id]);
+    
+    if (result.rows.length === 0) {
+      throw new Error(`Produto com id ${id} não encontrado`);
+    }
+
+    return result.rows[0];
+  }
+
   async getAllProductsWithStock() {
     const query = `
       SELECT 

@@ -1,10 +1,12 @@
 const CartRepository = require("../repositories/cartRepository");
 const ProductRepository = require("../repositories/productRepository");
 const CartUseCasesClass = require("../usecases/cart/CartUseCases");
+const StockRepository = require("../repositories/stockRepository");
 
 const cartRepository = new CartRepository();
+const stockRepository = new StockRepository();
 const productRepository = new ProductRepository();
-const cartUseCases = new CartUseCasesClass(cartRepository, productRepository);
+const cartUseCases = new CartUseCasesClass(cartRepository, productRepository, stockRepository);
 
 const addItemToCart = async (req, res) => {
     try {

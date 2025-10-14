@@ -2,14 +2,30 @@ const Cart = require("../../entities/Cart");
 const { Product } = require("../../entities/Product");
 
 class CartUseCases {
-  constructor(cartRepository, productRepository) {
+  constructor(cartRepository, productRepository, stockRepository = null) {
     this.cartRepository = cartRepository;
     this.productRepository = productRepository;
+    if(stockRepository){
+      this.stockRepository = stockRepository;
+    }
   }
 
   async addItemToCart({ userId, productId, quantity = 1 }) {
     const dbItems = await this.cartRepository.getCartItems(userId);
     const productData = await this.productRepository.getProductById(productId);
+
+    const productQTD = await this.stockRepository.getProductByID(productId);
+
+    if (!productQTD) {
+      throw new Error(`Produto com ID ${productId} não encontrado`);
+    }
+
+    const quantityDB = Number(productQTD.quantity) || 0;
+
+    if (quantityDB <= 0) {
+      throw new Error("Sem estoque para o produto");
+    }
+
 
     if (!productData) {
       throw new Error("Produto não encontrado.");
@@ -71,6 +87,16 @@ class CartUseCases {
     const dbItems = await this.cartRepository.getCartItems(userId);
     const cart = new Cart(userId, dbItems);
     for (const { productId, quantity } of products) {
+      const productQTD = await this.stockRepository.getProductByID(productId);
+
+      if (!productQTD) {
+        throw new Error(`Produto com ID ${productId} não encontrado`);
+      }
+      const quantityDB = Number(productQTD.quantity) || 0;
+      if (quantityDB <= 0) {
+        throw new Error("Sem estoque para o produto");
+      }
+
       cart.updateQuantity(productId, quantity);
     }
     await this.cartRepository.saveCart(cart);
